@@ -7,7 +7,20 @@ import openai
 #import sympy
 #import datetime
 #import clipboard
+import sqlite3
 
+# create a connection to the database
+conn = sqlite3.connect("api_keys.db")
+
+# create a cursor object
+cursor = conn.cursor()
+
+# check if the api_keys table exists
+cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+tables = cursor.fetchall()
+if ("api_keys",) not in tables:
+    # the table does not exist, so create it
+    cursor.execute("CREATE TABLE api_keys (id TEXT PRIMARY KEY, key TEXT)")
 
 load_dotenv()
 
@@ -20,7 +33,6 @@ intents = discord.Intents.default()
 intents.message_content = True
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
-
 
 chat_messages = []
 ask_messages = []
@@ -330,6 +342,26 @@ async def reset(interaction):
     ask_context = ""
     ask_messages = []
     replies = []
+    await interaction.response.send_message("<:reset:1051716903791513720>")
+    
+@tree.command(name = "setup", description="register your key", guild=discord.Object(id=GUILD_ID))
+async def reset(interaction):
+    
+    global chat_messages
+    global chat_context
+    global ask_messages
+    global ask_context
+    global message_limit
+    global active_users
+    global active_names
+    global last_prompt
+    global replies
+    
+    print(interaction.author)
+    
+    # insert a new API key into the table
+    cursor.execute("INSERT INTO api_keys (id, key) VALUES (?, ?)", ("123456", "123456"))
+    
     await interaction.response.send_message("<:reset:1051716903791513720>")
     
 client.run(DISCORD_TOKEN)
