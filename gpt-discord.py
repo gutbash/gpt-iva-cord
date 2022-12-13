@@ -255,8 +255,8 @@ class Menu(discord.ui.View):
         if result != None:
             openai.api_key=result[0]
         else:
-            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} Use `/setup` to register API key first or `/help` for more info. You can find your API key at https://beta.openai.com.')
-            await interaction.response.send_message(embed=embed, ephemeral=True, color=discord.Color.dark_theme())
+            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} Use `/setup` to register API key first or `/help` for more info. You can find your API key at https://beta.openai.com.', color=discord.Color.dark_theme())
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         
         view = Menu()
@@ -274,8 +274,8 @@ class Menu(discord.ui.View):
         if ask_messages == [] and ask_context == "" and replies == []:
             button.disabled = True
             await interaction.response.edit_message(view=self)
-            embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **Cannot regenerate because the conversation was reset.**')
-            await interaction.followup.send(embed=embed, ephemeral=True, color=discord.Color.dark_theme())
+            embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **Cannot regenerate because the conversation was reset.**', color=discord.Color.dark_theme())
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
         
         max_tokens = 1250
@@ -303,8 +303,8 @@ class Menu(discord.ui.View):
             )
         
         except Exception as e:
-            embed = discord.Embed(description=f'<:ivaverify:1051918344464380125> {mention} Your API key is not valid. Try `/setup` again or `/help` for more info. You can find your API key at https://beta.openai.com.')
-            await interaction.followup.send(embed=embed, ephemeral=True, color=discord.Color.dark_theme())
+            embed = discord.Embed(description=f'<:ivaverify:1051918344464380125> {mention} Your API key is not valid. Try `/setup` again or `/help` for more info. You can find your API key at https://beta.openai.com.', color=discord.Color.dark_theme())
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
         
         reply = reply['choices'][0].text
@@ -362,7 +362,7 @@ async def iva(interaction, prompt: str):
     if result != None:
         openai.api_key=result[0]
     else:
-        embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} Use `/setup` to register API key first or `/help` for more info. You can find your API key at https://beta.openai.com.')
+        embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} Use `/setup` to register API key first or `/help` for more info. You can find your API key at https://beta.openai.com.', color=discord.Color.dark_theme())
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
     
