@@ -1,4 +1,5 @@
-import sympy
-import latex
+import latex2png
 
-sympy.preview("$P(x) = x^4 + 3x^3 - 4x^2 - 7x + 10$", filename="latex.png")
+def latex_to_png(latex_string):
+    png_image = latex2png.convert(latex_string)
+    return png_image
