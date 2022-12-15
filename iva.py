@@ -19,7 +19,7 @@ import sqlite3
 ## BANANA.DEV INTEGRATION
 ## speech 2 speech integration
 ## calculate tokens https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them
-## editing messages for continue and regenerate
+## editing messages for continue and regenerate #
 
 # create a connection to the database
 conn = sqlite3.connect("data.db")
@@ -52,21 +52,34 @@ intents.message_content = True
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 
-chat_messages = []
-ask_messages = []
-chat_context = ""
-ask_context = ""
-message_limit = 0
-active_users = []
-active_names = ""
-last_prompt = ""
-replies = []
-last_response = None
+active_users = {} # dict of lists
+active_names = {} # dict of strings
+chat_context = {} # dict of strings
+chat_messages = {} # dict of lists
+
+ask_messages = {} # dict of lists
+ask_context = {} # dict of strings
+last_prompt = {} # dict of strings
+replies = {} # dict of lists
+last_response = {} # dict of Message objs
 
 @client.event
 async def on_ready():
     
     for guild in client.guilds:
+        
+        if guild.id not in active_users:
+            
+            active_users[guild.id] = []
+            active_names[guild.id] = ""
+            chat_context[guild.id] = ""
+            chat_messages[guild.id] = []
+            
+            ask_messages[guild.id] = []
+            ask_context[guild.id] = ""
+            last_prompt[guild.id] = ""
+            replies[guild.id] = []
+            last_response[guild.id] = None
         
         await tree.sync(guild=discord.Object(id=guild.id))
 
@@ -109,38 +122,18 @@ async def on_message(message):
             await message.channel.send(embed=embed)
             return
         
-        guild_presence = cursor.execute("SELECT * FROM guilds WHERE guild_id = ?", (guild_id,)).fetchone()
-        conn.commit()
+        if user_name not in active_users[guild_id]:
+            active_users[guild_id].append(user_mention)
         
-        #guild_id = guild_presence[0]
-        #chat_context = guild_presence[1]
-        #ask_context = guild_presence[2]
-        #chat_messages = guild_presence[3]
-        #ask_messages = guild_presence[4]
-        #active_users = guild_presence[5]
-        #active_names = guild_presence[6]
-        #last_prompt = guild_presence[7]
-        #replies = guild_presence[8]
-        
-        if guild_presence == None:
-            cursor.execute('''
-            INSERT INTO guilds (guild_id, chat_context, ask_context, chat_messages, ask_messages, active_users, active_names, last_prompt, replies)
-            VALUES (?, null, null, null, null, null, null, null, null)
-            ''', (guild_id,))
-            conn.commit()
-        
-        if user_name not in active_users:
-            active_users.append(user_mention)
-        
-        if len(active_users) >= 2:
+        if len(active_users[guild_id]) >= 2:
             
-            for name_index in range(len(active_users)-1):
-                active_names += f", {active_users[name_index]}"
+            for name_index in range(len(active_users[guild_id])-1):
+                active_names += f", {active_users[guild_id][name_index]}"
             
-            active_users += f", and {active_users[-1]}"
+            active_users[guild_id] += f", and {active_users[guild_id][-1]}"
                 
         else:
-            active_names = f" and {active_users[0]}"
+            active_names = f" and {active_users[guild_id][0]}"
         
         max_tokens = 375
         max_chars = max_tokens * 4
@@ -150,7 +143,7 @@ async def on_message(message):
         try:
             reply = openai.Completion.create(
                 engine="text-davinci-003",
-                prompt= f"You are {command}. Casually chat with {active_names} on Discord.\n\n(Write names in the format, <@name>. Format your response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_after_space', or 'emoji'.):\n\n{chat_context}{user_mention}: {prompt}\n{command}:",
+                prompt= f"You are {command}. Casually chat with {active_names} on Discord.\n\n(Write names in the format, <@name>. Format your response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_after_space', or 'emoji'.):\n\n{chat_context[guild_id]}{user_mention}: {prompt}\n{command}:",
                 temperature=1.0,
                 max_tokens=max_tokens,
                 top_p=1.0,
@@ -169,11 +162,11 @@ async def on_message(message):
         reply = reply['choices'][0].text
         
         interaction = f"{user_mention}: {prompt}\n{command}: {reply}\n"
-        chat_messages.append(interaction)
-        chat_context = "".join(chat_messages)
+        chat_messages[guild_id].append(interaction)
+        chat_context[guild_id] = "".join(chat_messages[guild_id])
         
-        if len(chat_context) > max_char_limit:
-            chat_messages.pop(0)
+        if len(chat_context[guild_id]) > max_char_limit:
+            chat_messages[guild_id].pop(0)
         """
         cursor.execute('''
             UPDATE guilds
@@ -405,6 +398,7 @@ class Menu(discord.ui.View):
 @app_commands.describe(prompt = "prompt")
 async def iva(interaction: discord.Interaction, prompt: str):
     
+    print(interaction.guild_id)
     id = interaction.user.id
     mention = interaction.user.mention
     # Use the `SELECT` statement to fetch the row with the given id
