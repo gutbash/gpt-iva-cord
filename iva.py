@@ -13,9 +13,13 @@ import sqlite3
 
 #handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
 
-## copy and paste by clipboard
+## create /tutorial slash command
+## copy and paste by clipboard button (text or .txt file returned)
+## undo button
+## continue should only continue from current embed requested from message
+
 ## auto latex 2 trans png https://help.openai.com/en/articles/6681258-doing-math-in-the-playground
-## buttons disappear after clicked
+## buttons disappear after clicked #
 ## BANANA.DEV INTEGRATION
 ## speech 2 speech integration
 ## calculate tokens https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them
@@ -529,7 +533,7 @@ async def reset(interaction):
     await interaction.response.send_message(embed=embed, ephemeral=False)
 
     
-@tree.command(name = "help", description="how to talk with iva")
+@tree.command(name = "help", description="get started")
 async def help(interaction):
     
     global chat_messages
@@ -545,6 +549,24 @@ async def help(interaction):
     mention = interaction.user.mention
 
     embed = discord.Embed(description=f"<:ivanotify:1051918381844025434>\n\nWelcome. Let's **Get Started**.\n\n**1 ** Iva uses **[OpenAI](https://beta.openai.com)** to generate responses. Create an account with them to start.\n**2 ** Visit your **[API Keys](https://beta.openai.com/account/api-keys)** page to create the API key you'll use in your requests.\n**3 ** Hit **`+ Create new secret key`**, then copy and paste that key (`sk-...`) when you run `/setup` with {client.user.mention}\n\nDone  <:ivathumbsup:1051918474299056189>", color=discord.Color.dark_theme())
+    await interaction.response.send_message(embed=embed, ephemeral=False)
+    
+@tree.command(name = "tutorial", description="how to talk with iva")
+async def tutorial(interaction):
+    
+    global chat_messages
+    global chat_context
+    global ask_messages
+    global ask_context
+    global message_limit
+    global active_users
+    global active_names
+    global last_prompt
+    global replies
+    
+    mention = interaction.user.mention
+
+    embed = discord.Embed(description=f"<:ivanotify:1051918381844025434>\n\nIva is a bot that you can chat and ask questions with like a regular user.\n\n`/iva` academic and work oriented answers. has less personality, is more focused on consistency and reliability.\n`/reset` resets the `/iva` conversation history. also available as button on messages.\n\n`@iva` chat and conversation oriented answers. has personality, asks questions back, is more creative.\n\n`/help` instructions for setup\n`/setup` enter your key here. `/setup` for more info\n\n<:ivathumbsup:1051918474299056189>", color=discord.Color.dark_theme())
     await interaction.response.send_message(embed=embed, ephemeral=False)
     
 @tree.command(name = "setup", description="register your key")
