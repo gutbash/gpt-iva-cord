@@ -13,7 +13,7 @@ import sqlite3
 
 #handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
 
-## create /tutorial slash command
+## create /tutorial slash command #
 ## copy and paste by clipboard button (text or .txt file returned)
 ## undo button
 ## continue should only continue from current embed requested from message
@@ -73,22 +73,39 @@ async def on_ready():
     for guild in client.guilds:
         
         print(guild)
+            
+        active_users[guild.id] = []
+        active_names[guild.id] = ""
+        chat_context[guild.id] = ""
+        chat_messages[guild.id] = []
         
-        if guild.id not in active_users:
-            
-            active_users[guild.id] = []
-            active_names[guild.id] = ""
-            chat_context[guild.id] = ""
-            chat_messages[guild.id] = []
-            
-            ask_messages[guild.id] = []
-            ask_context[guild.id] = ""
-            last_prompt[guild.id] = ""
-            replies[guild.id] = []
-            last_response[guild.id] = None
+        ask_messages[guild.id] = []
+        ask_context[guild.id] = ""
+        last_prompt[guild.id] = ""
+        replies[guild.id] = []
+        last_response[guild.id] = None
         
     await tree.sync()
     print(f'we have logged in as {client.user}\n')
+    
+@client.event
+async def on_guild_join(guild):
+    
+    print(guild)
+        
+    active_users[guild.id] = []
+    active_names[guild.id] = ""
+    chat_context[guild.id] = ""
+    chat_messages[guild.id] = []
+    
+    ask_messages[guild.id] = []
+    ask_context[guild.id] = ""
+    last_prompt[guild.id] = ""
+    replies[guild.id] = []
+    last_response[guild.id] = None
+    
+    await tree.sync(guild=guild)
+    
 
 @client.event
 async def on_message(message):
@@ -133,12 +150,12 @@ async def on_message(message):
         if len(active_users[guild_id]) >= 2:
             
             for name_index in range(len(active_users[guild_id])-1):
-                active_names += f", {active_users[guild_id][name_index]}"
+                active_names[guild_id] += f", {active_users[guild_id][name_index]}"
             
             active_users[guild_id] += f", and {active_users[guild_id][-1]}"
                 
         else:
-            active_names = f" and {active_users[guild_id][0]}"
+            active_names[guild_id] = f" and {active_users[guild_id][0]}"
         
         max_tokens = 375
         max_chars = max_tokens * 4
@@ -148,30 +165,33 @@ async def on_message(message):
         try:
             reply = openai.Completion.create(
                 engine="text-davinci-003",
-                prompt= f"You are {command}. Casually chat with {active_names} on Discord.\n\n(Write names in the format, <@name>. Format your response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_after_space', or 'emoji'.):\n\n{chat_context[guild_id]}{user_mention}: {prompt}\n{command}:",
+                prompt= f"You are {command}, a witty, charismatic, and brutally honest chatter. Casually chat with {active_names[guild_id]} on Discord.\n\n(Write names in the format, <@name>. Format your response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_after_space', or 'emoji'.):\n\n{chat_context[guild_id]}{user_mention}: {prompt}\n{command}:",
                 temperature=1.0,
                 max_tokens=max_tokens,
                 top_p=1.0,
                 frequency_penalty=2.0,
-                presence_penalty=2.0,
+                presence_penalty=1.0,
                 stop=[f"{user_mention}:", f"{command}:"],
                 echo=False,
                 #logit_bias={43669:5, 8310:5, 47288:5, 1134:5, 35906:5, 388:5, 37659:5, 36599:5,},
             )
+        
         except Exception as e:
+            print(e)
             embed = discord.Embed(description=f'<:ivaverify:1051918344464380125> {user_mention} Your API key is not valid. Try `/setup` again or `/help` for more info. You can find your API key at https://beta.openai.com.', color=discord.Color.dark_theme())
             response = await message.channel.send(embed=embed)
             response_id = response.id
             return
-
+        
         reply = reply['choices'][0].text
         
         interaction = f"{user_mention}: {prompt}\n{command}: {reply}\n"
         chat_messages[guild_id].append(interaction)
         chat_context[guild_id] = "".join(chat_messages[guild_id])
         
-        if len(chat_context[guild_id]) > max_char_limit:
+        while len(chat_context[guild_id]) > max_char_limit:
             chat_messages[guild_id].pop(0)
+            chat_context[guild_id] = "".join(chat_messages[guild_id])
         """
         cursor.execute('''
             UPDATE guilds
@@ -182,7 +202,8 @@ async def on_message(message):
         """
         #print(f"{user_name}: {prompt}\n")
         #print(f"{bot}: {reply}\n")
-        
+        if len(chat_context[guild_id]) > max_char_limit:
+            chat_messages[guild_id].pop(0)
         if len(reply) > 2000:
             embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{user_mention} 2000 character prompt limit reached. Use `/reset`.**', color=discord.Color.dark_theme())
             await message.channel.send(embed=embed)
@@ -374,7 +395,65 @@ class Menu(discord.ui.View):
             await interaction.followup.send(embed=embed, ephemeral=True)
         else:
             await interaction.message.edit(embeds=[prompt_embed, embed])
-    
+    """
+    @discord.ui.button(label="Undo", emoji="<:ivaundo:1053048583538094220>", style=discord.ButtonStyle.grey)
+    async def undo(self, interaction, button: discord.ui.Button):
+        
+        await interaction.response.defer()
+        
+        guild_id = interaction.guild_id
+        id = interaction.user.id
+        mention = interaction.user.mention
+        # Use the `SELECT` statement to fetch the row with the given id
+        cursor.execute("SELECT key FROM keys WHERE id = ?", (id,))
+        result = cursor.fetchone()
+        
+        if result != None:
+            openai.api_key=result[0]
+        else:
+            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} Use `/setup` to register API key first or `/help` for more info. You can find your API key at https://beta.openai.com.', color=discord.Color.dark_theme())
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+        
+        view = Menu()
+        
+        global chat_messages
+        global chat_context
+        global ask_messages
+        global ask_context
+        global message_limit
+        global active_users
+        global active_names
+        global last_prompt
+        global replies
+        
+        if ask_messages[guild_id] == [] and ask_context[guild_id] == "" and replies[guild_id] == []:
+            button.disabled = True
+            await interaction.response.edit_message(view=self)
+            embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **Cannot undo because the conversation was reset.**', color=discord.Color.dark_theme())
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
+        
+        max_tokens = 1250
+        max_chars = max_tokens * 4
+        total_char_limit = 16384
+        max_char_limit = total_char_limit - max_chars
+        
+        ask_messages[guild_id].pop()
+        ask_context[guild_id] = "\n".join(ask_messages[guild_id])
+        
+        replies[guild_id].pop()
+
+        replies_string = "\n\n".join(replies[guild_id])
+        
+        prompt_embed = discord.Embed(description=f"<:ivaundo:1053048583538094220> {last_prompt[guild_id][-1]}")
+        embed = discord.Embed(description=replies_string, color=discord.Color.dark_theme())
+        
+        #button.disabled = True
+        #await interaction.response.edit_message(view=self)
+        
+        await interaction.message.edit(embeds=[prompt_embed, embed])
+        """
     @discord.ui.button(label="Reset", emoji="<:ivaresetdot:1051716771423473726>", style=discord.ButtonStyle.grey)
     async def resets(self, interaction: discord.Interaction, button: discord.ui.Button):
         
@@ -500,8 +579,8 @@ async def iva(interaction: discord.Interaction, prompt: str):
     prompt_embed = discord.Embed(description=f"<:ivaprompt:1051742892814761995>  {prompt}")
     embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
     
-    if len(chat_context[guild_id]) > max_char_limit:
-        chat_messages[guild_id].pop(0)
+    if len(ask_context[guild_id]) > max_char_limit:
+        ask_messages[guild_id].pop(0)
     if len(reply) > 4096:
         embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{mention} 4096 character response limit reached. Use `/reset`.**', color=discord.Color.dark_theme())
         await interaction.followup.send(embed=embed, ephemeral=True)
@@ -566,7 +645,7 @@ async def tutorial(interaction):
     
     mention = interaction.user.mention
 
-    embed = discord.Embed(description=f"<:ivanotify:1051918381844025434>\n\nIva is a bot that you can chat and ask questions with like a regular user.\n\n`/iva` academic and work oriented answers. has less personality, is more focused on consistency and reliability.\n`/reset` resets the `/iva` conversation history. also available as button on messages.\n\n`@iva` chat and conversation oriented answers. has personality, asks questions back, is more creative.\n\n`/help` instructions for setup\n`/setup` enter your key here. `/setup` for more info\n\n<:ivathumbsup:1051918474299056189>", color=discord.Color.dark_theme())
+    embed = discord.Embed(description=f"<:ivanotify:1051918381844025434>\n\n*Iva is a bot that you can chat and ask questions with like a regular user.*\n\n**`@iva`** provides **chat** and **conversation** oriented answers. has personality, asks questions back, is more creative.\n\n**`/iva`** provides **academic** and **work** oriented answers. has less personality, is more focused on consistency and reliability.\n**`/reset`** resets the `/iva` conversation history. also available as button on messages.\n\n**`/help`** shows instructions for setup\n**`/setup`** to enter your key. `/help` for more info\n\n<:ivathumbsup:1051918474299056189>", color=discord.Color.dark_theme())
     await interaction.response.send_message(embed=embed, ephemeral=False)
     
 @tree.command(name = "setup", description="register your key")
