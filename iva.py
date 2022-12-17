@@ -10,6 +10,7 @@ import openai
 #import datetime
 #import clipboard
 import sqlite3
+import banana_dev as banana
 
 #handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
 
@@ -49,6 +50,8 @@ DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 GUILD_ID = os.getenv("GUILD_ID")
 OAI_API_KEY = os.getenv("YOUR_API_KEY") #OPENAI
 openai.api_key=OAI_API_KEY #OPEN AI INIT
+CARROT_API = os.getenv("CARROT_API_KEY")
+CARROT_MODEL = os.getenv("CARROT_MODEL_KEY")
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -118,6 +121,8 @@ async def on_message(message):
     prompt = message.content[len(command)+1:]
     prompt_gpt = message.content[4:]
     ask_gpt = message.content
+    images = message.attachments
+    caption = ""
 
     if message.content.startswith(command):
         
@@ -151,11 +156,28 @@ async def on_message(message):
             max_chars = max_tokens * 4
             total_char_limit = 16384
             max_char_limit = total_char_limit - max_chars
+
+            if images != []:
+                
+
+                model_parameters = {
+                        "text":prompt, #text for QA / Similarity
+                        "imageURL":images[0].url, #image for the model
+                        "similarity":False, #whether to return text-image similarity
+                        "maxLength":100, #max length of the generation
+                        "minLength":50 #min length of the generation
+                        }
+
+                #To generate captions, only send the image in model_parameters
+
+                out = banana.run(CARROT_API, CARROT_MODEL, model_parameters)
+                print(out)
+                caption = f" (IMAGE ATTACHED: {out['modelOutputs'][0]['answer']})"
             
             try:
                 reply = openai.Completion.create(
                     engine="text-davinci-003",
-                    prompt= f"You are {command}, a witty, charismatic, and brutally honest chatter. Casually chat with {active_names[guild_id]} on Discord.\n\n(Write usernames in the format, <@username>. Format your response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':emoji:'.):\n\n{chat_context[guild_id]}{user_mention}: {prompt}\n{command}:",
+                    prompt= f"You are {command}, a witty, charismatic, and brutally honest chatter. Casually chat with {active_names[guild_id]} on Discord.\n\n(Write usernames in the format, <@username>. Format your response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':emoji:'.):\n\n{chat_context[guild_id]}{user_mention}: {prompt}\n{command}{caption}:",
                     temperature=1.0,
                     max_tokens=max_tokens,
                     top_p=1.0,
