@@ -133,77 +133,80 @@ async def on_message(message):
 
     if message.content.startswith(command):
         
-        # Use the `SELECT` statement to fetch the row with the given id
-        cursor.execute("SELECT key FROM keys WHERE id = ?", (id,))
-        result = cursor.fetchone()
+        async with message.channel.typing():
         
-        if result != None:
-            openai.api_key=result[0]
-        else:
-            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {user_mention} Use `/setup` to register API key first or `/help` for more info. You can find your API key at https://beta.openai.com.', color=discord.Color.dark_theme())
-            await message.channel.send(embed=embed)
-            return
-        
-        if user_name not in active_users[guild_id]:
-            active_users[guild_id].append(user_mention)
-        
-        if len(active_users[guild_id]) >= 2:
+            # Use the `SELECT` statement to fetch the row with the given id
+            cursor.execute("SELECT key FROM keys WHERE id = ?", (id,))
+            result = cursor.fetchone()
             
-            for name_index in range(len(active_users[guild_id])-1):
-                active_names[guild_id] += f", {active_users[guild_id][name_index]}"
+            if result != None:
+                openai.api_key=result[0]
+            else:
+                embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {user_mention} Use `/setup` to register API key first or `/help` for more info. You can find your API key at https://beta.openai.com.', color=discord.Color.dark_theme())
+                await message.channel.send(embed=embed)
+                return
             
-            active_users[guild_id] += f", and {active_users[guild_id][-1]}"
+            if user_name not in active_users[guild_id]:
+                active_users[guild_id].append(user_mention)
+            
+            if len(active_users[guild_id]) >= 2:
                 
-        else:
-            active_names[guild_id] = f" and {active_users[guild_id][0]}"
-        
-        max_tokens = 375
-        max_chars = max_tokens * 4
-        total_char_limit = 16384
-        max_char_limit = total_char_limit - max_chars
-        
-        try:
-            reply = openai.Completion.create(
-                engine="text-davinci-003",
-                prompt= f"You are {command}, a witty, charismatic, and brutally honest chatter. Casually chat with {active_names[guild_id]} on Discord.\n\n(Write names in the format, <@name>. Format your response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_after_space', or 'emoji'.):\n\n{chat_context[guild_id]}{user_mention}: {prompt}\n{command}:",
-                temperature=1.0,
-                max_tokens=max_tokens,
-                top_p=1.0,
-                frequency_penalty=2.0,
-                presence_penalty=1.0,
-                stop=[f"{user_mention}:", f"{command}:"],
-                echo=False,
-                #logit_bias={43669:5, 8310:5, 47288:5, 1134:5, 35906:5, 388:5, 37659:5, 36599:5,},
-            )
-        
-        except Exception as e:
-            print(e)
-            embed = discord.Embed(description=f'<:ivaverify:1051918344464380125> {user_mention} Your API key is not valid. Try `/setup` again or `/help` for more info. You can find your API key at https://beta.openai.com.', color=discord.Color.dark_theme())
-            response = await message.channel.send(embed=embed)
-            response_id = response.id
-            return
-        
-        reply = reply['choices'][0].text
-        
-        interaction = f"{user_mention}: {prompt}\n{command}: {reply}\n"
-        chat_messages[guild_id].append(interaction)
-        chat_context[guild_id] = "".join(chat_messages[guild_id])
-        
-        while len(chat_context[guild_id]) > max_char_limit:
-            chat_messages[guild_id].pop(0)
+                for name_index in range(len(active_users[guild_id])-1):
+                    active_names[guild_id] += f", {active_users[guild_id][name_index]}"
+                
+                active_users[guild_id] += f", and {active_users[guild_id][-1]}"
+                    
+            else:
+                active_names[guild_id] = f" and {active_users[guild_id][0]}"
+            
+            max_tokens = 375
+            max_chars = max_tokens * 4
+            total_char_limit = 16384
+            max_char_limit = total_char_limit - max_chars
+            
+            try:
+                reply = openai.Completion.create(
+                    engine="text-davinci-003",
+                    prompt= f"You are {command}, a witty, charismatic, and brutally honest chatter. Casually chat with {active_names[guild_id]} on Discord.\n\n(Write usernames in the format, <@username>. Format your response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':emoji:'.):\n\n{chat_context[guild_id]}{user_mention}: {prompt}\n{command}:",
+                    temperature=1.0,
+                    max_tokens=max_tokens,
+                    top_p=1.0,
+                    frequency_penalty=2.0,
+                    presence_penalty=1.0,
+                    stop=[f"{user_mention}:", f"{command}:"],
+                    echo=False,
+                    #logit_bias={43669:5, 8310:5, 47288:5, 1134:5, 35906:5, 388:5, 37659:5, 36599:5,},
+                )
+            
+            except Exception as e:
+                print(e)
+                embed = discord.Embed(description=f'<:ivaverify:1051918344464380125> {user_mention} Your API key is not valid. Try `/setup` again or `/help` for more info. You can find your API key at https://beta.openai.com.', color=discord.Color.dark_theme())
+                response = await message.channel.send(embed=embed)
+                response_id = response.id
+                return
+            
+            reply = reply['choices'][0].text
+            
+            interaction = f"{user_mention}: {prompt}\n{command}: {reply}\n"
+            chat_messages[guild_id].append(interaction)
             chat_context[guild_id] = "".join(chat_messages[guild_id])
-        """
-        cursor.execute('''
-            UPDATE guilds
-            SET chat_context=%s, ask_context=%s, chat_messages=%s, ask_messages=%s, active_users=%s, active_names=%s, last_prompt=%s, replies=%s
-            WHERE guild_id=%s
-        ''', (chat_context, ask_context, chat_messages, ask_messages, active_users, active_names, last_prompt, replies, guild_id))
-        conn.commit()
-        """
-        #print(f"{user_name}: {prompt}\n")
-        #print(f"{bot}: {reply}\n")
-        if len(chat_context[guild_id]) > max_char_limit:
-            chat_messages[guild_id].pop(0)
+            
+            while len(chat_context[guild_id]) > max_char_limit:
+                chat_messages[guild_id].pop(0)
+                chat_context[guild_id] = "".join(chat_messages[guild_id])
+            """
+            cursor.execute('''
+                UPDATE guilds
+                SET chat_context=%s, ask_context=%s, chat_messages=%s, ask_messages=%s, active_users=%s, active_names=%s, last_prompt=%s, replies=%s
+                WHERE guild_id=%s
+            ''', (chat_context, ask_context, chat_messages, ask_messages, active_users, active_names, last_prompt, replies, guild_id))
+            conn.commit()
+            """
+            #print(f"{user_name}: {prompt}\n")
+            #print(f"{bot}: {reply}\n")
+            if len(chat_context[guild_id]) > max_char_limit:
+                chat_messages[guild_id].pop(0)
+                
         if len(reply) > 2000:
             embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{user_mention} 2000 character prompt limit reached. Use `/reset`.**', color=discord.Color.dark_theme())
             await message.channel.send(embed=embed)
@@ -228,6 +231,7 @@ class Menu(discord.ui.View):
         
         await interaction.response.defer()
         
+        #previous_embeds = interaction.message.embeds
         guild_id = interaction.guild_id
         id = interaction.user.id
         mention = interaction.user.mention
@@ -268,7 +272,7 @@ class Menu(discord.ui.View):
         
             reply = openai.Completion.create(
                 engine="text-davinci-003",
-                prompt=f"(Format your response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_after_space', or 'emoji'. For code, always use '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```'.):\n\n{ask_context[guild_id]}continue:\n\n",
+                prompt=f"(Format your response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':emoji:'. For code, always use '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```'.):\n\n{ask_context[guild_id]}continue:\n\n",
                 #prompt=prompt_gpt,
                 temperature=0.7,
                 max_tokens=max_tokens,
@@ -357,7 +361,7 @@ class Menu(discord.ui.View):
         
             reply = openai.Completion.create(
                 engine="text-davinci-003",
-                prompt=f"(Format your response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_after_space', or 'emoji'. For code, always use '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```'.):\n\n{ask_context[guild_id]}{last_prompt[guild_id]}\n\n",
+                prompt=f"(Format your response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':emoji:'. For code, always use '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```'.):\n\n{ask_context[guild_id]}{last_prompt[guild_id]}\n\n",
                 #prompt=prompt_gpt,
                 temperature=0.7,
                 max_tokens=max_tokens,
@@ -529,9 +533,9 @@ async def iva(interaction: discord.Interaction, prompt: str):
         reply = openai.Completion.create(
             engine="text-davinci-003",
             #prompt=f"(Format your response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_after_space', or 'emoji'. For code, always use '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```'.):\n\n{ask_context}{prompt}\n\n",
-            prompt=f"(Format response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_after_space', or 'emoji'. For code, always use '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```'.):\n\n{ask_context[guild_id]}{prompt}\n\n",
+            prompt=f"(Format response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':emoji:'. For code, always use '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```'.):\n\n{ask_context[guild_id]}{prompt}\n\n",
             #prompt=prompt_gpt,
-            temperature=0.0,
+            temperature=0.7,
             max_tokens=max_tokens,
             top_p=1.0,
             frequency_penalty=0.0,
@@ -548,6 +552,7 @@ async def iva(interaction: discord.Interaction, prompt: str):
     last_response[guild_id] = interaction
     
     reply = (reply['choices'][0].text).strip("\n")
+    print(reply)
     
     engagement = f"{prompt}\n{reply}"
     ask_messages[guild_id].append(engagement)
@@ -645,7 +650,7 @@ async def tutorial(interaction):
     
     mention = interaction.user.mention
 
-    embed = discord.Embed(description=f"<:ivanotify:1051918381844025434>\n\n*Iva is a bot that you can chat and ask questions with like a regular user.*\n\n**`@iva`** provides **chat** and **conversation** oriented answers. has personality, asks questions back, is more creative.\n\n**`/iva`** provides **academic** and **work** oriented answers. has less personality, is more focused on consistency and reliability.\n**`/reset`** resets the `/iva` conversation history. also available as button on messages.\n\n**`/help`** shows instructions for setup\n**`/setup`** to enter your key. `/help` for more info\n\n<:ivathumbsup:1051918474299056189>", color=discord.Color.dark_theme())
+    embed = discord.Embed(description=f"<:ivanotify:1051918381844025434>\n\n*Iva is a bot that you can chat and ask questions with like a regular user.*\n\n**COMMANDS**\n\n**`@iva`** provides **chat** and **conversation** oriented answers. has personality, asks questions back, is more creative.\n\n**`/iva`** provides **academic** and **work** oriented answers. has less personality, is more focused on consistency and reliability.\n**`/reset`** resets the `/iva` conversation history. also available as button on messages.\n\n**`/help`** shows instructions for setup\n**`/setup`** to enter your key. `/help` for more info\n\n**BUTTONS**\n\n<:ivacontinue1:1051714712242491392> `Continue` - say more, extend the last prompt's response\n<:ivaregenerate:1051697145713000580> `Regenerate` - replace the last prompt's response with a different one\n<:ivaresetdot:1051716771423473726> `Reset` - reset the conversation history, clear iva's memory\n\n<:ivathumbsup:1051918474299056189>", color=discord.Color.dark_theme())
     await interaction.response.send_message(embed=embed, ephemeral=False)
     
 @tree.command(name = "setup", description="register your key")
