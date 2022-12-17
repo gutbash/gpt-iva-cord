@@ -11,6 +11,7 @@ import openai
 #import clipboard
 import sqlite3
 import banana_dev as banana
+import datetime
 
 #handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
 
@@ -69,6 +70,10 @@ ask_context = {} # dict of strings
 last_prompt = {} # dict of strings
 replies = {} # dict of lists
 last_response = {} # dict of Message objs
+
+# Get the current timestamp
+timestamp = datetime.datetime.now()
+time = timestamp.strftime(r"%I:%M %p")
 
 @client.event
 async def on_ready():
@@ -177,7 +182,7 @@ async def on_message(message):
             try:
                 reply = openai.Completion.create(
                     engine="text-davinci-003",
-                    prompt= f"You are {command}, a witty, charismatic, and brutally honest chatter. Casually chat with {active_names[guild_id]} on Discord.\n\n(Write usernames in the format, <@username>. Format your response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':emoji:'.):\n\n{chat_context[guild_id]}{user_mention}: {prompt}\n{command}{caption}:",
+                    prompt= f"You are {command}, a witty, charismatic, and brutally honest chatter. Casually chat with {active_names[guild_id]} on Discord.\n\n(Write usernames in the format, <@username>. Format your response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':emoji:'.):\n\n{chat_context[guild_id]}\n[{time}] {user_mention}: {prompt}\n{command}{caption}:",
                     temperature=1.0,
                     max_tokens=max_tokens,
                     top_p=1.0,
@@ -197,7 +202,7 @@ async def on_message(message):
             
             reply = reply['choices'][0].text
             
-            interaction = f"{user_mention}: {prompt}\n{command}: {reply}\n"
+            interaction = f"[{time}] {user_mention}: {prompt}\n{command}: {reply}\n"
             chat_messages[guild_id].append(interaction)
             chat_context[guild_id] = "".join(chat_messages[guild_id])
             
