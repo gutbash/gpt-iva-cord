@@ -69,7 +69,7 @@ last_response = {} # dict of Message objs
 
 @client.event
 async def on_ready():
-    
+    print()
     for guild in client.guilds:
         
         print(guild)
@@ -79,14 +79,8 @@ async def on_ready():
         chat_context[guild.id] = ""
         chat_messages[guild.id] = []
         
-        ask_messages[guild.id] = []
-        ask_context[guild.id] = ""
-        last_prompt[guild.id] = ""
-        replies[guild.id] = []
-        last_response[guild.id] = None
-        
     await tree.sync()
-    print(f'we have logged in as {client.user}\n')
+    print(f'\nwe have logged in as {client.user}\n')
     
 @client.event
 async def on_guild_join(guild):
@@ -97,12 +91,6 @@ async def on_guild_join(guild):
     active_names[guild.id] = ""
     chat_context[guild.id] = ""
     chat_messages[guild.id] = []
-    
-    ask_messages[guild.id] = []
-    ask_context[guild.id] = ""
-    last_prompt[guild.id] = ""
-    replies[guild.id] = []
-    last_response[guild.id] = None
     
     await tree.sync(guild=guild)
     
@@ -197,6 +185,7 @@ async def on_message(message):
                 
             #print(f"{user_name}: {prompt}\n")
             #print(f"{bot}: {reply}\n")
+            print(reply)
                 
         if len(reply) > 2000:
             embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{user_mention} 2000 character prompt limit reached.', color=discord.Color.dark_theme())
@@ -225,6 +214,17 @@ class Menu(discord.ui.View):
         #previous_embeds = interaction.message.embeds
         guild_id = interaction.guild_id
         id = interaction.user.id
+        original_interaction = last_response.get(id, None)
+
+        if original_interaction == None:
+            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> You do not own this context line', color=discord.Color.dark_theme())
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
+        elif original_interaction.user.id != id:
+            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> You do not own this context line', color=discord.Color.dark_theme())
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
+        
         mention = interaction.user.mention
         # Use the `SELECT` statement to fetch the row with the given id
         cursor.execute("SELECT key FROM keys WHERE id = ?", (id,))
@@ -234,7 +234,7 @@ class Menu(discord.ui.View):
             openai.api_key=result[0]
         else:
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} Use `/setup` to register API key first or `/help` for more info. You can find your API key at https://beta.openai.com.', color=discord.Color.dark_theme())
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
         
         view = Menu()
@@ -249,7 +249,7 @@ class Menu(discord.ui.View):
         global last_prompt
         global replies
         
-        if ask_messages[guild_id] == [] and ask_context[guild_id] == "" and replies[guild_id] == []:
+        if ask_messages[id] == [] and ask_context[id] == "" and replies[id] == []:
             embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **Cannot continue because the conversation was reset.**', color=discord.Color.dark_theme())
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
@@ -263,7 +263,7 @@ class Menu(discord.ui.View):
         
             reply = openai.Completion.create(
                 engine="text-davinci-003",
-                prompt=f"(Format your response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':emoji:'. For code, always use '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```'.):\n\n{ask_context[guild_id]}continue:\n\n",
+                prompt=f"(Format your response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':emoji:'. For code, always use '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```'.):\n\n{ask_context[id]}continue:\n\n",
                 #prompt=prompt_gpt,
                 temperature=0.7,
                 max_tokens=max_tokens,
@@ -279,21 +279,22 @@ class Menu(discord.ui.View):
             return
         
         reply = (reply['choices'][0].text).strip("\n")
-        
-        ask_messages[guild_id].append(reply)
-        ask_context[guild_id] = "\n".join(ask_messages[guild_id])
+        print(reply)
+        ask_messages[id].append(reply)
+        ask_context[id] = "\n".join(ask_messages[id])
 
-        replies[guild_id].append(reply)
-        replies_string = "\n\n".join(replies[guild_id])
+        replies[id].append(reply)
+        replies_string = "\n\n".join(replies[id])
         
-        prompt_embed = discord.Embed(description=f"<:ivacontinue2:1051714854165159958> {last_prompt[guild_id]}")
+        prompt_embed = discord.Embed(description=f"<:ivacontinue2:1051714854165159958> {last_prompt[id]}")
         embed = discord.Embed(description=replies_string, color=discord.Color.dark_theme())
         
         #button.disabled = True
         #message_id = interaction.message.id
         
-        if len(chat_context[guild_id]) > max_char_limit:
-            chat_messages[guild_id].pop(0)
+        while len(ask_context[id]) > max_char_limit:
+            ask_messages[id].pop(0)
+            ask_context[id] = "".join(ask_messages[id])
         if len(reply) > 4096:
             embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{mention} 4096 character response limit reached. Use `/reset`.**', color=discord.Color.dark_theme())
             await interaction.followup.send(embed=embed, ephemeral=True)
@@ -307,6 +308,17 @@ class Menu(discord.ui.View):
         
         guild_id = interaction.guild_id
         id = interaction.user.id
+        original_interaction = last_response.get(id, None)
+
+        if original_interaction == None:
+            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> You do not own this context line', color=discord.Color.dark_theme())
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
+        elif original_interaction.user.id != id:
+            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> You do not own this context line', color=discord.Color.dark_theme())
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
+        
         mention = interaction.user.mention
         # Use the `SELECT` statement to fetch the row with the given id
         cursor.execute("SELECT key FROM keys WHERE id = ?", (id,))
@@ -316,7 +328,7 @@ class Menu(discord.ui.View):
             openai.api_key=result[0]
         else:
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} Use `/setup` to register API key first or `/help` for more info. You can find your API key at https://beta.openai.com.', color=discord.Color.dark_theme())
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
         
         view = Menu()
@@ -331,7 +343,7 @@ class Menu(discord.ui.View):
         global last_prompt
         global replies
         
-        if ask_messages[guild_id] == [] and ask_context[guild_id] == "" and replies[guild_id] == []:
+        if ask_messages[id] == [] and ask_context[id] == "" and replies[id] == []:
             button.disabled = True
             await interaction.response.edit_message(view=self)
             embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **Cannot regenerate because the conversation was reset.**', color=discord.Color.dark_theme())
@@ -343,16 +355,16 @@ class Menu(discord.ui.View):
         total_char_limit = 16384
         max_char_limit = total_char_limit - max_chars
         
-        ask_messages[guild_id].pop()
-        ask_context[guild_id] = "\n".join(ask_messages[guild_id])
+        ask_messages[id].pop()
+        ask_context[id] = "\n".join(ask_messages[id])
         
-        replies[guild_id].pop()
+        replies[id].pop()
         
         try:
         
             reply = openai.Completion.create(
                 engine="text-davinci-003",
-                prompt=f"(Format your response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':emoji:'. For code, always use '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```'.):\n\n{ask_context[guild_id]}{last_prompt[guild_id]}\n\n",
+                prompt=f"(Format your response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':emoji:'. For code, always use '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```'.):\n\n{ask_context[id]}{last_prompt[id]}\n\n",
                 #prompt=prompt_gpt,
                 temperature=0.7,
                 max_tokens=max_tokens,
@@ -369,22 +381,23 @@ class Menu(discord.ui.View):
             return
         
         reply = (reply['choices'][0].text).strip("\n")
+        print(reply)
+        engagement = f"{last_prompt[id]}\n{reply}"
+        ask_messages[id].append(engagement)
+        ask_context[id] = "\n".join(ask_messages[id])
         
-        engagement = f"{last_prompt[guild_id]}\n{reply}"
-        ask_messages[guild_id].append(engagement)
-        ask_context[guild_id] = "\n".join(ask_messages[guild_id])
+        replies[id].append(reply)
+        replies_string = "\n\n".join(replies[id])
         
-        replies[guild_id].append(reply)
-        replies_string = "\n\n".join(replies[guild_id])
-        
-        prompt_embed = discord.Embed(description=f"<:ivaregenerate:1051697145713000580> {last_prompt[guild_id]}")
+        prompt_embed = discord.Embed(description=f"<:ivaregenerate:1051697145713000580> {last_prompt[id]}")
         embed = discord.Embed(description=replies_string, color=discord.Color.dark_theme())
         
         #button.disabled = True
         #await interaction.response.edit_message(view=self)
         
-        if len(chat_context[guild_id]) > max_char_limit:
-            chat_messages[guild_id].pop(0)
+        while len(ask_context[id]) > max_char_limit:
+            ask_messages[id].pop(0)
+            ask_context[id] = "".join(ask_messages[id])
         if len(reply) > 4096:
             embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{mention} 4096 character response limit reached. Use `/reset`.**', color=discord.Color.dark_theme())
             await interaction.followup.send(embed=embed, ephemeral=True)
@@ -464,11 +477,22 @@ class Menu(discord.ui.View):
         global last_response
         
         guild_id = interaction.guild_id
+        id = interaction.user.id
+        original_interaction = last_response.get(id, None)
 
-        ask_context[guild_id] = ""
-        ask_messages[guild_id] = []
-        replies[guild_id] = []
-        last_response[guild_id] = None
+        if original_interaction == None:
+            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> You do not own this context line', color=discord.Color.dark_theme())
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+        elif original_interaction.user.id != id:
+            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> You do not own this context line', color=discord.Color.dark_theme())
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
+        ask_context[id] = ""
+        ask_messages[id] = []
+        replies[id] = []
+        last_response[id] = None
         
         embed = discord.Embed(description="<:ivaresetdot:1051716771423473726>", color=discord.Color.dark_theme())
         button.disabled = True
@@ -480,6 +504,17 @@ class Menu(discord.ui.View):
 @tree.command(name = "iva", description="write a prompt")
 @app_commands.describe(prompt = "prompt")
 async def iva(interaction: discord.Interaction, prompt: str):
+    
+    global chat_messages
+    global chat_context
+    global ask_messages
+    global ask_context
+    global message_limit
+    global active_users
+    global active_names
+    global last_prompt
+    global replies
+    global last_response
     
     guild_id = interaction.guild_id
     id = interaction.user.id
@@ -496,24 +531,20 @@ async def iva(interaction: discord.Interaction, prompt: str):
         return
     
     await interaction.response.defer()
+    
+    if id not in ask_messages:
+        ask_messages[id] = []
+        ask_context[id] = ""
+        last_prompt[id] = ""
+        replies[id] = []
+        last_response[id] = None
 
     view = Menu()
-    
-    global chat_messages
-    global chat_context
-    global ask_messages
-    global ask_context
-    global message_limit
-    global active_users
-    global active_names
-    global last_prompt
-    global replies
-    global last_response
 
-    if last_response[guild_id]:
-        await last_response[guild_id].edit_original_response(view=None)
+    if last_response[id]:
+        await last_response[id].edit_original_response(view=None)
     
-    last_prompt[guild_id] = prompt
+    last_prompt[id] = prompt
     max_tokens = 1250
     max_chars = max_tokens * 4
     total_char_limit = 16384
@@ -524,7 +555,7 @@ async def iva(interaction: discord.Interaction, prompt: str):
         reply = openai.Completion.create(
             engine="text-davinci-003",
             #prompt=f"(Format your response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_after_space', or 'emoji'. For code, always use '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```'.):\n\n{ask_context}{prompt}\n\n",
-            prompt=f"(Format response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':emoji:'. For code, always use '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```'.):\n\n{ask_context[guild_id]}{prompt}\n\n",
+            prompt=f"(Format response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':emoji:'. For code, always use '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```'.):\n\n{ask_context[id]}{prompt}\n\n",
             #prompt=prompt_gpt,
             temperature=0.7,
             max_tokens=max_tokens,
@@ -540,16 +571,16 @@ async def iva(interaction: discord.Interaction, prompt: str):
         await interaction.followup.send(embed=embed, ephemeral=True, color=discord.Color.dark_theme())
         return
     
-    last_response[guild_id] = interaction
+    last_response[id] = interaction
     
     reply = (reply['choices'][0].text).strip("\n")
     print(reply)
     
     engagement = f"{prompt}\n{reply}"
-    ask_messages[guild_id].append(engagement)
-    ask_context[guild_id] = "\n".join(ask_messages[guild_id])
+    ask_messages[id].append(engagement)
+    ask_context[id] = "\n".join(ask_messages[id])
 
-    replies[guild_id].append(reply)
+    replies[id].append(reply)
 
     """
     special_words = []
@@ -575,8 +606,9 @@ async def iva(interaction: discord.Interaction, prompt: str):
     prompt_embed = discord.Embed(description=f"<:ivaprompt:1051742892814761995>  {prompt}")
     embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
     
-    if len(ask_context[guild_id]) > max_char_limit:
-        ask_messages[guild_id].pop(0)
+    while len(ask_context[id]) > max_char_limit:
+        ask_messages[id].pop(0)
+        ask_context[id] = "".join(ask_messages[id])
     if len(reply) > 4096:
         embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{mention} 4096 character response limit reached. Use `/reset`.**', color=discord.Color.dark_theme())
         await interaction.followup.send(embed=embed, ephemeral=True)
@@ -598,11 +630,12 @@ async def reset(interaction):
     global last_response
     
     guild_id = interaction.guild_id
+    id = interaction.user.id
     
-    ask_context[guild_id] = ""
-    ask_messages[guild_id] = []
-    replies[guild_id] = []
-    last_response[guild_id] = None
+    ask_context[id] = ""
+    ask_messages[id] = []
+    replies[id] = []
+    last_response[id] = None
     
     embed = discord.Embed(description="<:ivaresetdot:1051716771423473726>", color=discord.Color.dark_theme())
     await interaction.response.send_message(embed=embed, ephemeral=False)
