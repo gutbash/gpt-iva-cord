@@ -194,21 +194,12 @@ async def on_message(message):
             while len(chat_context[guild_id]) > max_char_limit:
                 chat_messages[guild_id].pop(0)
                 chat_context[guild_id] = "".join(chat_messages[guild_id])
-            """
-            cursor.execute('''
-                UPDATE guilds
-                SET chat_context=%s, ask_context=%s, chat_messages=%s, ask_messages=%s, active_users=%s, active_names=%s, last_prompt=%s, replies=%s
-                WHERE guild_id=%s
-            ''', (chat_context, ask_context, chat_messages, ask_messages, active_users, active_names, last_prompt, replies, guild_id))
-            conn.commit()
-            """
+                
             #print(f"{user_name}: {prompt}\n")
             #print(f"{bot}: {reply}\n")
-            if len(chat_context[guild_id]) > max_char_limit:
-                chat_messages[guild_id].pop(0)
                 
         if len(reply) > 2000:
-            embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{user_mention} 2000 character prompt limit reached. Use `/reset`.**', color=discord.Color.dark_theme())
+            embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{user_mention} 2000 character prompt limit reached.', color=discord.Color.dark_theme())
             await message.channel.send(embed=embed)
         else:
             await message.channel.send(f"{reply}")
