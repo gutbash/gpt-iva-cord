@@ -234,7 +234,7 @@ class Menu(discord.ui.View):
         # Step 3
         await self.message.edit(view=self)
     
-    @discord.ui.button(label="Continue", emoji="<:ivacontinue:1051710718489137254>", style=discord.ButtonStyle.grey)
+    @discord.ui.button(emoji="<:ivacontinue:1051710718489137254>", style=discord.ButtonStyle.grey)
     async def continues(self, interaction, button: discord.ui.Button):
         
         await interaction.response.defer()
@@ -329,7 +329,7 @@ class Menu(discord.ui.View):
         else:
             await interaction.message.edit(embeds=[prompt_embed, embed])
     
-    @discord.ui.button(label="Regenerate", emoji="<:ivaregenerate:1051697145713000580>", style=discord.ButtonStyle.grey)
+    @discord.ui.button(emoji="<:ivaregenerate:1051697145713000580>", style=discord.ButtonStyle.grey)
     async def regenerates(self, interaction, button: discord.ui.Button):
         
         await interaction.response.defer()
@@ -490,7 +490,7 @@ class Menu(discord.ui.View):
         
         await interaction.message.edit(embeds=[prompt_embed, embed])
         """
-    @discord.ui.button(label="Reset", emoji="<:ivaresetdot:1051716771423473726>", style=discord.ButtonStyle.grey)
+    @discord.ui.button(emoji="<:ivareset:1051691297443950612>", style=discord.ButtonStyle.grey)
     async def resets(self, interaction: discord.Interaction, button: discord.ui.Button):
         
         global chat_messages
@@ -522,7 +522,7 @@ class Menu(discord.ui.View):
         replies[id] = []
         last_response[id] = None
         
-        embed = discord.Embed(description="<:ivaresetdot:1051716771423473726>", color=discord.Color.dark_theme())
+        embed = discord.Embed(description="<:ivareset:1051691297443950612>", color=discord.Color.dark_theme())
         button.disabled = True
         embeds = interaction.message.embeds
         embeds.append(embed)
@@ -585,7 +585,7 @@ async def iva(interaction: discord.Interaction, prompt: str):
         reply = openai.Completion.create(
             engine="text-davinci-003",
             #prompt=f"(Format your response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_after_space', or 'emoji'. For code, always use '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```'.):\n\n{ask_context}{prompt}\n\n",
-            prompt=f"Answer questions wiith creativity, detail, and truth (Format response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':emoji_shortcode:'. ONLY USE '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```' FOR CODING.):\n\n{ask_context[id]}{prompt}\n\n",
+            prompt=f"Answer questions with creativity, detail, and truth (Format response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':emoji_shortcode:'. ONLY USE '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```' FOR CODING.):\n\n{ask_context[id]}{prompt}\n\n",
             #prompt=prompt_gpt,
             temperature=0.7,
             max_tokens=max_tokens,
@@ -668,7 +668,7 @@ async def reset(interaction):
     replies[id] = []
     last_response[id] = None
     
-    embed = discord.Embed(description="<:ivaresetdot:1051716771423473726>", color=discord.Color.dark_theme())
+    embed = discord.Embed(description="<:ivareset:1051691297443950612>", color=discord.Color.dark_theme())
     await interaction.response.send_message(embed=embed, ephemeral=False)
 
     
@@ -705,7 +705,7 @@ async def tutorial(interaction):
     
     mention = interaction.user.mention
 
-    embed = discord.Embed(description=f"<:ivanotify:1051918381844025434>\n\n*Iva is a bot that you can chat and ask questions with like a regular user.*\n\n**COMMANDS**\n\n**`@iva`** provides **chat** and **conversation** oriented answers. has personality, asks questions back, is more creative.\n\n**`/iva`** provides **academic** and **work** oriented answers. has less personality, is more focused on consistency and reliability.\n**`/reset`** resets the `/iva` conversation history. also available as button on messages.\n\n**`/help`** shows instructions for setup\n**`/setup`** to enter your key. `/help` for more info\n\n**BUTTONS**\n\n<:ivacontinue1:1051714712242491392> `Continue` - say more, extend the last prompt's response\n<:ivaregenerate:1051697145713000580> `Regenerate` - replace the last prompt's response with a different one\n<:ivaresetdot:1051716771423473726> `Reset` - reset the conversation history, clear iva's memory\n\n<:ivathumbsup:1051918474299056189>", color=discord.Color.dark_theme())
+    embed = discord.Embed(description=f"<:ivanotify:1051918381844025434>\n\n*Iva is a bot that you can chat and ask questions with like a regular user.*\n\n**COMMANDS**\n\n**`@iva`** provides **chat** and **conversation** oriented answers. has personality, asks questions back, is more creative.\n\n**`/iva`** provides **academic** and **work** oriented answers. has less personality, is more focused on consistency and reliability.\n**`/reset`** resets the `/iva` conversation history. also available as button on messages.\n\n**`/help`** shows instructions for setup\n**`/setup`** to enter your key. `/help` for more info\n\n**BUTTONS**\n\n<:ivacontinue1:1051714712242491392> `Continue` - say more, extend the last prompt's response\n<:ivaregenerate:1051697145713000580> `Regenerate` - replace the last prompt's response with a different one\n<:ivareset:1051691297443950612> `Reset` - reset the conversation history, clear iva's memory\n\n<:ivathumbsup:1051918474299056189>", color=discord.Color.dark_theme())
     await interaction.response.send_message(embed=embed, ephemeral=False)
     
 @tree.command(name = "setup", description="register your key")
