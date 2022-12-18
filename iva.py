@@ -71,10 +71,6 @@ last_prompt = {} # dict of strings
 replies = {} # dict of lists
 last_response = {} # dict of Message objs
 
-# Get the current timestamp
-timestamp = datetime.datetime.now()
-time = timestamp.strftime(r"%I:%M %p")
-
 @client.event
 async def on_ready():
     print()
@@ -108,28 +104,34 @@ async def on_message(message):
 
     if message.author == client.user:
         return
-
-    global chat_messages
-    global chat_context
-    global ask_messages
-    global ask_context
-    global message_limit
-    global active_users
-    global active_names
     
-    guild_id = message.guild.id
-    bot = client.user.display_name
-    user_name = message.author.name
-    id = message.author.id
-    user_mention = message.author.mention
     command = client.user.mention
-    prompt = message.content[len(command)+1:]
-    prompt_gpt = message.content[4:]
-    ask_gpt = message.content
-    images = message.attachments
-    caption = ""
 
     if message.content.startswith(command):
+        
+        global chat_messages
+        global chat_context
+        global ask_messages
+        global ask_context
+        global message_limit
+        global active_users
+        global active_names
+        
+        # Get the current timestamp
+        timestamp = datetime.datetime.now()
+        time = timestamp.strftime(r"%Y-%m-%d %I:%M %p")
+        print(time)
+        
+        guild_id = message.guild.id
+        bot = client.user.display_name
+        user_name = message.author.name
+        id = message.author.id
+        user_mention = message.author.mention
+        prompt = message.content[len(command)+1:]
+        prompt_gpt = message.content[4:]
+        ask_gpt = message.content
+        images = message.attachments
+        caption = ""
         
         async with message.channel.typing():
         
@@ -144,7 +146,7 @@ async def on_message(message):
                 await message.channel.send(embed=embed)
                 return
             
-            if user_name not in active_users[guild_id]:
+            if user_mention not in active_users[guild_id]:
                 active_users[guild_id].append(user_mention)
             
             if len(active_users[guild_id]) >= 2:
@@ -155,7 +157,7 @@ async def on_message(message):
                 active_users[guild_id] += f", and {active_users[guild_id][-1]}"
                     
             else:
-                active_names[guild_id] = f" and {active_users[guild_id][0]}"
+                active_names[guild_id] = f"{active_users[guild_id][0]}"
             
             max_tokens = 375
             max_chars = max_tokens * 4
@@ -177,12 +179,12 @@ async def on_message(message):
 
                 out = banana.run(CARROT_API, CARROT_MODEL, model_parameters)
                 print(out)
-                caption = f" (IMAGE ATTACHED: {out['modelOutputs'][0]['answer']})"
+                caption = f" (IMAGE CAPTION: {out['modelOutputs'][0]['answer']})"
             
             try:
                 reply = openai.Completion.create(
                     engine="text-davinci-003",
-                    prompt= f"You are {command}, a witty, charismatic, and brutally honest chatter. Casually chat with {active_names[guild_id]} on Discord.\n\n(Write usernames in the format, <@username>. Format your response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':emoji:'.):\n\n{chat_context[guild_id]}\n[{time}] {user_mention}: {prompt}\n{command}{caption}:",
+                    prompt= f"You are {command}, a brazen, brutally honest, charismatic, and creative chatter. You give witty, clever, and hilarious responses. You also have vast amount of knowledge, so you always have an answer. You don't lie, so sometimes you can be brutally honest. Casually chat with {active_names[guild_id]} on Discord.\n\n(Write usernames in the format, <@username>. Format your response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':unicode_cldr_emoji_shortcode:'.):\n\n{chat_context[guild_id]}\n[{time}] {user_mention}: {prompt}\n{command}{caption}:",
                     temperature=1.0,
                     max_tokens=max_tokens,
                     top_p=1.0,
@@ -210,9 +212,8 @@ async def on_message(message):
                 chat_messages[guild_id].pop(0)
                 chat_context[guild_id] = "".join(chat_messages[guild_id])
                 
-            #print(f"{user_name}: {prompt}\n")
-            #print(f"{bot}: {reply}\n")
-            print(reply)
+            print(f"{user_name}: {prompt}\n")
+            print(f"{bot}: {reply}\n")
                 
         if len(reply) > 2000:
             embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{user_mention} 2000 character prompt limit reached.', color=discord.Color.dark_theme())
@@ -245,11 +246,11 @@ class Menu(discord.ui.View):
 
         if original_interaction == None:
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> You do not own this context line', color=discord.Color.dark_theme())
-            await interaction.followup.send(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=False)
             return
         elif original_interaction.user.id != id:
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> You do not own this context line', color=discord.Color.dark_theme())
-            await interaction.followup.send(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=False)
             return
         
         mention = interaction.user.mention
@@ -261,7 +262,7 @@ class Menu(discord.ui.View):
             openai.api_key=result[0]
         else:
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} Use `/setup` to register API key first or `/help` for more info. You can find your API key at https://beta.openai.com.', color=discord.Color.dark_theme())
-            await interaction.followup.send(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=False)
             return
         
         view = Menu()
@@ -278,7 +279,7 @@ class Menu(discord.ui.View):
         
         if ask_messages[id] == [] and ask_context[id] == "" and replies[id] == []:
             embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **Cannot continue because the conversation was reset.**', color=discord.Color.dark_theme())
-            await interaction.followup.send(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=False)
             return
         
         max_tokens = 1250
@@ -290,7 +291,7 @@ class Menu(discord.ui.View):
         
             reply = openai.Completion.create(
                 engine="text-davinci-003",
-                prompt=f"(Format your response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':emoji:'. For code, always use '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```'.):\n\n{ask_context[id]}continue:\n\n",
+                prompt=f"(Format your response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':unicode_cldr_emoji_shortcode:'. For code, always use '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```'.):\n\n{ask_context[id]}continue:\n\n",
                 #prompt=prompt_gpt,
                 temperature=0.7,
                 max_tokens=max_tokens,
@@ -302,7 +303,7 @@ class Menu(discord.ui.View):
             )
         except Exception as e:
             embed = discord.Embed(description=f'<:ivaverify:1051918344464380125> {mention} Your API key is not valid. Try `/setup` again or `/help` for more info. You can find your API key at https://beta.openai.com.', color=discord.Color.dark_theme())
-            await interaction.followup.send(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=False)
             return
         
         reply = (reply['choices'][0].text).strip("\n")
@@ -324,7 +325,7 @@ class Menu(discord.ui.View):
             ask_context[id] = "".join(ask_messages[id])
         if len(reply) > 4096:
             embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{mention} 4096 character response limit reached. Use `/reset`.**', color=discord.Color.dark_theme())
-            await interaction.followup.send(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=False)
         else:
             await interaction.message.edit(embeds=[prompt_embed, embed])
     
@@ -339,11 +340,11 @@ class Menu(discord.ui.View):
 
         if original_interaction == None:
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> You do not own this context line', color=discord.Color.dark_theme())
-            await interaction.followup.send(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=False)
             return
         elif original_interaction.user.id != id:
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> You do not own this context line', color=discord.Color.dark_theme())
-            await interaction.followup.send(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=False)
             return
         
         mention = interaction.user.mention
@@ -355,7 +356,7 @@ class Menu(discord.ui.View):
             openai.api_key=result[0]
         else:
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} Use `/setup` to register API key first or `/help` for more info. You can find your API key at https://beta.openai.com.', color=discord.Color.dark_theme())
-            await interaction.followup.send(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=False)
             return
         
         view = Menu()
@@ -374,7 +375,7 @@ class Menu(discord.ui.View):
             button.disabled = True
             await interaction.response.edit_message(view=self)
             embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **Cannot regenerate because the conversation was reset.**', color=discord.Color.dark_theme())
-            await interaction.followup.send(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=False)
             return
         
         max_tokens = 1250
@@ -391,7 +392,7 @@ class Menu(discord.ui.View):
         
             reply = openai.Completion.create(
                 engine="text-davinci-003",
-                prompt=f"(Format your response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':emoji:'. For code, always use '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```'.):\n\n{ask_context[id]}{last_prompt[id]}\n\n",
+                prompt=f"(Format your response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':unicode_cldr_emoji_shortcode:'. For code, always use '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```'.):\n\n{ask_context[id]}{last_prompt[id]}\n\n",
                 #prompt=prompt_gpt,
                 temperature=0.7,
                 max_tokens=max_tokens,
@@ -404,7 +405,7 @@ class Menu(discord.ui.View):
         
         except Exception as e:
             embed = discord.Embed(description=f'<:ivaverify:1051918344464380125> {mention} Your API key is not valid. Try `/setup` again or `/help` for more info. You can find your API key at https://beta.openai.com.', color=discord.Color.dark_theme())
-            await interaction.followup.send(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=False)
             return
         
         reply = (reply['choices'][0].text).strip("\n")
@@ -427,7 +428,7 @@ class Menu(discord.ui.View):
             ask_context[id] = "".join(ask_messages[id])
         if len(reply) > 4096:
             embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{mention} 4096 character response limit reached. Use `/reset`.**', color=discord.Color.dark_theme())
-            await interaction.followup.send(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=False)
         else:
             await interaction.message.edit(embeds=[prompt_embed, embed])
     """
@@ -447,7 +448,7 @@ class Menu(discord.ui.View):
             openai.api_key=result[0]
         else:
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} Use `/setup` to register API key first or `/help` for more info. You can find your API key at https://beta.openai.com.', color=discord.Color.dark_theme())
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.response.send_message(embed=embed, ephemeral=False)
             return
         
         view = Menu()
@@ -466,7 +467,7 @@ class Menu(discord.ui.View):
             button.disabled = True
             await interaction.response.edit_message(view=self)
             embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **Cannot undo because the conversation was reset.**', color=discord.Color.dark_theme())
-            await interaction.followup.send(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=False)
             return
         
         max_tokens = 1250
@@ -509,11 +510,11 @@ class Menu(discord.ui.View):
 
         if original_interaction == None:
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> You do not own this context line', color=discord.Color.dark_theme())
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.response.send_message(embed=embed, ephemeral=False)
             return
         elif original_interaction.user.id != id:
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> You do not own this context line', color=discord.Color.dark_theme())
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.response.send_message(embed=embed, ephemeral=False)
             return
 
         ask_context[id] = ""
@@ -543,9 +544,13 @@ async def iva(interaction: discord.Interaction, prompt: str):
     global replies
     global last_response
     
+    await interaction.response.defer()
+    
     guild_id = interaction.guild_id
     id = interaction.user.id
     mention = interaction.user.mention
+    bot = client.user.display_name
+    user_name = interaction.user.name
     # Use the `SELECT` statement to fetch the row with the given id
     cursor.execute("SELECT key FROM keys WHERE id = ?", (id,))
     result = cursor.fetchone()
@@ -554,11 +559,9 @@ async def iva(interaction: discord.Interaction, prompt: str):
         openai.api_key=result[0]
     else:
         embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} Use `/setup` to register API key first or `/help` for more info. You can find your API key at https://beta.openai.com.', color=discord.Color.dark_theme())
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        await interaction.followup.send(embed=embed, ephemeral=False)
         return
-    
-    await interaction.response.defer()
-    
+
     if id not in ask_messages:
         ask_messages[id] = []
         ask_context[id] = ""
@@ -582,7 +585,7 @@ async def iva(interaction: discord.Interaction, prompt: str):
         reply = openai.Completion.create(
             engine="text-davinci-003",
             #prompt=f"(Format your response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_after_space', or 'emoji'. For code, always use '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```'.):\n\n{ask_context}{prompt}\n\n",
-            prompt=f"(Format response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':emoji:'. For code, always use '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```'.):\n\n{ask_context[id]}{prompt}\n\n",
+            prompt=f"Answer questions wiith creativity, detail, and truth (Format response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':emoji_shortcode:'. ONLY USE '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```' FOR CODING.):\n\n{ask_context[id]}{prompt}\n\n",
             #prompt=prompt_gpt,
             temperature=0.7,
             max_tokens=max_tokens,
@@ -595,13 +598,14 @@ async def iva(interaction: discord.Interaction, prompt: str):
         
     except Exception as e:
         embed = discord.Embed(description=f'<:ivaverify:1051918344464380125> {mention} Your API key is not valid. Try `/setup` again or `/help` for more info. You can find your API key at https://beta.openai.com.')
-        await interaction.followup.send(embed=embed, ephemeral=True, color=discord.Color.dark_theme())
+        await interaction.followup.send(embed=embed, ephemeral=False, color=discord.Color.dark_theme())
         return
     
     last_response[id] = interaction
     
     reply = (reply['choices'][0].text).strip("\n")
-    print(reply)
+    print(f"{user_name}: {prompt}\n")
+    print(f"{bot}: {reply}\n")
     
     engagement = f"{prompt}\n{reply}"
     ask_messages[id].append(engagement)
@@ -638,7 +642,7 @@ async def iva(interaction: discord.Interaction, prompt: str):
         ask_context[id] = "".join(ask_messages[id])
     if len(reply) > 4096:
         embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{mention} 4096 character response limit reached. Use `/reset`.**', color=discord.Color.dark_theme())
-        await interaction.followup.send(embed=embed, ephemeral=True)
+        await interaction.followup.send(embed=embed, ephemeral=False)
     else:
         await interaction.followup.send(embeds=[prompt_embed, embed], view=view)
 
@@ -736,7 +740,7 @@ async def setup(interaction, key: str):
             cursor.execute("UPDATE keys SET key = ? WHERE id = ?", (key, id))
             
             embed = discord.Embed(description=f"<:ivathumbsup:1051918474299056189> **Key updated for {mention}.**", color=discord.Color.dark_theme())
-            await interaction.response.send_message(embed=embed, ephemeral=True, delete_after=30)
+            await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=30)
             
             conn.commit()
 
@@ -746,7 +750,7 @@ async def setup(interaction, key: str):
         elif key == result[1]:
             
             embed = discord.Embed(description=f"<:ivaerror:1051918443840020531> **Key already registered for {mention}.**", color=discord.Color.dark_theme())
-            await interaction.response.send_message(embed=embed, ephemeral=True, delete_after=30)
+            await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=30)
             
             # Print the values of the columns
             print(f'id: {id}, key: {key}')
@@ -759,6 +763,6 @@ async def setup(interaction, key: str):
         conn.commit()
 
         embed = discord.Embed(description=f"<:ivathumbsup:1051918474299056189> **Key registered for {mention}.**", color=discord.Color.dark_theme())
-        await interaction.response.send_message(embed=embed, ephemeral=True, delete_after=30)
+        await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=30)
     
 client.run(DISCORD_TOKEN)
