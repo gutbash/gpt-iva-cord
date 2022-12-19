@@ -178,13 +178,13 @@ async def on_message(message):
             
             max_tokens = 375
                 
-            chat_prompt = f"You are {command}, a charismatic and intelligent chatter. You have vast amount of knowledge, so you always have an answer in a conversation. You don't lie, so sometimes you can be brutally honest. Casually chat with {active_names[guild_id]} on Discord.\n\n(Write usernames in the format, <@username>. Format your response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':unicode_cldr_emoji_shortcode:'.):\n\n{chat_context[guild_id]}\n[{time}] {user_mention}: {prompt}\n{command}{caption}:"
+            chat_prompt = f"You are {command}, a charismatic and intelligent chatter. You have vast amount of knowledge, so you always have an answer in a conversation. You don't lie, so sometimes you can be brutally honest. Casually chat with {active_names.get(guild_id, '')} on Discord.\n\n(Write usernames in the format, <@username>. Format your response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':unicode_cldr_emoji_shortcode:'.):\n\n{chat_context.get(guild_id, '')}\n[{time}] {user_mention}: {prompt}\n{command}{caption}:"
             
             tokens = len(tokenizer(chat_prompt)['input_ids'])
             print(f"PRE-COMPLETION TOKENS: {tokens}")
             
             while tokens > 4096 - max_tokens:
-                if chat_messages[guild_id] != []:
+                if chat_messages.get(guild_id, []) != []:
                     chat_messages[guild_id].pop(0)
                     chat_context[guild_id] = "".join(chat_messages[guild_id])
                     chat_prompt = f"You are {command}, a charismatic and intelligent chatter. You have vast amount of knowledge, so you always have an answer in a conversation. You don't lie, so sometimes you can be brutally honest. Casually chat with {active_names[guild_id]} on Discord.\n\n(Write usernames in the format, <@username>. Format your response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':unicode_cldr_emoji_shortcode:'.):\n\n{chat_context[guild_id]}\n{user_mention}: {prompt}\n{command}{caption}:"
@@ -224,7 +224,7 @@ async def on_message(message):
             print(f"POST-COMPLETION TOKENS: {tokens}")
             
             while tokens > 4096 - max_tokens:
-                if chat_messages[guild_id] != []:
+                if chat_messages.get(guild_id, []) != []:
                     chat_messages[guild_id].pop(0)
                     chat_context[guild_id] = "".join(chat_messages[guild_id])
                     chat_prompt = f"You are {command}, a charismatic and intelligent chatter. You have vast amount of knowledge, so you always have an answer in a conversation. You don't lie, so sometimes you can be brutally honest. Casually chat with {active_names[guild_id]} on Discord.\n\n(Write usernames in the format, <@username>. Format your response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':unicode_cldr_emoji_shortcode:'.):\n\n{chat_context[guild_id]}\n{user_mention}: {prompt}\n{command}{caption}:"
@@ -262,6 +262,9 @@ class Menu(discord.ui.View):
         guild_id = interaction.guild_id
         id = interaction.user.id
         original_interaction = last_response.get(id, None)
+        mention = interaction.user.mention
+        bot = client.user.display_name
+        user_name = interaction.user.name
 
         if original_interaction == None:
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> You do not own this context line', color=discord.Color.dark_theme())
@@ -301,16 +304,29 @@ class Menu(discord.ui.View):
             await interaction.followup.send(embed=embed, ephemeral=False)
             return
         
+        # Get the current timestamp
+        timestamp = datetime.datetime.now()
+        time = timestamp.strftime(r"%Y-%m-%d %I:%M %p")
+        
         max_tokens = 1250
-        max_chars = max_tokens * 4
-        total_char_limit = 16384
-        max_char_limit = total_char_limit - max_chars
+
+        ask_prompt = f"(Format your response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':unicode_cldr_emoji_shortcode:'. For code, always use '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```'.):\n\n{ask_context[id]}continue:\n\n"
+    
+        tokens = len(tokenizer(ask_prompt)['input_ids'])
+        print(f"PRE-COMPLETION TOKENS: {tokens}")
+        
+        while tokens > 4096 - max_tokens:
+            if ask_messages.get(id, []) != []:
+                ask_messages[id].pop(0)
+                ask_context[id] = "".join(ask_messages[id])
+                ask_prompt = f"(Format your response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':unicode_cldr_emoji_shortcode:'. For code, always use '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```'.):\n\n{ask_context[id]}continue:\n\n"
+            tokens = len(tokenizer(ask_context[id])['input_ids'])
+            print(f"PRE-TRIMMED TOKENS: {tokens}")
         
         try:
-        
             reply = openai.Completion.create(
                 engine="text-davinci-003",
-                prompt=f"(Format your response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':unicode_cldr_emoji_shortcode:'. For code, always use '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```'.):\n\n{ask_context[id]}continue:\n\n",
+                prompt=ask_prompt,
                 #prompt=prompt_gpt,
                 temperature=0.7,
                 max_tokens=max_tokens,
@@ -326,7 +342,7 @@ class Menu(discord.ui.View):
             return
         
         reply = (reply['choices'][0].text).strip("\n")
-        print(reply)
+        
         ask_messages[id].append(reply)
         ask_context[id] = "\n".join(ask_messages[id])
 
@@ -339,9 +355,22 @@ class Menu(discord.ui.View):
         #button.disabled = True
         #message_id = interaction.message.id
         
-        while len(ask_context[id]) > max_char_limit:
-            ask_messages[id].pop(0)
-            ask_context[id] = "".join(ask_messages[id])
+        ask_prompt = f"(Format your response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':unicode_cldr_emoji_shortcode:'. For code, always use '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```'.):\n\n{ask_context[id]}continue:\n\n"
+    
+        tokens = len(tokenizer(ask_prompt)['input_ids'])
+        print(f"POST-COMPLETION TOKENS: {tokens}")
+        
+        while tokens > 4096 - max_tokens:
+            if ask_messages.get(id, []) != []:
+                ask_messages[id].pop(0)
+                ask_context[id] = "".join(ask_messages[id])
+                ask_prompt = f"(Format your response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':unicode_cldr_emoji_shortcode:'. For code, always use '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```'.):\n\n{ask_context[id]}continue:\n\n"
+            tokens = len(tokenizer(ask_context[id])['input_ids'])
+            print(f"POST-TRIMMED TOKENS: {tokens}")
+        
+        print(f"[CONTINUE {time}] {user_name}: continue:")
+        print(f"[CONTINUE {time}] {bot}: {reply}\n")
+
         if len(reply) > 4096:
             embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{mention} 4096 character response limit reached. Use `/reset`.**', color=discord.Color.dark_theme())
             await interaction.followup.send(embed=embed, ephemeral=False)
@@ -602,16 +631,26 @@ async def iva(interaction: discord.Interaction, prompt: str):
     
     last_prompt[id] = prompt
     max_tokens = 1250
-    max_chars = max_tokens * 4
-    total_char_limit = 16384
-    max_char_limit = total_char_limit - max_chars
+
+    ask_prompt = f"Answer all questions with creativity, detail, and truth (Format response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':emoji_shortcode:'. ONLY USE '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```' FOR CODING.):\n\n{ask_context[id]}{prompt}\n\n"
+    
+    tokens = len(tokenizer(ask_prompt)['input_ids'])
+    print(f"PRE-COMPLETION TOKENS: {tokens}")
+    
+    while tokens > 4096 - max_tokens:
+        if ask_messages.get(id, []) != []:
+            ask_messages[id].pop(0)
+            ask_context[id] = "".join(ask_messages[id])
+            ask_prompt = f"Answer all questions with creativity, detail, and truth (Format response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':emoji_shortcode:'. ONLY USE '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```' FOR CODING.):\n\n{ask_context[id]}{prompt}\n\n"
+        tokens = len(tokenizer(ask_context[id])['input_ids'])
+        print(f"PRE-TRIMMED TOKENS: {tokens}")
     
     try:
     
         reply = openai.Completion.create(
             engine="text-davinci-003",
             #prompt=f"(Format your response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_after_space', or 'emoji'. For code, always use '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```'.):\n\n{ask_context}{prompt}\n\n",
-            prompt=f"Answer questions with creativity, detail, and truth (Format response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':emoji_shortcode:'. ONLY USE '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```' FOR CODING.):\n\n{ask_context[id]}{prompt}\n\n",
+            prompt=ask_prompt,
             #prompt=prompt_gpt,
             temperature=0.7,
             max_tokens=max_tokens,
@@ -636,6 +675,19 @@ async def iva(interaction: discord.Interaction, prompt: str):
     ask_context[id] = "\n".join(ask_messages[id])
 
     replies[id].append(reply)
+    
+    ask_prompt = f"Answer all questions with creativity, detail, and truth (Format response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':emoji_shortcode:'. ONLY USE '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```' FOR CODING.):\n\n{ask_context[id]}{prompt}\n\n"
+    
+    tokens = len(tokenizer(ask_prompt)['input_ids'])
+    print(f"POST-COMPLETION TOKENS: {tokens}")
+    
+    while tokens > 4096 - max_tokens:
+        if ask_messages.get(id, []) != []:
+            ask_messages[id].pop(0)
+            ask_context[id] = "".join(ask_messages[id])
+            ask_prompt = f"Answer all questions with creativity, detail, and truth (Format response with an aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':emoji_shortcode:'. ONLY USE '`code_block`', or '```[css,yaml,fix,diff,latex,bash,cpp,cs,ini,json,md,py,xml,java,js]\\nmulti_line_code_block```' FOR CODING.):\n\n{ask_context[id]}{prompt}\n\n"
+        tokens = len(tokenizer(ask_context[id])['input_ids'])
+        print(f"POST-TRIMMED TOKENS: {tokens}")
     
     print(f"[ASK {time}] {user_name}: {prompt}")
     print(f"[ASK {time}] {bot}: {reply}\n")
@@ -664,9 +716,6 @@ async def iva(interaction: discord.Interaction, prompt: str):
     prompt_embed = discord.Embed(description=f"<:ivaprompt:1051742892814761995>  {prompt}")
     embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
     
-    while len(ask_context[id]) > max_char_limit:
-        ask_messages[id].pop(0)
-        ask_context[id] = "".join(ask_messages[id])
     if len(reply) > 4096:
         embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{mention} 4096 character response limit reached. Use `/reset`.**', color=discord.Color.dark_theme())
         await interaction.followup.send(embed=embed, ephemeral=False)
