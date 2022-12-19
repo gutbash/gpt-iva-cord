@@ -12,6 +12,7 @@ import openai
 import sqlite3
 import banana_dev as banana
 import datetime
+from transformers import GPT2TokenizerFast
 
 #handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
 
@@ -31,7 +32,8 @@ import datetime
 conn = sqlite3.connect("data.db")
 # create a cursor object
 cursor = conn.cursor()
-
+# initialize tokenizer
+tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
 # check if the keys table exists
 cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
 tables = cursor.fetchall()
@@ -120,7 +122,6 @@ async def on_message(message):
         # Get the current timestamp
         timestamp = datetime.datetime.now()
         time = timestamp.strftime(r"%Y-%m-%d %I:%M %p")
-        print(time)
         
         guild_id = message.guild.id
         bot = client.user.display_name
@@ -158,15 +159,9 @@ async def on_message(message):
                     
             else:
                 active_names[guild_id] = f"{active_users[guild_id][0]}"
-            
-            max_tokens = 375
-            max_chars = max_tokens * 4
-            total_char_limit = 16384
-            max_char_limit = total_char_limit - max_chars
 
             if images != []:
                 
-
                 model_parameters = {
                         "text":prompt, #text for QA / Similarity
                         "imageURL":images[0].url, #image for the model
@@ -181,10 +176,25 @@ async def on_message(message):
                 print(out)
                 caption = f" (IMAGE CAPTION: {out['modelOutputs'][0]['answer']})"
             
+            max_tokens = 375
+                
+            chat_prompt = f"You are {command}, a charismatic and intelligent chatter. You have vast amount of knowledge, so you always have an answer in a conversation. You don't lie, so sometimes you can be brutally honest. Casually chat with {active_names[guild_id]} on Discord.\n\n(Write usernames in the format, <@username>. Format your response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':unicode_cldr_emoji_shortcode:'.):\n\n{chat_context[guild_id]}\n[{time}] {user_mention}: {prompt}\n{command}{caption}:"
+            
+            tokens = len(tokenizer(chat_prompt)['input_ids'])
+            print(f"PRE-COMPLETION TOKENS: {tokens}")
+            
+            while tokens > 4096 - max_tokens:
+                if chat_messages[guild_id] != []:
+                    chat_messages[guild_id].pop(0)
+                    chat_context[guild_id] = "".join(chat_messages[guild_id])
+                    chat_prompt = f"You are {command}, a charismatic and intelligent chatter. You have vast amount of knowledge, so you always have an answer in a conversation. You don't lie, so sometimes you can be brutally honest. Casually chat with {active_names[guild_id]} on Discord.\n\n(Write usernames in the format, <@username>. Format your response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':unicode_cldr_emoji_shortcode:'.):\n\n{chat_context[guild_id]}\n{user_mention}: {prompt}\n{command}{caption}:"
+                tokens = len(tokenizer(chat_context[guild_id])['input_ids'])
+                print(f"PRE-TRIMMED TOKENS: {tokens}")
+            
             try:
                 reply = openai.Completion.create(
                     engine="text-davinci-003",
-                    prompt= f"You are {command}, a brazen, brutally honest, charismatic, and creative chatter. You give witty, clever, and hilarious responses. You also have vast amount of knowledge, so you always have an answer. You don't lie, so sometimes you can be brutally honest. Casually chat with {active_names[guild_id]} on Discord.\n\n(Write usernames in the format, <@username>. Format your response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':unicode_cldr_emoji_shortcode:'.):\n\n{chat_context[guild_id]}\n[{time}] {user_mention}: {prompt}\n{command}{caption}:",
+                    prompt= chat_prompt,
                     temperature=1.0,
                     max_tokens=max_tokens,
                     top_p=1.0,
@@ -194,7 +204,7 @@ async def on_message(message):
                     echo=False,
                     #logit_bias={43669:5, 8310:5, 47288:5, 1134:5, 35906:5, 388:5, 37659:5, 36599:5,},
                 )
-            
+
             except Exception as e:
                 print(e)
                 embed = discord.Embed(description=f'<:ivaverify:1051918344464380125> {user_mention} Your API key is not valid. Try `/setup` again or `/help` for more info. You can find your API key at https://beta.openai.com.', color=discord.Color.dark_theme())
@@ -208,12 +218,21 @@ async def on_message(message):
             chat_messages[guild_id].append(interaction)
             chat_context[guild_id] = "".join(chat_messages[guild_id])
             
-            while len(chat_context[guild_id]) > max_char_limit:
-                chat_messages[guild_id].pop(0)
-                chat_context[guild_id] = "".join(chat_messages[guild_id])
+            chat_prompt = f"You are {command}, a charismatic and intelligent chatter. You have vast amount of knowledge, so you always have an answer in a conversation. You don't lie, so sometimes you can be brutally honest. Casually chat with {active_names[guild_id]} on Discord.\n\n(Write usernames in the format, <@username>. Format your response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':unicode_cldr_emoji_shortcode:'.):\n\n{chat_context[guild_id]}\n{user_mention}: {prompt}\n{command}{caption}:"
+            
+            tokens = len(tokenizer(chat_prompt)['input_ids'])
+            print(f"POST-COMPLETION TOKENS: {tokens}")
+            
+            while tokens > 4096 - max_tokens:
+                if chat_messages[guild_id] != []:
+                    chat_messages[guild_id].pop(0)
+                    chat_context[guild_id] = "".join(chat_messages[guild_id])
+                    chat_prompt = f"You are {command}, a charismatic and intelligent chatter. You have vast amount of knowledge, so you always have an answer in a conversation. You don't lie, so sometimes you can be brutally honest. Casually chat with {active_names[guild_id]} on Discord.\n\n(Write usernames in the format, <@username>. Format your response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', '> block_quote_AFTER_SPACE', or ':unicode_cldr_emoji_shortcode:'.):\n\n{chat_context[guild_id]}\n{user_mention}: {prompt}\n{command}{caption}:"
+                tokens = len(tokenizer(chat_context[guild_id])['input_ids'])
+                print(f"POST-TRIMMED TOKENS: {tokens}")
                 
-            print(f"{user_name}: {prompt}\n")
-            print(f"{bot}: {reply}\n")
+            print(f"[CHAT {time}] {user_name}: {prompt}")
+            print(f"[CHAT {time}] {bot}: {reply}\n")
                 
         if len(reply) > 2000:
             embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{user_mention} 2000 character prompt limit reached.', color=discord.Color.dark_theme())
@@ -522,6 +541,9 @@ class Menu(discord.ui.View):
         replies[id] = []
         last_response[id] = None
         
+        chat_context = ""
+        chat_messages = []
+        
         embed = discord.Embed(description="<:ivareset:1051691297443950612>", color=discord.Color.dark_theme())
         button.disabled = True
         embeds = interaction.message.embeds
@@ -570,6 +592,10 @@ async def iva(interaction: discord.Interaction, prompt: str):
         last_response[id] = None
 
     view = Menu()
+    
+    # Get the current timestamp
+    timestamp = datetime.datetime.now()
+    time = timestamp.strftime(r"%Y-%m-%d %I:%M %p")
 
     if last_response[id]:
         await last_response[id].edit_original_response(view=None)
@@ -604,14 +630,15 @@ async def iva(interaction: discord.Interaction, prompt: str):
     last_response[id] = interaction
     
     reply = (reply['choices'][0].text).strip("\n")
-    print(f"{user_name}: {prompt}\n")
-    print(f"{bot}: {reply}\n")
     
     engagement = f"{prompt}\n{reply}"
     ask_messages[id].append(engagement)
     ask_context[id] = "\n".join(ask_messages[id])
 
     replies[id].append(reply)
+    
+    print(f"[ASK {time}] {user_name}: {prompt}")
+    print(f"[ASK {time}] {bot}: {reply}\n")
 
     """
     special_words = []
@@ -687,7 +714,12 @@ async def help(interaction):
     
     mention = interaction.user.mention
 
-    embed = discord.Embed(description=f"<:ivanotify:1051918381844025434>\n\nWelcome. Let's **Get Started**.\n\n**1 ** Iva uses **[OpenAI](https://beta.openai.com)** to generate responses. Create an account with them to start.\n**2 ** Visit your **[API Keys](https://beta.openai.com/account/api-keys)** page to create the API key you'll use in your requests.\n**3 ** Hit **`+ Create new secret key`**, then copy and paste that key (`sk-...`) when you run `/setup` with {client.user.mention}\n\nDone  <:ivathumbsup:1051918474299056189>", color=discord.Color.dark_theme())
+    embed = discord.Embed(title=f"Welcome. Let's **Get Started**.\n\n", color=discord.Color.dark_theme())
+    embed.set_thumbnail(url=client.user.avatar.url)
+    embed.add_field(name="Step 1", value="Iva uses **[OpenAI](https://beta.openai.com)** to generate responses. Create an account with them to start.")
+    embed.add_field(name="Step 2", value="Visit your **[API Keys](https://beta.openai.com/account/api-keys)** page and click **`+ Create new secret key`**.")
+    embed.add_field(name="Step 3", value=f"Copy and paste that secret key (`sk-...`) when you run `/setup` with {client.user.mention}")
+    
     await interaction.response.send_message(embed=embed, ephemeral=False)
     
 @tree.command(name = "tutorial", description="how to talk with iva")
@@ -705,8 +737,19 @@ async def tutorial(interaction):
     
     mention = interaction.user.mention
 
-    embed = discord.Embed(description=f"<:ivanotify:1051918381844025434>\n\n*Iva is a bot that you can chat and ask questions with like a regular user.*\n\n**COMMANDS**\n\n**`@iva`** provides **chat** and **conversation** oriented answers. has personality, asks questions back, is more creative.\n\n**`/iva`** provides **academic** and **work** oriented answers. has less personality, is more focused on consistency and reliability.\n**`/reset`** resets the `/iva` conversation history. also available as button on messages.\n\n**`/help`** shows instructions for setup\n**`/setup`** to enter your key. `/help` for more info\n\n**BUTTONS**\n\n<:ivacontinue1:1051714712242491392> `Continue` - say more, extend the last prompt's response\n<:ivaregenerate:1051697145713000580> `Regenerate` - replace the last prompt's response with a different one\n<:ivareset:1051691297443950612> `Reset` - reset the conversation history, clear iva's memory\n\n<:ivathumbsup:1051918474299056189>", color=discord.Color.dark_theme())
-    await interaction.response.send_message(embed=embed, ephemeral=False)
+    embed = discord.Embed(title="Commands", color=discord.Color.dark_theme())
+    embed.set_thumbnail(url=client.user.avatar.url)
+    embed.add_field(name="`@iva`", value="provides **chat** and **conversation** oriented answers. has personality, asks questions back, is more creative.")
+    embed.add_field(name="`/iva`", value="provides **academic** and **work** oriented answers. has less personality, is more focused on consistency and reliability.")
+    embed.add_field(name="`/reset`", value="resets the `/iva` conversation history. also available as button on messages.")
+    embed.add_field(inline=False, name="`/help`", value="shows instructions for setup.")
+    embed.add_field(inline=False, name="`/setup`", value="to enter your key. `/help` for more info.")
+    
+    embed1 = discord.Embed(title="Buttons", color=discord.Color.dark_theme())
+    embed1.add_field(name="<:ivacontinue1:1051714712242491392> `Continue`", value="say more, extend the last prompt's response")
+    embed1.add_field(name="<:ivaregenerate:1051697145713000580> `Regenerate`", value="replace the last prompt's response with a different one")
+    embed1.add_field(name="<:ivareset:1051691297443950612> `Reset`", value="reset the conversation history, clear iva's memory")
+    await interaction.response.send_message(embeds=[embed, embed1], ephemeral=False)
     
 @tree.command(name = "setup", description="register your key")
 @app_commands.describe(key = "key")
