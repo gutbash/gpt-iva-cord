@@ -21,7 +21,9 @@ import tinycss2
 import cssselect2
 import cairosvg
 import codecs
+import json
 from graphviz import Source
+import base64
 
 load_dotenv() # load .env file
 
@@ -676,7 +678,7 @@ async def iva(interaction: discord.Interaction, prompt: str):
     last_prompt[id] = prompt
     max_tokens = 1250
 
-    ask_prompt = f"Answer ANY and ALL questions in a creative, thoughtful, detailed, understandable, organized, and clear format. (ALWAYS format response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', and '> block_quote_AFTER_SPACE'. Use emojis for similar text counterparts. USE ONLY '`code_block`', or '```language\\nmulti_line_code_block```' FOR ANY CODE. Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$LaTeX_markup$$' (DO NOT USE SINGLE '$'). USE Graphviz DOT code wrapped in '%%' like '\\n%%____%%' to interestingly visualize concepts coherently, completely, and accurately but also neatly and concisely in a stylistically, and aesthetically organized and pleasing way (bgcolor=\"#36393f\", use consistent sans serif fontname=\"fontname\", use style=filled on all nodes with pastel fillercolors, wrap ALL node names and fillcolors in \"double quotes\")):\n\n{ask_context.get(id, '')}{prompt}\n\n"
+    ask_prompt = f"Answer ANY and ALL questions in a creative, thoughtful, detailed, understandable, organized, and clear format. (ALWAYS format response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', and '> block_quote_AFTER_SPACE'. Use emojis for similar text counterparts. USE ONLY '`code_block`', or '```language\\nmulti_line_code_block```' FOR ANY CODE. Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$LaTeX_markup$$' (DO NOT USE SINGLE '$'). Visualize different types of concepts in comprehensive detail using mermaid markdown EXACTLY LIKE '\\n```mermaid\\n_____```'):\n\n{ask_context.get(id, '')}{prompt}\n\n"
     
     tokens = len(tokenizer(ask_prompt, truncation=True, max_length=6000)['input_ids'])
     print(f"ASK PRE-COMPLETION TOKENS: {tokens}")
@@ -688,13 +690,13 @@ async def iva(interaction: discord.Interaction, prompt: str):
             
         ask_context[id] = "".join(ask_messages[id])
         
-        ask_prompt = f"Answer ANY and ALL questions in a creative, thoughtful, detailed, understandable, organized, and clear format. (ALWAYS format response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', and '> block_quote_AFTER_SPACE'. Use emojis for similar text counterparts. USE ONLY '`code_block`', or '```language\\nmulti_line_code_block```' FOR ANY CODE. Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$LaTeX_markup$$' (DO NOT USE SINGLE '$'). USE Graphviz DOT code wrapped in '%%' like '\\n%%____%%' to interestingly visualize concepts coherently, completely, and accurately but also neatly and concisely in a stylistically, and aesthetically organized and pleasing way (bgcolor=\"#36393f\", use consistent sans serif fontname=\"fontname\", use style=filled on all nodes with pastel fillercolors, wrap ALL node names and fillcolors in \"double quotes\")):\n\n{ask_context.get(id, '')}{prompt}\n\n"
+        ask_prompt = f"Answer ANY and ALL questions in a creative, thoughtful, detailed, understandable, organized, and clear format. (ALWAYS format response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', and '> block_quote_AFTER_SPACE'. Use emojis for similar text counterparts. USE ONLY '`code_block`', or '```language\\nmulti_line_code_block```' FOR ANY CODE. Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$LaTeX_markup$$' (DO NOT USE SINGLE '$'). Visualize different types of concepts in comprehensive detail using mermaid markdown EXACTLY LIKE '\\n```mermaid\\n_____```'):\n\n{ask_context.get(id, '')}{prompt}\n\n"
             
         tokens = len(tokenizer(ask_prompt, truncation=True, max_length=6000)['input_ids'])
         print(f"ASK PRE-TRIMMED TOKENS: {tokens}")
         print(f"ASK PRE-TRIMMED LENGTH: {len(ask_messages.get(id, []))}")
     
-    ask_prompt = f"Answer ANY and ALL questions in a creative, thoughtful, detailed, understandable, organized, and clear format. (ALWAYS format response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', and '> block_quote_AFTER_SPACE'. Use emojis for similar text counterparts. USE ONLY '`code_block`', or '```language\\nmulti_line_code_block```' FOR ANY CODE. Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$LaTeX_markup$$' (DO NOT USE SINGLE '$'). USE Graphviz DOT code wrapped in '%%' like '\\n%%____%%' to interestingly visualize concepts coherently, completely, and accurately but also neatly and concisely in a stylistically, and aesthetically organized and pleasing way (bgcolor=\"#36393f\", use consistent sans serif fontname=\"fontname\", use style=filled on all nodes with pastel fillercolors, wrap ALL node names and fillcolors in \"double quotes\")):\n\n{ask_context.get(id, '')}{prompt}\n\n"
+    ask_prompt = f"Answer ANY and ALL questions in a creative, thoughtful, detailed, understandable, organized, and clear format. (ALWAYS format response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', and '> block_quote_AFTER_SPACE'. Use emojis for similar text counterparts. USE ONLY '`code_block`', or '```language\\nmulti_line_code_block```' FOR ANY CODE. Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$LaTeX_markup$$' (DO NOT USE SINGLE '$'). Visualize different types of concepts in comprehensive detail using mermaid markdown EXACTLY LIKE '\\n```mermaid\\n_____```'):\n\n{ask_context.get(id, '')}{prompt}\n\n"
     
     tokens = len(tokenizer(ask_prompt, truncation=True, max_length=6000)['input_ids'])
     print(f"ASK FINAL PROMPT TOKENS: {tokens}")
@@ -709,7 +711,7 @@ async def iva(interaction: discord.Interaction, prompt: str):
             temperature=0.5,
             max_tokens=max_tokens,
             top_p=1.0,
-            frequency_penalty=1.0,
+            frequency_penalty=0.5,
             presence_penalty=0.0,
             echo=False,
             #logit_bias={"50256": -100},
@@ -736,7 +738,7 @@ async def iva(interaction: discord.Interaction, prompt: str):
     
     replies[id].append(reply)
     
-    ask_prompt = f"Answer ANY and ALL questions in a creative, thoughtful, detailed, understandable, organized, and clear format. (ALWAYS format response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', and '> block_quote_AFTER_SPACE'. Use emojis for similar text counterparts. USE ONLY '`code_block`', or '```language\\nmulti_line_code_block```' FOR ANY CODE. Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$LaTeX_markup$$' (DO NOT USE SINGLE '$'). USE Graphviz DOT code wrapped in '%%' like '\\n%%____%%' to interestingly visualize concepts coherently, completely, and accurately but also neatly and concisely in a stylistically, and aesthetically organized and pleasing way (bgcolor=\"#36393f\", use consistent sans serif fontname=\"fontname\", use style=filled on all nodes with pastel fillercolors, wrap ALL node names and fillcolors in \"double quotes\")):\n\n{ask_context.get(id, '')}{prompt}\n\n"
+    ask_prompt = f"Answer ANY and ALL questions in a creative, thoughtful, detailed, understandable, organized, and clear format. (ALWAYS format response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', and '> block_quote_AFTER_SPACE'. Use emojis for similar text counterparts. USE ONLY '`code_block`', or '```language\\nmulti_line_code_block```' FOR ANY CODE. Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$LaTeX_markup$$' (DO NOT USE SINGLE '$'). Visualize different types of concepts in comprehensive detail using mermaid markdown EXACTLY LIKE '\\n```mermaid\\n_____```'):\n\n{ask_context.get(id, '')}{prompt}\n\n"
     
     tokens = len(tokenizer(ask_prompt, truncation=True, max_length=6000)['input_ids'])
     print(f"ASK POST-COMPLETION TOKENS: {tokens}")
@@ -748,7 +750,7 @@ async def iva(interaction: discord.Interaction, prompt: str):
             
         ask_context[id] = "".join(ask_messages[id])
         
-        ask_prompt = f"Answer ANY and ALL questions in a creative, thoughtful, detailed, understandable, organized, and clear format. (ALWAYS format response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', and '> block_quote_AFTER_SPACE'. Use emojis for similar text counterparts. USE ONLY '`code_block`', or '```language\\nmulti_line_code_block```' FOR ANY CODE. Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$LaTeX_markup$$' (DO NOT USE SINGLE '$'). USE Graphviz DOT code wrapped in '%%' like '\\n%%____%%' to interestingly visualize concepts coherently, completely, and accurately but also neatly and concisely in a stylistically, and aesthetically organized and pleasing way (bgcolor=\"#36393f\", use consistent sans serif fontname=\"fontname\", use style=filled on all nodes with pastel fillercolors, wrap ALL node names and fillcolors in \"double quotes\")):\n\n{ask_context.get(id, '')}{prompt}\n\n"
+        ask_prompt = f"Answer ANY and ALL questions in a creative, thoughtful, detailed, understandable, organized, and clear format. (ALWAYS format response with aesthetically pleasing and consistent style using '**bold_text**', '*italicized_text*', and '> block_quote_AFTER_SPACE'. Use emojis for similar text counterparts. USE ONLY '`code_block`', or '```language\\nmulti_line_code_block```' FOR ANY CODE. Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$LaTeX_markup$$' (DO NOT USE SINGLE '$'). Visualize different types of concepts in comprehensive detail using mermaid markdown EXACTLY LIKE '\\n```mermaid\\n_____```'):\n\n{ask_context.get(id, '')}{prompt}\n\n"
             
         tokens = len(tokenizer(ask_prompt, truncation=True, max_length=6000)['input_ids'])
         print(f"ASK POST-TRIMMED TOKENS: {tokens}")
@@ -760,20 +762,21 @@ async def iva(interaction: discord.Interaction, prompt: str):
     prompt_embed = discord.Embed(description=f"<:ivaprompt:1051742892814761995>  {prompt}")
     embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
     
-    if '$$' in reply or '%%' in reply:
+    if '$$' in reply or '```mermaid' in reply:
 
         # Use the findall() method of the re module to find all occurrences of content between $$
         dpi = "{200}"
         color = "{white}"
         
         tex_pattern = re.compile(r"\$\$(.*?)\$\$", re.DOTALL)
-        dot_pattern = re.compile(r"\%\%(.*?)\%\%", re.DOTALL)
-        mermaid_pattern = re.compile(r"```mermaid(.|\n)*?```", re.DOTALL)
+        #dot_pattern = re.compile(r"\%\%(.*?)\%\%", re.DOTALL)
+        mermaid_pattern = re.compile(r"```mermaid(.*?)```", re.DOTALL)
         #pattern = re.compile(r"(?<=\$)(.+?)(?=\$)", re.DOTALL)
         
         tex_matches = tex_pattern.findall(reply)
-        dot_matches = dot_pattern.findall(reply)
-        non_matches = re.sub(r"(\$\$|\%\%).*?(\$\$|\%\%)", "@@", reply, flags=re.DOTALL)
+        #dot_matches = dot_pattern.findall(reply)
+        mermaid_matches = mermaid_pattern.findall(reply)
+        non_matches = re.sub(r"(\$\$|```mermaid).*?(\$\$|```)", "@@", reply, flags=re.DOTALL)
         non_matches = non_matches.split("@@")
             
         await interaction.channel.send(embed=prompt_embed)
@@ -781,7 +784,7 @@ async def iva(interaction: discord.Interaction, prompt: str):
         
         try:
             
-            for (tex_match, dot_match, non_match) in itertools.zip_longest(tex_matches, dot_matches, non_matches):
+            for (tex_match, mer_match, non_match) in itertools.zip_longest(tex_matches, mermaid_matches, non_matches):
                 
                 if non_match != None and non_match != "" and non_match != "\n" and non_match != "." and non_match != "\n\n" and non_match != " ":
                     
@@ -812,25 +815,37 @@ async def iva(interaction: discord.Interaction, prompt: str):
                     
                     await interaction.channel.send(file = file, embed=match_embed)
                     
-                if dot_match != None and dot_match != "" and dot_match != "\n":
+                if mer_match != None and mer_match != "" and mer_match != "\n":
                     
-                    #print(f"%%%{dot_match}%%%")
-                    dot_match = dot_match.strip()
-                    dot_match = dot_match.replace("}", "\n}")
-                    dot_match = dot_match.replace("\n\n", "")
-                    #dot_match = dot_match.replace(" ", "")
-                    dot_match = dot_match.strip("%")
-                    print(f"%%%{dot_match}%%%")
+                    # Convert the code into a JSON string
+                    json_string = json.dumps({
+                        "code": mer_match,
+                        "mermaid": {
+                            "theme": "neutral"
+                        }
+                    })
                     
-                    graphs = pydot.graph_from_dot_data(dot_match)
-                    graph = graphs[0]
-                    graph.write_svg('graphviz.svg')
-                    cairosvg.svg2png(url="graphviz.svg", write_to="graphviz.png", dpi=300)
-                    file = discord.File('graphviz.png')
+                    # Encode the JSON string using base64
+                    encoded_json_string = base64.urlsafe_b64encode(json_string.encode('utf-8')).decode('utf-8')
+                    
+                    #print(f"%%%{mer_match}%%%")
+                    mer_match = mer_match.strip()
+                    mer_match = mer_match.strip("\n")
+                    #mer_match = mer_match.replace("}", "\n}")
+                    #mer_match = mer_match.replace("\n\n", "")
+                    #mer_match = mer_match.replace(" ", "")
+                    #mer_match = mer_match.strip("%")
+                    print(f"%%%{mer_match}%%%")
+                    
+                    #graphs = pydot.graph_from_dot_data(mer_match)
+                    #graph = graphs[0]
+                    #graph.write_svg('graphviz.svg')
+                    #cairosvg.svg2png(url="graphviz.svg", write_to="graphviz.png", dpi=300)
+                    #file = discord.File('graphviz.png')
                     match_embed = discord.Embed(color=discord.Color.dark_theme())
-                    match_embed.set_image(url="attachment://graphviz.png")
+                    match_embed.set_image(url=f"https://mermaid.ink/img/{encoded_json_string}?type=png")
                 
-                    await interaction.channel.send(file = file, embed=match_embed)
+                    await interaction.channel.send(embed=match_embed)
                     
         except Exception as e:
             print(e)
