@@ -26,6 +26,19 @@ import webuiapi
 from serpapi import GoogleSearch
 import textwrap
 
+from langchain.prompts.chat import (
+    ChatPromptTemplate,
+    SystemMessagePromptTemplate,
+    AIMessagePromptTemplate,
+    HumanMessagePromptTemplate,
+)
+from langchain.schema import (
+    AIMessage,
+    HumanMessage,
+    SystemMessage
+)
+
+from langchain.chat_models import ChatOpenAI
 from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import ConversationChain, LLMChain
@@ -76,9 +89,9 @@ class colors:
 # create API client with custom host, port
 api = webuiapi.WebUIApi(host='127.0.0.1', port=7860)
 
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_TOKEN")
 GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
-print(GOOGLE_API_KEY, GOOGLE_CSE_ID)
+os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
 
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN") # load discord app token
 GUILD_ID = os.getenv("GUILD_ID") # load dev guild
@@ -865,7 +878,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     
     last_prompt[id] = prompt
 
-    ask_prompt = f"You are an AI assistant named Iva. Answer ANY and ALL questions in a creative, thoughtful, understandable, organized, and clear format. USE ONLY '`code block`', or '```language\\nmulti line code block```' FOR ANY CODE. Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$LaTeX markup$$' (DO NOT USE SINGLE '$') on a new line. Generate graphs, diagrams, and charts for concepts ONLY if relevant and applicable by including the concept between '%%' like '%%concept%%' on a new line. Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![descriptive search prompt](img.png)@@' on a new line. Format response extensively with aesthetically pleasing and consistent style using '**bold text**', '*italicized text*', and '> block quote AFTER SPACE'."
+    ask_prompt = f"You are Iva. Answer any and all questions concisely, while still remaining clear, understandable, and organized. USE ONLY '`code block`', or '```language\\nmulti line code block```' FOR ANY CODE. Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$LaTeX markup$$' (DO NOT USE SINGLE '$') on a new line ONLY when relevant. Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![descriptive search prompt](img.png)@@' on a new line. Format response extensively with aesthetically pleasing and consistent style using '**bold text**', '*italicized text*', and '> block quote AFTER SPACE'."
     
     tokens = len(tokenizer(ask_prompt, truncation=True, max_length=12000)['input_ids'])
     #print(f"ASK PRE-COMPLETION TOKENS: {tokens}")
@@ -881,20 +894,20 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 await interaction.followup.send(embed=embed, ephemeral=False)
                 return
     
-    while (tokens) > (4096 - max_tokens) or len(ask_messages.get(id, [])) > 6:
+    while (tokens) > (4096 - max_tokens) or len(ask_messages.get(id, [])) > 12:
         if ask_messages.get(id, []) != []:
             ask_messages[id].pop(0)
             ask_messages[id].pop(0)
             
         #ask_context[id] = "".join(ask_messages[id])
         
-        ask_prompt = f"You are an AI assistant named Iva. Answer ANY and ALL questions in a creative, thoughtful, understandable, organized, and clear format. USE ONLY '`code block`', or '```language\\nmulti line code block```' FOR ANY CODE. Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$LaTeX markup$$' (DO NOT USE SINGLE '$') on a new line. Generate graphs, diagrams, and charts for concepts ONLY if relevant and applicable by including the concept between '%%' like '%%concept%%' on a new line. Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![descriptive search prompt](img.png)@@' on a new line. Format response extensively with aesthetically pleasing and consistent style using '**bold text**', '*italicized text*', and '> block quote AFTER SPACE'."
+        ask_prompt = f"You are Iva. Answer any and all questions concisely, while still remaining clear, understandable, and organized. USE ONLY '`code block`', or '```language\\nmulti line code block```' FOR ANY CODE. Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$LaTeX markup$$' (DO NOT USE SINGLE '$') on a new line ONLY when relevant. Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![descriptive search prompt](img.png)@@' on a new line. Format response extensively with aesthetically pleasing and consistent style using '**bold text**', '*italicized text*', and '> block quote AFTER SPACE'."
             
         tokens = len(tokenizer(ask_prompt, truncation=True, max_length=6000)['input_ids'])
         #print(f"ASK PRE-TRIMMED TOKENS: {tokens}")
         #print(f"ASK PRE-TRIMMED LENGTH: {len(ask_messages.get(id, []))}")
     
-    ask_prompt = f"You are an AI assistant named Iva. Answer ANY and ALL questions in a creative, thoughtful, understandable, organized, and clear format. USE ONLY '`code block`', or '```language\\nmulti line code block```' FOR ANY CODE. Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$LaTeX markup$$' (DO NOT USE SINGLE '$') on a new line. Generate graphs, diagrams, and charts for concepts ONLY if relevant and applicable by including the concept between '%%' like '%%concept%%' on a new line. Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![descriptive search prompt](img.png)@@' on a new line. Format response extensively with aesthetically pleasing and consistent style using '**bold text**', '*italicized text*', and '> block quote AFTER SPACE'."
+    ask_prompt = f"You are Iva. Answer any and all questions concisely, while still remaining clear, understandable, and organized. USE ONLY '`code block`', or '```language\\nmulti line code block```' FOR ANY CODE. Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$LaTeX markup$$' (DO NOT USE SINGLE '$') on a new line ONLY when relevant. Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![descriptive search prompt](img.png)@@' on a new line. Format response extensively with aesthetically pleasing and consistent style using '**bold text**', '*italicized text*', and '> block quote AFTER SPACE'."
     
     tokens = len(tokenizer(ask_prompt, truncation=True, max_length=6000)['input_ids'])
     #print(f"ASK FINAL PROMPT TOKENS: {tokens}")
@@ -912,7 +925,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         reply = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=ask_messages[id],
-            temperature=1.0,
+            temperature=0.5,
             max_tokens=max_tokens,
             top_p=1.0,
             frequency_penalty=1.0,
@@ -943,7 +956,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     
     replies[id].append(reply)
     
-    ask_prompt = f"You are an AI assistant named Iva. Answer ANY and ALL questions in a creative, thoughtful, understandable, organized, and clear format. USE ONLY '`code block`', or '```language\\nmulti line code block```' FOR ANY CODE. Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$LaTeX markup$$' (DO NOT USE SINGLE '$') on a new line. Generate graphs, diagrams, and charts for concepts ONLY if relevant and applicable by including the concept between '%%' like '%%concept%%' on a new line. Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![descriptive search prompt](img.png)@@' on a new line. Format response extensively with aesthetically pleasing and consistent style using '**bold text**', '*italicized text*', and '> block quote AFTER SPACE'."
+    ask_prompt = f"You are Iva. Answer any and all questions concisely, while still remaining clear, understandable, and organized. USE ONLY '`code block`', or '```language\\nmulti line code block```' FOR ANY CODE. Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$LaTeX markup$$' (DO NOT USE SINGLE '$') on a new line ONLY when relevant. Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![descriptive search prompt](img.png)@@' on a new line. Format response extensively with aesthetically pleasing and consistent style using '**bold text**', '*italicized text*', and '> block quote AFTER SPACE'."
     
     tokens = len(tokenizer(ask_prompt, truncation=True, max_length=6000)['input_ids'])
     #print(f"ASK POST-COMPLETION TOKENS: {tokens}")
@@ -956,7 +969,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
         #ask_context[id] = "".join(ask_messages[id])
         
-        ask_prompt = f"You are an AI assistant named Iva. Answer ANY and ALL questions in a creative, thoughtful, understandable, organized, and clear format. USE ONLY '`code block`', or '```language\\nmulti line code block```' FOR ANY CODE. Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$LaTeX markup$$' (DO NOT USE SINGLE '$') on a new line. Generate graphs, diagrams, and charts for concepts ONLY if relevant and applicable by including the concept between '%%' like '%%concept%%' on a new line. Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![descriptive search prompt](img.png)@@' on a new line. Format response extensively with aesthetically pleasing and consistent style using '**bold text**', '*italicized text*', and '> block quote AFTER SPACE'."
+        ask_prompt = f"You are Iva. Answer any and all questions concisely, while still remaining clear, understandable, and organized. USE ONLY '`code block`', or '```language\\nmulti line code block```' FOR ANY CODE. Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$LaTeX markup$$' (DO NOT USE SINGLE '$') on a new line ONLY when relevant. Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![descriptive search prompt](img.png)@@' on a new line. Format response extensively with aesthetically pleasing and consistent style using '**bold text**', '*italicized text*', and '> block quote AFTER SPACE'."
             
         tokens = len(tokenizer(ask_prompt, truncation=True, max_length=6000)['input_ids'])
         #print(f"ASK POST-TRIMMED TOKENS: {tokens}")
@@ -1079,7 +1092,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                         response = requests.get(url)
                         results = response.json()
                         
-                        print(results)
+                        #print(results)
                         
                         # Extract the image URL for the first result (best/most relevant image)
                         image_url = results['items'][0]['link']
@@ -1116,7 +1129,17 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                             echo=False,
                             #logit_bias={"50256": -100},
                         )
-                        
+                        """
+                        reply = openai.ChatCompletion.create(
+                            model="gpt-3.5-turbo",
+                            messages=ask_messages[id],
+                            temperature=0.7,
+                            max_tokens=max_tokens,
+                            top_p=1.0,
+                            frequency_penalty=1.0,
+                            presence_penalty=0.0,
+                            )
+                        """
                         dot_match = (dot_match['choices'][0].text).strip("\n")
                     
                         #dot_match = re.sub(r'//.*|/\*(.|\n)*?\*/', '', dot_match)
@@ -1134,10 +1157,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                             
                         print(f"%%%{dot_match}%%%")
                         
-                        graphs = pydot.graph_from_dot_data(dot_match)
-                        
-                        graph = graphs[0]
-                        graph.write_svg(f'graphviz{file_count}.svg')
+                        graph = pydot.graph_from_dot_data(dot_match)
+                        graph[0].write_png(f'graphviz{file_count}.png')
                         #cairosvg.svg2png(url=f"graphviz{file_count}.svg", write_to=f"graphviz{file_count}.png", dpi=300)
                         dot_file = discord.File(f'graphviz{file_count}.png')
                         match_embed = discord.Embed(color=discord.Color.dark_theme())
@@ -1155,32 +1176,31 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                             files.append(dot_file)
                         
                     except Exception as e:
-                        print("DOT COMPLETION ERROR: "+e)
+                        print(e)
                     
         except Exception as e:
             print(e)
+            
+    elif len(reply) > 6000:
+        reply_part_one = discord.Embed(description=reply[0:(len(reply)//2)], color=discord.Color.dark_theme())
+        reply_part_two = discord.Embed(description=reply[(len(reply)//2):-1], color=discord.Color.dark_theme())
+        
+        embeds.append(reply_part_one)
+        embeds.append(reply_part_two)
+        
     else:
         embeds.append(embed)
-    
-    if len(reply) > 4096:
-        reply_part_one = reply[0:(len(reply)/2)]
-        reply_part_two = reply[(len(reply)/2):-1]
-                               
-        embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{mention} 4096 character response limit reached. Use `/reset`.**', color=discord.Color.dark_theme())
-        await interaction.followup.send(embed=embed, ephemeral=False)
-        return
 
-    else:
-        try:
-            print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightcyan}ASK     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@iva: {colors.reset}{reply}")
-            await interaction.followup.send(files=files, embeds=embeds, view=view)
-            last_response[id] = interaction
-            #print(files, embeds)
-            if len(embeds_overflow) > 0:
-                await interaction.channel.send(files = files_overflow, embeds=embeds_overflow)
-            return
-        except Exception as e:
-            print(e)
+    try:
+        print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightcyan}ASK     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@iva: {colors.reset}{reply}")
+        await interaction.followup.send(files=files, embeds=embeds, view=view)
+        last_response[id] = interaction
+        #print(files, embeds)
+        if len(embeds_overflow) > 0:
+            await interaction.channel.send(files = files_overflow, embeds=embeds_overflow)
+        return
+    except Exception as e:
+        print(e)
 
 @tree.command(name = "reset", description="start a new conversation")
 async def reset(interaction):
