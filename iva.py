@@ -13,15 +13,11 @@ import re
 import itertools
 import requests
 import pydot
-import aiohttp
-#import cairosvg
 import requests
 import PyPDF2
 import io
 import base64
-import PIL
 from PIL import Image
-import asyncio
 import webuiapi
 from serpapi import GoogleSearch
 import textwrap
