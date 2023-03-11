@@ -116,7 +116,6 @@ pooch==1.6.0
 pox==0.3.2
 ppft==1.7.6.6
 protobuf==3.19.6
-py2exe==0.13.0.0
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
 PyAudio==0.2.12
