@@ -1,1 +1,1 @@
-bot: python iva.py
+worker: python iva.py
