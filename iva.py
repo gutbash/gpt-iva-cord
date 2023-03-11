@@ -105,8 +105,8 @@ NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 WOLFRAM_ALPHA_APPID = os.getenv("WOLFRAM_ALPHA_APPID")
 
 REPLICATE_API_TOKEN = os.getenv("REPLICATE_API_TOKEN")
-model_blip = replicate.models.get("salesforce/blip")
-version_blip = model_blip.versions.get("2e1dddc8621f72155f24cf2e0adbde548458d3cab9f00c0139eea840d0ac4746")
+model_blip = replicate.models.get("salesforce/blip-2")
+version_blip = model_blip.versions.get("4b32258c42e9efd4288bb9910bc532a69727f9acd26aa08e175713a0a857a608")
 model_sd = replicate.models.get("stability-ai/stable-diffusion")
 version_sd = model_sd.versions.get("f178fa7a1ae43a9a9af01b833b9d2ecf97b1bcb0acfd2dc5dd04895e042863f1")
 
@@ -255,10 +255,10 @@ async def on_message(message):
             # RECOGNIZE IMAGES
             if images != []:
                 
-                description = version_blip.predict(image=images[0].url, task="image_captioning")
-                answer = version_blip.predict(image=images[0].url, task="visual_question_answering", question=prompt)
+                description = version_blip.predict(image=images[0].url, caption=True)
+                answer = version_blip.predict(image=images[0].url, question=prompt)
                 
-                caption = f" I attached an image [Answer: {answer[8:]}, Attached Image {description}]"
+                caption = f" I attached an image [Answer:{answer}, Attached Image: {description}]"
                 print(caption)
             
             try:
@@ -363,7 +363,7 @@ async def on_message(message):
                 CONTEXTUAL CHAT HISTORY:
                 {{chat_history}}
                 NEW MESSAGE:
-                {user_name} ({user_mention}): {{input}}{caption}
+                {user_name} ({user_mention}): {{input}}
                 RESPONSE:
                 {{agent_scratchpad}}"""
                 
@@ -420,7 +420,7 @@ async def on_message(message):
                 
                 try:
 
-                    reply = agent_chain.run(input=prompt)
+                    reply = agent_chain.run(input=prompt+caption)
                     #print(reply)
                     
                     chat_mems[guild_id] = guild_memory
