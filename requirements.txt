@@ -13,3 +13,4 @@ wolframalpha
 langchain
 openai
 tiktoken
+wikipedia
