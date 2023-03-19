@@ -1140,7 +1140,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         #print(ask_messages[id])
 
         reply = openai.ChatCompletion.create(
-            model="gpt-4",
+            model="gpt-3.5-turbo",
             messages=ask_messages[id],
             temperature=0.5,
             max_tokens=max_tokens,
@@ -1350,7 +1350,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                         
 
                         dot_match = openai.ChatCompletion.create(
-                            model="gpt-4",
+                            model="gpt-3.5-turbo",
                             messages=dot_messages,
                             temperature=0.3,
                             max_tokens=512,
