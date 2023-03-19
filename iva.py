@@ -1337,17 +1337,12 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                     try:
                         
                         dot_system_message = {
-                            "role": "system",
-                            "content": f"Respond ONLY in Graphviz DOT code to visualize and explain the user's following concept in an aesthetically pleasing way (bgcolor=\"#36393f\", styled elements)."
-                        }
-                        dot_user_message = {
                             "role": "user",
-                            "content": f"CONCEPT: {dot_match}"
+                            "content": f"Write only in Graphviz DOT code to visualize and explain {dot_match} in an aesthetically pleasing way (bgcolor=\"#36393f\", styled elements)."
                         }
+
                         dot_messages = []
                         dot_messages.append(dot_system_message)
-                        dot_messages.append(dot_user_message)
-                        
 
                         dot_match = openai.ChatCompletion.create(
                             model="gpt-3.5-turbo",
