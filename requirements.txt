@@ -13,6 +13,5 @@ langchain
 openai
 tiktoken
 wikipedia
-pickle
 itertools
 graphviz
