@@ -1391,10 +1391,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                         
                         if len(embeds) >= 9:
                             embeds_overflow.append(match_embed)
-                            files_overflow.append(dot_file)
+                            #files_overflow.append(dot_file)
                         else:
                             embeds.append(match_embed)
-                            files.append(dot_file)
+                            #files.append(dot_file)
                         
                         
                     except Exception as e:
