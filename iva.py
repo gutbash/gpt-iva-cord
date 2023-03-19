@@ -229,6 +229,11 @@ async def on_message(message):
         if os.path.exists(file_path_a):
             with open(file_path_a, "rb") as handle:
                 active_users = pickle.load(handle)
+        else:
+            active_users = {}  # or an appropriate default value
+            os.makedirs(subfolder_a, exist_ok=True)
+            with open(file_path_a, "wb") as handle:
+                pickle.dump(active_users, handle)
                 
         subfolder_b = "data"
         file_path_b = os.path.join(subfolder_b, f'mems.pickle')
@@ -236,6 +241,11 @@ async def on_message(message):
         if os.path.exists(file_path_b):
             with open(file_path_b, "rb") as handle:
                 chat_mems = pickle.load(handle)
+        else:
+            chat_mems = {}  # or an appropriate default value
+            os.makedirs(subfolder_b, exist_ok=True)
+            with open(file_path_b, "wb") as handle:
+                pickle.dump(chat_mems, handle)
         
         # Get the current timestamp
         timestamp = datetime.datetime.now()
@@ -1391,10 +1401,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                         
                         if len(embeds) >= 9:
                             embeds_overflow.append(match_embed)
-                            #files_overflow.append(dot_file)
+                            files_overflow.append(dot_file)
                         else:
                             embeds.append(match_embed)
-                            #files.append(dot_file)
+                            files.append(dot_file)
                         
                         
                     except Exception as e:
