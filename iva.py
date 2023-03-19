@@ -18,7 +18,6 @@ import PyPDF2
 import io
 import base64
 from PIL import Image
-from reportlab.graphics import renderPM
 
 from serpapi import GoogleSearch
 import textwrap
