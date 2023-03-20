@@ -158,9 +158,6 @@ if not table_exists:
     cursor.execute("CREATE TABLE keys (id TEXT PRIMARY KEY, key TEXT)")
     conn.commit()
 
-# close the database connection
-conn.close()
-
 intents = discord.Intents.default() # declare intents
 intents.message_content = True
 
