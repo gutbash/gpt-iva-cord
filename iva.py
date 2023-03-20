@@ -120,7 +120,7 @@ os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN") # load discord app token
 GUILD_ID = os.getenv("GUILD_ID") # load dev guild
 
-OPENAI_API_KEY = os.getenv("YOUR_API_KEY") # load open ai key
+#OPENAI_API_KEY = os.getenv("YOUR_API_KEY") # load open ai key
 #openai.api_key=OPENAI_API_KEY # assign open ai key
 
 CARROT_API = os.getenv("CARROT_API_KEY") # load carrot api key
@@ -495,7 +495,7 @@ async def on_message(message):
                     guild_memory = chat_mems[channel_id]
                     guild_memory.max_token_limit = 512
                     guild_memory.ai_prefix = f"Iva ({agent_mention})"
-                    guild_memory.human_prefix = f"{user_name} ({user_mention})"
+                    #guild_memory.human_prefix = f"{user_name} ({user_mention})"
                     
                 else:
 
@@ -505,7 +505,7 @@ async def on_message(message):
                         memory_key="chat_history",
                         input_key="input",
                         ai_prefix = f"Iva ({agent_mention})",
-                        human_prefix = f"{user_name} ({user_mention})",
+                        #human_prefix = f"{user_name} ({user_mention})",
                     )
                 
                 llm_chain = LLMChain(
