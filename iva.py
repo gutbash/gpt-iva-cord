@@ -5,7 +5,7 @@ import discord.ext.tasks
 import os
 from dotenv import load_dotenv
 import openai
-import sqlite3
+import psycopg2
 import datetime
 from transformers import GPT2TokenizerFast
 import replicate
@@ -132,6 +132,8 @@ NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 
 WOLFRAM_ALPHA_APPID = os.getenv("WOLFRAM_ALPHA_APPID")
 
+DATABASE_URL = os.getenv("DATABASE_URL")
+
 REPLICATE_API_TOKEN = os.getenv("REPLICATE_API_TOKEN")
 model_blip = replicate.models.get("salesforce/blip-2")
 version_blip = model_blip.versions.get("4b32258c42e9efd4288bb9910bc532a69727f9acd26aa08e175713a0a857a608")
@@ -142,15 +144,22 @@ replicate.Client(api_token=REPLICATE_API_TOKEN)
 
 tokenizer = GPT2TokenizerFast.from_pretrained("gpt2") # initialize tokenizer
 
-conn = sqlite3.connect("data.db") # create a connection to the database
-cursor = conn.cursor() # create a cursor object
-cursor.execute("SELECT name FROM sqlite_master WHERE type='table'") # check if the keys table exists
-tables = cursor.fetchall() # return all results
+conn = psycopg2.connect(DATABASE_URL) # create a connection to the database
 
-# check if keys table exists
-if ("keys",) not in tables:
-    cursor.execute("CREATE TABLE keys (id TEXT PRIMARY KEY, key TEXT)") # does not exist, so create it
-    conn.commit() # commit changes
+# create a cursor object
+cursor = conn.cursor()
+
+# check if the keys table exists
+cursor.execute("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'keys')")
+table_exists = cursor.fetchone()[0]
+
+# create the keys table if it does not exist
+if not table_exists:
+    cursor.execute("CREATE TABLE keys (id TEXT PRIMARY KEY, key TEXT)")
+    conn.commit()
+
+# close the database connection
+conn.close()
 
 intents = discord.Intents.default() # declare intents
 intents.message_content = True
@@ -295,9 +304,9 @@ async def on_message(message):
             try:
                 
                 # Use the `SELECT` statement to fetch the row with the given id
-                cursor.execute("SELECT key FROM keys WHERE id = ?", (id,))
+                cursor.execute("SELECT key FROM keys WHERE id = %s", (id,))
                 result = cursor.fetchone()
-                
+         
             except UnboundLocalError as e:
                 print(e)
                 return
@@ -487,7 +496,7 @@ async def on_message(message):
                     suffix=textwrap.dedent(suffix).strip(),
                     input_variables=["input", "chat_history", "agent_scratchpad"],
                     ai_prefix = f"Iva ({agent_mention})",
-                    #human_prefix = f"{user_name} ({user_mention})",
+                    human_prefix = f"{user_name} ({user_mention})",
                 )
                 
                 if chat_mems[channel_id] != None:
@@ -495,7 +504,7 @@ async def on_message(message):
                     guild_memory = chat_mems[channel_id]
                     guild_memory.max_token_limit = 512
                     guild_memory.ai_prefix = f"Iva ({agent_mention})"
-                    guild_memory.human_prefix = f"{user_name} ({user_mention})"
+                    #guild_memory.human_prefix = f"{user_name} ({user_mention})"
                     
                 else:
 
@@ -671,7 +680,7 @@ class Menu(discord.ui.View):
         
         mention = interaction.user.mention
         # Use the `SELECT` statement to fetch the row with the given id
-        cursor.execute("SELECT key FROM keys WHERE id = ?", (id,))
+        cursor.execute("SELECT key FROM keys WHERE id = %s", (id,))
         result = cursor.fetchone()
         
         if result != None:
@@ -791,7 +800,7 @@ class Menu(discord.ui.View):
         
         mention = interaction.user.mention
         # Use the `SELECT` statement to fetch the row with the given id
-        cursor.execute("SELECT key FROM keys WHERE id = ?", (id,))
+        cursor.execute("SELECT key FROM keys WHERE id = %s", (id,))
         result = cursor.fetchone()
         
         if result != None:
@@ -883,7 +892,7 @@ class Menu(discord.ui.View):
         id = interaction.user.id
         mention = interaction.user.mention
         # Use the `SELECT` statement to fetch the row with the given id
-        cursor.execute("SELECT key FROM keys WHERE id = ?", (id,))
+        cursor.execute("SELECT key FROM keys WHERE id = %s", (id,))
         result = cursor.fetchone()
         
         if result != None:
@@ -995,7 +1004,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     bot = client.user.display_name
     user_name = interaction.user.name
     # Use the `SELECT` statement to fetch the row with the given id
-    cursor.execute("SELECT key FROM keys WHERE id = ?", (id,))
+    cursor.execute("SELECT key FROM keys WHERE id = %s", (id,))
     result = cursor.fetchone()
     openai_key = ""
     
@@ -1664,19 +1673,19 @@ async def setup(interaction, key: str):
     guild_id = interaction.guild_id
     id = interaction.user.id
     mention = interaction.user.mention
-    
+
     # Use the `SELECT` statement to fetch the row with the given id
-    cursor.execute("SELECT * FROM keys WHERE id = ?", (id,))
-    
+    cursor.execute("SELECT * FROM keys WHERE id = %s", (id,))
+
     result = cursor.fetchone()
-    
+
     if result != None:
-    
+
         # Access the values of the columns in the row
         if key != result[1]:
             
-            # insert a new API key into the table
-            cursor.execute("UPDATE keys SET key = ? WHERE id = ?", (key, id))
+            # update the API key in the table
+            cursor.execute("UPDATE keys SET key = %s WHERE id = %s", (key, id))
             
             embed = discord.Embed(description=f"<:ivathumbsup:1051918474299056189> **Key updated for {mention}.**", color=discord.Color.dark_theme())
             await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=30)
@@ -1697,11 +1706,12 @@ async def setup(interaction, key: str):
     else:
         
         # insert a new API key into the table
-        cursor.execute("INSERT INTO keys (id, key) VALUES (?, ?)", (id, key))
+        cursor.execute("INSERT INTO keys (id, key) VALUES (%s, %s)", (id, key))
         
         conn.commit()
 
         embed = discord.Embed(description=f"<:ivathumbsup:1051918474299056189> **Key registered for {mention}.**", color=discord.Color.dark_theme())
         await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=30)
+
     
 client.run(DISCORD_TOKEN)
