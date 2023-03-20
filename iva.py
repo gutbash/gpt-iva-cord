@@ -552,7 +552,6 @@ async def on_message(message):
                         await message.channel.send(content=f"{reply}", files=files)
                     
                     chat_mems[channel_id] = guild_memory
-                    print(guild_memory.chat_memory)
                     
                     subfolder_a = "users"
                     file_path_a = os.path.join(subfolder_a, f'users.pickle')
