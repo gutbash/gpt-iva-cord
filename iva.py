@@ -493,7 +493,7 @@ async def on_message(message):
                     suffix=textwrap.dedent(suffix).strip(),
                     input_variables=["input", "chat_history", "agent_scratchpad"],
                     ai_prefix = f"Iva ({agent_mention})",
-                    human_prefix = f"{user_name} ({user_mention})",
+                    human_prefix = f"{user_name} ({user_mention})1",
                 )
                 
                 if chat_mems[channel_id] != None:
@@ -501,7 +501,7 @@ async def on_message(message):
                     guild_memory = chat_mems[channel_id]
                     guild_memory.max_token_limit = 512
                     guild_memory.ai_prefix = f"Iva ({agent_mention})"
-                    #guild_memory.human_prefix = f"{user_name} ({user_mention})"
+                    guild_memory.human_prefix = f"{user_name} ({user_mention})2"
                     
                 else:
 
@@ -511,7 +511,7 @@ async def on_message(message):
                         memory_key="chat_history",
                         input_key="input",
                         ai_prefix = f"Iva ({agent_mention})",
-                        human_prefix = f"{user_name} ({user_mention})",
+                        human_prefix = f"{user_name} ({user_mention})3",
                     )
                 
                 llm_chain = LLMChain(
