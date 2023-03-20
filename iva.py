@@ -493,7 +493,7 @@ async def on_message(message):
                     suffix=textwrap.dedent(suffix).strip(),
                     input_variables=["input", "chat_history", "agent_scratchpad"],
                     ai_prefix = f"Iva ({agent_mention})",
-                    human_prefix = f"{user_name} ({user_mention})1",
+                    #human_prefix = f"{user_name} ({user_mention})1",
                 )
                 
                 if chat_mems[channel_id] != None:
