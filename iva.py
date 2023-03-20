@@ -495,7 +495,7 @@ async def on_message(message):
                     guild_memory = chat_mems[channel_id]
                     guild_memory.max_token_limit = 512
                     guild_memory.ai_prefix = f"Iva ({agent_mention})"
-                    #guild_memory.human_prefix = f"{user_name} ({user_mention})"
+                    guild_memory.human_prefix = f"{user_name} ({user_mention})"
                     
                 else:
 
@@ -1141,8 +1141,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     
     try:
         chat_model = "gpt-3.5-turbo"
-        if "--v4" in ask_prompt:
-            chat_model = "gpt-4"
+        #if "--v4" in ask_prompt:
+        #    chat_model = "gpt-4"
         
         ask_prompt = {"role": "system", "content": ask_prompt}
         ask_messages[id].insert(0, ask_prompt)
