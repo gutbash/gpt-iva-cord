@@ -501,7 +501,7 @@ async def on_message(message):
                     guild_memory = chat_mems[channel_id]
                     guild_memory.max_token_limit = 512
                     guild_memory.ai_prefix = f"Iva ({agent_mention})"
-                    #guild_memory.human_prefix = f"{user_name} ({user_mention})2"
+                    guild_memory.human_prefix = f"{user_name} ({user_mention})2"
                     
                 else:
 
@@ -552,6 +552,7 @@ async def on_message(message):
                         await message.channel.send(content=f"{reply}", files=files)
                     
                     chat_mems[channel_id] = guild_memory
+                    print(guild_memory.chat_memory)
                     
                     subfolder_a = "users"
                     file_path_a = os.path.join(subfolder_a, f'users.pickle')
