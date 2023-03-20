@@ -301,7 +301,7 @@ async def on_message(message):
             try:
                 
                 # Use the `SELECT` statement to fetch the row with the given id
-                cursor.execute("SELECT key FROM keys WHERE id = %s", (id,))
+                cursor.execute("SELECT key FROM keys WHERE id = %s", (str(id),))
                 result = cursor.fetchone()
          
             except UnboundLocalError as e:
@@ -677,7 +677,7 @@ class Menu(discord.ui.View):
         
         mention = interaction.user.mention
         # Use the `SELECT` statement to fetch the row with the given id
-        cursor.execute("SELECT key FROM keys WHERE id = %s", (id,))
+        cursor.execute("SELECT key FROM keys WHERE id = %s", (str(id),))
         result = cursor.fetchone()
         
         if result != None:
@@ -797,7 +797,7 @@ class Menu(discord.ui.View):
         
         mention = interaction.user.mention
         # Use the `SELECT` statement to fetch the row with the given id
-        cursor.execute("SELECT key FROM keys WHERE id = %s", (id,))
+        cursor.execute("SELECT key FROM keys WHERE id = %s", (str(id),))
         result = cursor.fetchone()
         
         if result != None:
@@ -889,7 +889,7 @@ class Menu(discord.ui.View):
         id = interaction.user.id
         mention = interaction.user.mention
         # Use the `SELECT` statement to fetch the row with the given id
-        cursor.execute("SELECT key FROM keys WHERE id = %s", (id,))
+        cursor.execute("SELECT key FROM keys WHERE id = %s", (str(id),))
         result = cursor.fetchone()
         
         if result != None:
@@ -1001,7 +1001,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     bot = client.user.display_name
     user_name = interaction.user.name
     # Use the `SELECT` statement to fetch the row with the given id
-    cursor.execute("SELECT key FROM keys WHERE id = %s", (id,))
+    cursor.execute("SELECT key FROM keys WHERE id = %s", (str(id),))
     result = cursor.fetchone()
     openai_key = ""
     
@@ -1672,7 +1672,7 @@ async def setup(interaction, key: str):
     mention = interaction.user.mention
 
     # Use the `SELECT` statement to fetch the row with the given id
-    cursor.execute("SELECT * FROM keys WHERE id = %s", (id,))
+    cursor.execute("SELECT * FROM keys WHERE id = %s", (str(id),))
 
     result = cursor.fetchone()
 
@@ -1682,7 +1682,7 @@ async def setup(interaction, key: str):
         if key != result[1]:
             
             # update the API key in the table
-            cursor.execute("UPDATE keys SET key = %s WHERE id = %s", (key, id))
+            cursor.execute("UPDATE keys SET key = %s WHERE id = %s", (key, str(id)))
             
             embed = discord.Embed(description=f"<:ivathumbsup:1051918474299056189> **Key updated for {mention}.**", color=discord.Color.dark_theme())
             await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=30)
@@ -1703,7 +1703,7 @@ async def setup(interaction, key: str):
     else:
         
         # insert a new API key into the table
-        cursor.execute("INSERT INTO keys (id, key) VALUES (%s, %s)", (id, key))
+        cursor.execute("INSERT INTO keys (id, key) VALUES (%s, %s)", (str(id), key))
         
         conn.commit()
 
