@@ -1146,10 +1146,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     #print(f"ASK FINAL PROMPT TOKENS: {tokens}")
     
     try:
-        chat_model = "gpt-3.5-turbo"
-        if "--v4" in ask_prompt:
-            ask_prompt.replace("--v4", "")
-            chat_model = "gpt-4"
+        #chat_model = "gpt-3.5-turbo"
+        chat_model = "gpt-4"
+        #if "--v4" in ask_prompt:
+            #ask_prompt.replace("--v4", "")
+            #chat_model = "gpt-4"
         
         ask_prompt = {"role": "system", "content": ask_prompt}
         ask_messages[id].insert(0, ask_prompt)
