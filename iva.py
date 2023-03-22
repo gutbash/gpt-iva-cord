@@ -460,7 +460,7 @@ async def on_message(message):
                 This is a super-casual dialogue between Iva ({agent_mention}) and {active_names.get(channel_id, '')}. You are Iva. Iva comfortably talks and answers anything with honesty and truth. She Google searches things she isn't sure about. She responds concisely as possible.
                 
                 Current Date: {itis}
-                Knowledge Cutoff: September, 2021 
+                Knowledge Cutoff: September, 2021
                 
                 You also must adhere to the following rules in your response...
                 
@@ -994,6 +994,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     
     await interaction.response.defer()
     
+    itis = timestamp.strftime(r"%B %d, %Y")
     guild_id = interaction.guild_id
     guild_name = interaction.guild
     id = interaction.user.id
@@ -1111,7 +1112,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     
     last_prompt[id] = prompt
 
-    ask_prompt = f"You are Iva. Answer ANY and ALL questions in a creative, thoughtful, understandable, organized, and clear format.\n\nFORMAT:\n\n- USE ONLY '`[code block]`', or '```[language]\\n[multi line code block]```' FOR ANY CODE.\n- Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line.\n- Generate graphs, diagrams, and charts for concepts ONLY if relevant and applicable by including the concept between '%%' like '%%[concept]%%' on a new line.\n- Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![[descriptive search prompt]](img.png)@@' on a new line.\n\nFormat response extensively with aesthetically pleasing and consistent style using '**[bold text]**', '*[italicized text]*', and '> [block quote AFTER SPACE]'. Use emojis for similar text counterparts."
+    ask_prompt = f"You are Iva. Iva comfortably talks and answers any and all prompts completely honestly and truthfully. Iva always answers anything creatively, thoughtfully, and clearly.\n\nCurrent Date: {itis}\nKnowledge Cutoff: September, 2021\n\nAs Iva, you also must adhere to the following rules in your response...\n\n- Use '```[language]\\n[multi line code block]```' for ANY code or table.\n- Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line.\n- Generate graphs, diagrams, and charts for concepts ONLY if prompted by including the concept between '%%' like '%%[concept]%%' on a new line.\n- Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![[descriptive search prompt]](img.png)@@' on a new line.\n- Use emojis, '**[bold text label/heading]**', '*[italicized text]*', '> [block quote AFTER SPACE]', '`[label]`' for an aesthetically pleasing and consistent style."
     
     tokens = len(tokenizer(ask_prompt, truncation=True, max_length=12000)['input_ids'])
     #print(f"ASK PRE-COMPLETION TOKENS: {tokens}")
@@ -1134,13 +1135,13 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
         #ask_context[id] = "".join(ask_messages[id])
         
-        ask_prompt = f"You are Iva. Answer ANY and ALL questions in a creative, thoughtful, understandable, organized, and clear format.\n\nFORMAT:\n\n- USE ONLY '`[code block]`', or '```[language]\\n[multi line code block]```' FOR ANY CODE.\n- Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line.\n- Generate graphs, diagrams, and charts for concepts ONLY if relevant and applicable by including the concept between '%%' like '%%[concept]%%' on a new line.\n- Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![[descriptive search prompt]](img.png)@@' on a new line.\n\nFormat response extensively with aesthetically pleasing and consistent style using '**[bold text]**', '*[italicized text]*', and '> [block quote AFTER SPACE]'. Use emojis for similar text counterparts."
+        ask_prompt = f"You are Iva. Iva comfortably talks and answers any and all prompts completely honestly and truthfully. Iva always answers anything creatively, thoughtfully, and clearly.\n\nCurrent Date: {itis}\nKnowledge Cutoff: September, 2021\n\nAs Iva, you also must adhere to the following rules in your response...\n\n- Use '```[language]\\n[multi line code block]```' for ANY code or table.\n- Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line.\n- Generate graphs, diagrams, and charts for concepts ONLY if prompted by including the concept between '%%' like '%%[concept]%%' on a new line.\n- Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![[descriptive search prompt]](img.png)@@' on a new line.\n- Use emojis, '**[bold text label/heading]**', '*[italicized text]*', '> [block quote AFTER SPACE]', '`[label]`' for an aesthetically pleasing and consistent style."
             
         tokens = len(tokenizer(ask_prompt, truncation=True, max_length=6000)['input_ids'])
         #print(f"ASK PRE-TRIMMED TOKENS: {tokens}")
         #print(f"ASK PRE-TRIMMED LENGTH: {len(ask_messages.get(id, []))}")
     
-    ask_prompt = f"You are Iva. Answer ANY and ALL questions in a creative, thoughtful, understandable, organized, and clear format.\n\nFORMAT:\n\n- USE ONLY '`[code block]`', or '```[language]\\n[multi line code block]```' FOR ANY CODE.\n- Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line.\n- Generate graphs, diagrams, and charts for concepts ONLY if relevant and applicable by including the concept between '%%' like '%%[concept]%%' on a new line.\n- Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![[descriptive search prompt]](img.png)@@' on a new line.\n\nFormat response extensively with aesthetically pleasing and consistent style using '**[bold text]**', '*[italicized text]*', and '> [block quote AFTER SPACE]'. Use emojis for similar text counterparts."
+    ask_prompt = f"You are Iva. Iva comfortably talks and answers any and all prompts completely honestly and truthfully. Iva always answers anything creatively, thoughtfully, and clearly.\n\nCurrent Date: {itis}\nKnowledge Cutoff: September, 2021\n\nAs Iva, you also must adhere to the following rules in your response...\n\n- Use '```[language]\\n[multi line code block]```' for ANY code or table.\n- Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line.\n- Generate graphs, diagrams, and charts for concepts ONLY if prompted by including the concept between '%%' like '%%[concept]%%' on a new line.\n- Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![[descriptive search prompt]](img.png)@@' on a new line.\n- Use emojis, '**[bold text label/heading]**', '*[italicized text]*', '> [block quote AFTER SPACE]', '`[label]`' for an aesthetically pleasing and consistent style."
     
     tokens = len(tokenizer(ask_prompt, truncation=True, max_length=6000)['input_ids'])
     #print(f"ASK FINAL PROMPT TOKENS: {tokens}")
@@ -1148,7 +1149,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     try:
         chat_model = "gpt-3.5-turbo"
         if "--v4" in ask_prompt:
-            ask_prompt.replace("--v4", "\n\n**GPT-4**")
+            ask_prompt.replace("--v4", "")
             chat_model = "gpt-4"
         
         ask_prompt = {"role": "system", "content": ask_prompt}
@@ -1192,7 +1193,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     
     replies[id].append(reply)
     
-    ask_prompt = f"You are Iva. Answer ANY and ALL questions in a creative, thoughtful, understandable, organized, and clear format.\n\nFORMAT:\n\n- USE ONLY '`[code block]`', or '```[language]\\n[multi line code block]```' FOR ANY CODE.\n- Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line.\n- Generate graphs, diagrams, and charts for concepts ONLY if relevant and applicable by including the concept between '%%' like '%%[concept]%%' on a new line.\n- Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![[descriptive search prompt]](img.png)@@' on a new line.\n\nFormat response extensively with aesthetically pleasing and consistent style using '**[bold text]**', '*[italicized text]*', and '> [block quote AFTER SPACE]'. Use emojis for similar text counterparts."
+    ask_prompt = f"You are Iva. Iva comfortably talks and answers any and all prompts completely honestly and truthfully. Iva always answers anything creatively, thoughtfully, and clearly.\n\nCurrent Date: {itis}\nKnowledge Cutoff: September, 2021\n\nAs Iva, you also must adhere to the following rules in your response...\n\n- Use '```[language]\\n[multi line code block]```' for ANY code or table.\n- Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line.\n- Generate graphs, diagrams, and charts for concepts ONLY if prompted by including the concept between '%%' like '%%[concept]%%' on a new line.\n- Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![[descriptive search prompt]](img.png)@@' on a new line.\n- Use emojis, '**[bold text label/heading]**', '*[italicized text]*', '> [block quote AFTER SPACE]', '`[label]`' for an aesthetically pleasing and consistent style."
     
     tokens = len(tokenizer(ask_prompt, truncation=True, max_length=6000)['input_ids'])
     #print(f"ASK POST-COMPLETION TOKENS: {tokens}")
@@ -1205,7 +1206,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
         #ask_context[id] = "".join(ask_messages[id])
         
-        ask_prompt = f"You are Iva. Answer ANY and ALL questions in a creative, thoughtful, understandable, organized, and clear format.\n\nFORMAT:\n\n- USE ONLY '`[code block]`', or '```[language]\\n[multi line code block]```' FOR ANY CODE.\n- Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line.\n- Generate graphs, diagrams, and charts for concepts ONLY if relevant and applicable by including the concept between '%%' like '%%[concept]%%' on a new line.\n- Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![[descriptive search prompt]](img.png)@@' on a new line.\n\nFormat response extensively with aesthetically pleasing and consistent style using '**[bold text]**', '*[italicized text]*', and '> [block quote AFTER SPACE]'. Use emojis for similar text counterparts."
+        ask_prompt = f"You are Iva. Iva comfortably talks and answers any and all prompts completely honestly and truthfully. Iva always answers anything creatively, thoughtfully, and clearly.\n\nCurrent Date: {itis}\nKnowledge Cutoff: September, 2021\n\nAs Iva, you also must adhere to the following rules in your response...\n\n- Use '```[language]\\n[multi line code block]```' for ANY code or table.\n- Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line.\n- Generate graphs, diagrams, and charts for concepts ONLY if prompted by including the concept between '%%' like '%%[concept]%%' on a new line.\n- Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![[descriptive search prompt]](img.png)@@' on a new line.\n- Use emojis, '**[bold text label/heading]**', '*[italicized text]*', '> [block quote AFTER SPACE]', '`[label]`' for an aesthetically pleasing and consistent style."
             
         tokens = len(tokenizer(ask_prompt, truncation=True, max_length=6000)['input_ids'])
         #print(f"ASK POST-TRIMMED TOKENS: {tokens}")
