@@ -994,7 +994,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     
     await interaction.response.defer()
     
-    itis = timestamp.strftime(r"%B %d, %Y")
     guild_id = interaction.guild_id
     guild_name = interaction.guild
     id = interaction.user.id
@@ -1009,6 +1008,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     # Get the current timestamp
     timestamp = datetime.datetime.now()
     time = timestamp.strftime(r"%Y-%m-%d %I:%M:%S")
+    itis = timestamp.strftime(r"%B %d, %Y")
     
     print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightcyan}ASK     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@{str(user_name).lower()}: {colors.reset}{prompt}")
     
