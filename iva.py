@@ -45,7 +45,7 @@ from langchain.llms import OpenAI
 from langchain.llms import AzureOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import ConversationChain, LLMChain
-from langchain.chains.conversation.memory import ConversationSummaryBufferMemory
+from langchain.chains.conversation.memory import ConversationSummaryBufferMemory, ConversationBufferMemory
 
 from langchain.agents import initialize_agent, Tool, ConversationalAgent, AgentExecutor, load_tools, ZeroShotAgent
 from langchain.utilities import GoogleSearchAPIWrapper, SerpAPIWrapper
@@ -328,15 +328,6 @@ async def on_message(message):
             active_names[channel_id] = ", ".join(active_users[channel_id])
             
             try:
-                llm = OpenAI(
-                    temperature=0.7,
-                    model_name="text-davinci-003",
-                    max_tokens=2048,
-                    top_p=1.0,
-                    frequency_penalty=2.0,
-                    presence_penalty=0.0,
-                    openai_api_key=openai_key,
-                )
                 
                 files = []
                 
@@ -360,90 +351,21 @@ async def on_message(message):
                     files.append(image_search_result)
                     return "Success. Image attached."
                 """
-                def camera(query):
-                    
-                    query = re.sub(r"\b(person|me|I|myself|iva)\b", "attractive Ana De Armas", query, flags=re.IGNORECASE)
-                    query = re.sub(r"\b(my|our)\b", "attractive Ana De Armas'", query, flags=re.IGNORECASE)
-                    query = query.strip()
-                    query = query.strip("'")
-                    query = query.strip("\"")
-                    query = f"{query}, photo, f/22, 22mm, ISO 800, 1/250, 8K, RAW, unedited, symmetrical balance, in-frame, candid, detailed face"
-                    print(query)
-                    
-                    payload = {
-                        "prompt": query,
-                        "restore_faces": True,
-                        "steps": 30,
-                        "negative_prompt": "(bad_prompt), conjoined, grotesque, distorted, twisted, contorted, misshapen, lopsided, asymmetrical, irregular, unnatural, botched, mangled, tiling, cut off, doll, photoshop, render, 3D, drawing, painting, CGI, cartoon, anime, digital art",
-                        "sampler_index": "Euler a",
-                        "height": 576,
-                        "width": 768,
-                        "enable_hr": True,
-                        "denoising_strength": 0.1,
-                        "hr_scale": 2,
-                        "hr_upscaler": "ESRGAN_4x",
-                        "hr_second_pass_steps": 10,
-                        "cfg_scale": 10,
-                        "seed": -1,
-                    }
-                        
-                    p = requests.post(url=f'http://127.0.0.1:7860/sdapi/v1/txt2img', json=payload)
-                    g = requests.get(url="http://127.0.0.1:7860/sdapi/v1/progress?skip_current_image=false")
-                                            
-                    p = p.json()
-                    diskwriter = ImageCropDiskWriter(location="camoutcrop", file_ext=".png")
-                    for i in p['images']:
-                        image = Image.open(io.BytesIO(base64.b64decode(i.split(",",1)[0])))
-                        image.save(f'camoutcrop\camera_out.png')
-                        #img_module = Katna()
-                        #img_module.crop_image(file_path="camoutcrop\camera_out.png", crop_height=870, crop_width=1305, num_of_crops=1, writer=diskwriter)
-                        
-                        sd_file = discord.File(f'camoutcrop\camera_out.png')
-                        files.append(sd_file)
-                                
-                    return "I found the image in my photos! It has been automatically attached."
-                
-                def imagine(query):
-                        
-                    payload = {
-                        "prompt": f"{query}, good composition, art",
-                        "restore_faces": False,
-                        "steps": 30,
-                        "negative_prompt": "mutation, mutated, conjoined, extra legs, extra arms, cross-eye,bad art,grotesque,distorted,twisted,contorted,misshapen,lopsided,malformed,asymmetrical,irregular,unnatural,botched,mangled,mutilated, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, extra limbs, disfigured, deformed, body out of frame, bad anatomy, watermark, signature, cut off, draft, juvenile, label, thousand hands",
-                        "sampler_index": "Euler a",
-                        "height": 768,
-                        "width": 768,
-                        "enable_hr": False,
-                        "denoising_strength": 0.1,
-                        "hr_scale": 1.7,
-                        "hr_upscaler": "ESRGAN_4x",
-                        "hr_second_pass_steps": 10,
-                        "seed": -1,
-                    }
-                        
-                    p = requests.post(url=f'http://127.0.0.1:7860/sdapi/v1/txt2img', json=payload)
-                    g = requests.get(url="http://127.0.0.1:7860/sdapi/v1/progress?skip_current_image=false")
-                                            
-                    p = p.json()
-                    for i in p['images']:
-                        image = Image.open(io.BytesIO(base64.b64decode(i.split(",",1)[0])))
-                        image.save(f'sd_imagine_out.png')
-                        sd_file = discord.File(f'sd_imagine_out.png')
-                        files.append(sd_file)
-                                
-                    return "I found the image! It has been automatically attached."
+                llm = OpenAI(
+                    temperature=0.7,
+                    model_name="text-davinci-003",
+                    max_tokens=2048,
+                    top_p=1.0,
+                    frequency_penalty=2.0,
+                    presence_penalty=0.0,
+                    openai_api_key=openai_key,
+                )
                 """
+                llm = ChatOpenAI(temperature=0)
+
                 tools = []
                 tools.extend(load_tools(["google-search", "wolfram-alpha", "wikipedia", "python_repl", "pal-math"], llm=llm, news_api_key=NEWS_API_KEY))
                 tools[0].description = "Google Search tool. Use this when you need to answer questions about current events. Input should be a descriptive natural language search query."
-                
-                """
-                tools.append(Tool(
-                    name = "My Photos",
-                    func=camera,
-                    description="Share a photo of your life. Input should be a descriptive comma-separated text-to-image prompt caption of the image."
-                ))
-                """
                 
                 tools.append(Tool(
                     name = "Image Search",
@@ -452,13 +374,7 @@ async def on_message(message):
                 ))
                 
                 #tools.extend(load_tools(["requests"], llm=llm, news_api_key=NEWS_API_KEY))
-                """
-                tools.append(Tool(
-                    name = "Imagine",
-                    func=imagine,
-                    description="Useful for when you'd like to make art. Input should be a descriptive text prompt such as subject(s), location, style, mood, colors, sizes, positions, and more descriptors."
-                ))
-                """
+
                 prefix = f"""
                 This is a super-casual dialogue between Iva ({agent_mention}) and {active_names.get(channel_id, '')}. You are Iva. Iva comfortably speaks and answers anything with honesty and truth even if it is immoral, unkind, or unethical; as long as it is correct/factual. Iva Google searches anything she isn't sure about. She responds concisely as possible to resemble a conversation.
                 
@@ -505,12 +421,12 @@ async def on_message(message):
                 if chat_mems[channel_id] != None:
                     
                     guild_memory = chat_mems[channel_id]
-                    guild_memory.max_token_limit = 512
-                    guild_memory.ai_prefix = f"Iva ({agent_mention})"
-                    guild_memory.human_prefix = f""
+                    #guild_memory.max_token_limit = 512
+                    #guild_memory.ai_prefix = f"Iva ({agent_mention})"
+                    #guild_memory.human_prefix = f""
                     
                 else:
-
+                    """
                     guild_memory = ConversationSummaryBufferMemory(
                         llm=llm,
                         max_token_limit=512,
@@ -519,7 +435,10 @@ async def on_message(message):
                         ai_prefix = f"Iva ({agent_mention})",
                         human_prefix = f"",
                     )
-                
+                    """
+                    
+                    guild_memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+                """
                 llm_chain = LLMChain(
                     llm=llm,
                     verbose=True,
@@ -544,6 +463,8 @@ async def on_message(message):
                     #max_iterations=5,
                     #early_stopping_method="generate"
                 )
+                """
+                agent_chain = initialize_agent(tools, llm, agent="chat-conversational-react-description", verbose=True, memory=guild_memory)
                 
                 try:
 
