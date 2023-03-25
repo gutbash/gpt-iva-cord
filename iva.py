@@ -361,7 +361,7 @@ async def on_message(message):
                     openai_api_key=openai_key,
                 )
                 """
-                llm = ChatOpenAI(temperature=0)
+                llm = ChatOpenAI(temperature=0, openai_api_key=openai_key)
 
                 tools = []
                 tools.extend(load_tools(["google-search", "wolfram-alpha", "wikipedia", "python_repl", "pal-math"], llm=llm, news_api_key=NEWS_API_KEY))
