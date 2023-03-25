@@ -19,6 +19,8 @@ import io
 import base64
 from PIL import Image
 
+import json
+import redis
 import asyncio
 
 from serpapi import GoogleSearch
@@ -112,31 +114,17 @@ class colors:
         cyan = '\033[46m'
         lightgrey = '\033[47m'
 
-# create API client with custom host, port
-#api = webuiapi.WebUIApi(host='127.0.0.1', port=7860)
-
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_TOKEN")
 GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
 os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
-
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN") # load discord app token
 GUILD_ID = os.getenv("GUILD_ID") # load dev guild
-
-#OPENAI_API_KEY = os.getenv("YOUR_API_KEY") # load open ai key
-#openai.api_key=OPENAI_API_KEY # assign open ai key
-
-CARROT_API = os.getenv("CARROT_API_KEY") # load carrot api key
-CARROT_MODEL = os.getenv("CARROT_MODEL_KEY") # load carrot model key
-
 SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
-
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
-
 WOLFRAM_ALPHA_APPID = os.getenv("WOLFRAM_ALPHA_APPID")
-
 DATABASE_URL = os.getenv("DATABASE_URL")
-
 REPLICATE_API_TOKEN = os.getenv("REPLICATE_API_TOKEN")
+
 model_blip = replicate.models.get("salesforce/blip-2")
 version_blip = model_blip.versions.get("4b32258c42e9efd4288bb9910bc532a69727f9acd26aa08e175713a0a857a608")
 model_sd = replicate.models.get("stability-ai/stable-diffusion")
@@ -163,7 +151,6 @@ with psycopg2.connect(DATABASE_URL) as conn:
         # check if the keys table exists
         cursor.execute("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'keys')")
         table_exists = cursor.fetchone()[0]
-
         # create the keys table if it does not exist
         if not table_exists:
             cursor.execute("CREATE TABLE keys (id TEXT PRIMARY KEY, key TEXT)")
@@ -1182,8 +1169,8 @@ async def tutorial(interaction):
     embed_chat = discord.Embed(title="`@iva`", description="provides **chat** and **conversation** oriented answers. has personality, asks questions back, is more creative.", color=discord.Color.dark_theme())
 
     embed_ask = discord.Embed(title="`/iva`", description="provides **academic** and **work** oriented answers. has less personality, is more focused on consistency and reliability.", color=discord.Color.dark_theme())
-    embed_ask.add_field(inline=True, name="<:ivacontinue1:1051714712242491392> `Continue`", value="say more, extend the last prompt's response")
-    embed_ask.add_field(inline=True, name="<:ivaregenerate:1051697145713000580> `Regenerate`", value="replace the last prompt's response with a different one")
+    #embed_ask.add_field(inline=True, name="<:ivacontinue1:1051714712242491392> `Continue`", value="say more, extend the last prompt's response")
+    #embed_ask.add_field(inline=True, name="<:ivaregenerate:1051697145713000580> `Regenerate`", value="replace the last prompt's response with a different one")
     embed_ask.add_field(inline=True, name="<:ivareset:1051691297443950612> `Reset`", value="reset `/iva` conversation history, clear iva's memory")
     
     embed_other = discord.Embed(title="Other", color=discord.Color.dark_theme())
