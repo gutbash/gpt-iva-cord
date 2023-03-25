@@ -19,6 +19,8 @@ import io
 import base64
 from PIL import Image
 
+import asyncio
+
 from serpapi import GoogleSearch
 import textwrap
 import pickle
@@ -144,19 +146,28 @@ replicate.Client(api_token=REPLICATE_API_TOKEN)
 
 tokenizer = GPT2TokenizerFast.from_pretrained("gpt2") # initialize tokenizer
 
-conn = psycopg2.connect(DATABASE_URL) # create a connection to the database
+def fetch_key(id):
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT key FROM keys WHERE id = %s", (str(id),))
+            result = cursor.fetchone()
+    return result
 
-# create a cursor object
-cursor = conn.cursor()
+async def async_fetch_key(id):
+    loop = asyncio.get_event_loop()
+    result = await loop.run_in_executor(None, fetch_key, id)
+    return result
 
-# check if the keys table exists
-cursor.execute("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'keys')")
-table_exists = cursor.fetchone()[0]
+with psycopg2.connect(DATABASE_URL) as conn:
+    with conn.cursor() as cursor:
+        # check if the keys table exists
+        cursor.execute("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'keys')")
+        table_exists = cursor.fetchone()[0]
 
-# create the keys table if it does not exist
-if not table_exists:
-    cursor.execute("CREATE TABLE keys (id TEXT PRIMARY KEY, key TEXT)")
-    conn.commit()
+        # create the keys table if it does not exist
+        if not table_exists:
+            cursor.execute("CREATE TABLE keys (id TEXT PRIMARY KEY, key TEXT)")
+            conn.commit()
 
 intents = discord.Intents.default() # declare intents
 intents.message_content = True
@@ -298,15 +309,7 @@ async def on_message(message):
             
         async with message.channel.typing():
             
-            try:
-                
-                # Use the `SELECT` statement to fetch the row with the given id
-                cursor.execute("SELECT key FROM keys WHERE id = %s", (str(id),))
-                result = cursor.fetchone()
-         
-            except UnboundLocalError as e:
-                print(e)
-                return
+            result = await async_fetch_key(id)
             
             if result != None:
                 openai.api_key=result[0]
@@ -676,9 +679,7 @@ class Menu(discord.ui.View):
             return
         
         mention = interaction.user.mention
-        # Use the `SELECT` statement to fetch the row with the given id
-        cursor.execute("SELECT key FROM keys WHERE id = %s", (str(id),))
-        result = cursor.fetchone()
+        result = await async_fetch_key(id)
         
         if result != None:
             openai.api_key=result[0]
@@ -796,9 +797,7 @@ class Menu(discord.ui.View):
             return
         
         mention = interaction.user.mention
-        # Use the `SELECT` statement to fetch the row with the given id
-        cursor.execute("SELECT key FROM keys WHERE id = %s", (str(id),))
-        result = cursor.fetchone()
+        result = await async_fetch_key(id)
         
         if result != None:
             openai.api_key=result[0]
@@ -888,9 +887,7 @@ class Menu(discord.ui.View):
         guild_id = interaction.guild_id
         id = interaction.user.id
         mention = interaction.user.mention
-        # Use the `SELECT` statement to fetch the row with the given id
-        cursor.execute("SELECT key FROM keys WHERE id = %s", (str(id),))
-        result = cursor.fetchone()
+        result = await async_fetch_key(id)
         
         if result != None:
             openai.api_key=result[0]
@@ -1001,8 +998,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     bot = client.user.display_name
     user_name = interaction.user.name
     # Use the `SELECT` statement to fetch the row with the given id
-    cursor.execute("SELECT key FROM keys WHERE id = %s", (str(id),))
-    result = cursor.fetchone()
+    result = await async_fetch_key(id)
     openai_key = ""
     
     # Get the current timestamp
@@ -1674,9 +1670,7 @@ async def setup(interaction, key: str):
     mention = interaction.user.mention
 
     # Use the `SELECT` statement to fetch the row with the given id
-    cursor.execute("SELECT * FROM keys WHERE id = %s", (str(id),))
-
-    result = cursor.fetchone()
+    result = await async_fetch_key(id)
 
     if result != None:
 
