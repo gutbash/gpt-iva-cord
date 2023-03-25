@@ -45,7 +45,7 @@ from langchain.llms import OpenAI
 from langchain.llms import AzureOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import ConversationChain, LLMChain
-from langchain.chains.conversation.memory import ConversationSummaryBufferMemory, ConversationBufferMemory
+from langchain.chains.conversation.memory import ConversationSummaryBufferMemory
 
 from langchain.agents import initialize_agent, Tool, ConversationalAgent, AgentExecutor, load_tools, ZeroShotAgent
 from langchain.utilities import GoogleSearchAPIWrapper, SerpAPIWrapper
@@ -350,7 +350,7 @@ async def on_message(message):
 
                     files.append(image_search_result)
                     return "Success. Image attached."
-                """
+                
                 llm = OpenAI(
                     temperature=0.7,
                     model_name="text-davinci-003",
@@ -360,8 +360,6 @@ async def on_message(message):
                     presence_penalty=0.0,
                     openai_api_key=openai_key,
                 )
-                """
-                llm = ChatOpenAI(temperature=0, openai_api_key=openai_key)
 
                 tools = []
                 tools.extend(load_tools(["google-search", "wolfram-alpha", "wikipedia", "python_repl", "pal-math"], llm=llm, news_api_key=NEWS_API_KEY))
@@ -421,12 +419,12 @@ async def on_message(message):
                 if chat_mems[channel_id] != None:
                     
                     guild_memory = chat_mems[channel_id]
-                    #guild_memory.max_token_limit = 512
-                    #guild_memory.ai_prefix = f"Iva ({agent_mention})"
-                    #guild_memory.human_prefix = f""
+                    guild_memory.max_token_limit = 512
+                    guild_memory.ai_prefix = f"Iva ({agent_mention})"
+                    guild_memory.human_prefix = f""
                     
                 else:
-                    """
+
                     guild_memory = ConversationSummaryBufferMemory(
                         llm=llm,
                         max_token_limit=512,
@@ -435,10 +433,7 @@ async def on_message(message):
                         ai_prefix = f"Iva ({agent_mention})",
                         human_prefix = f"",
                     )
-                    """
-                    
-                    guild_memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
-                """
+                
                 llm_chain = LLMChain(
                     llm=llm,
                     verbose=True,
@@ -463,8 +458,6 @@ async def on_message(message):
                     #max_iterations=5,
                     #early_stopping_method="generate"
                 )
-                """
-                agent_chain = initialize_agent(tools, llm, agent="chat-conversational-react-description", verbose=True, memory=guild_memory)
                 
                 try:
 
