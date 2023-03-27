@@ -1050,14 +1050,18 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         if len(reply) > 4096:
             try:
                 embeds = []
-                reply_part_one = reply[0:4095]
-                reply_part_two = reply[4096:-1]
-                embed1 = discord.Embed(description=reply_part_one, color=discord.Color.dark_theme())
-                embed2 = discord.Embed(description=reply_part_two, color=discord.Color.dark_theme())
-                embeds.append(embed1, embed2)
+                substrings = []
+                for i in range(0, len(reply), 4096):
+                    substring = reply[i:i+4096]
+                    substrings.append(substring)
+                    
+                for string in substrings:
+                    embed_string = discord.Embed(description=string, color=discord.Color.dark_theme())
+                    embeds.append(string)
+
                 await interaction.followup.send(embeds=embeds, ephemeral=False)
             except:                   
-                embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{mention} 4096 character response limit reached. Use `/reset`.**', color=discord.Color.dark_theme())
+                embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{mention} 4096 character response limit reached. Response contains {len(reply)} characters. Use `/reset`.**', color=discord.Color.dark_theme())
                 await interaction.followup.send(embed=embed, ephemeral=False)
             return
     try:
