@@ -770,6 +770,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     
     try:
         chat_model = "gpt-3.5-turbo"
+        chat_model = "gpt-4"
         if "--v4" in ask_prompt:
             ask_prompt.replace("--v4", "")
             chat_model = "gpt-4"
@@ -844,7 +845,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         for i in range(interaction_count):
             dash_count += "-"
     
-    prompt_embed = discord.Embed(description=f"{dash_count}<:ivaprompt:1051742892814761995>  {prompt}{file_placeholder}")
+    prompt_embed = discord.Embed(description=f"{dash_count}<:ivaprompt:1051742892814761995>  {prompt}{file_placeholder}\n\n**GENERATED WITH {chat_model}**")
     embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
     
     embeds = []
@@ -1046,33 +1047,29 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         except Exception as e:
             print(e)
     else:
-        embeds.append(embed)
-    
-    if len(reply) > 6000:
-        try:
-            embeds = []
-            reply_part_one = reply[0:5999]
-            reply_part_two = reply[6000:-1]
-            embed1 = discord.Embed(description=reply_part_one, color=discord.Color.dark_theme())
-            embed2 = discord.Embed(description=reply_part_two, color=discord.Color.dark_theme())
-            embeds.append(embed1, embed2)
-            await interaction.followup.send(embeds=embeds, ephemeral=False)
-        except:                   
-            embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{mention} 4096 character response limit reached. Use `/reset`.**', color=discord.Color.dark_theme())
-            await interaction.followup.send(embed=embed, ephemeral=False)
-        return
-
-    else:
-        try:
-            print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightcyan}ASK     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@iva: {colors.reset}{reply}")
-            await interaction.followup.send(files=files, embeds=embeds, view=view)
-            last_response[id] = interaction
-            #print(files, embeds)
-            if len(embeds_overflow) > 0:
-                await interaction.channel.send(files = files_overflow, embeds=embeds_overflow)
+        if len(reply) > 4096:
+            try:
+                embeds = []
+                reply_part_one = reply[0:4095]
+                reply_part_two = reply[4096:-1]
+                embed1 = discord.Embed(description=reply_part_one, color=discord.Color.dark_theme())
+                embed2 = discord.Embed(description=reply_part_two, color=discord.Color.dark_theme())
+                embeds.append(embed1, embed2)
+                await interaction.followup.send(embeds=embeds, ephemeral=False)
+            except:                   
+                embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{mention} 4096 character response limit reached. Use `/reset`.**', color=discord.Color.dark_theme())
+                await interaction.followup.send(embed=embed, ephemeral=False)
             return
-        except Exception as e:
-            print(e)
+    try:
+        print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightcyan}ASK     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@iva: {colors.reset}{reply}")
+        await interaction.followup.send(files=files, embeds=embeds, view=view)
+        last_response[id] = interaction
+        #print(files, embeds)
+        if len(embeds_overflow) > 0:
+            await interaction.channel.send(files = files_overflow, embeds=embeds_overflow)
+        return
+    except Exception as e:
+        print(e)
 
 @tree.command(name = "reset", description="start a new conversation")
 async def reset(interaction):
