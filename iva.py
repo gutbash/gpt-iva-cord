@@ -349,7 +349,7 @@ async def on_message(message):
                 )
 
                 tools = []
-                tools.extend(load_tools(["google-search", "wolfram-alpha", "wikipedia", "python_repl", "pal-math"], llm=llm, news_api_key=NEWS_API_KEY))
+                tools.extend(load_tools(["google-search", "requests", "wolfram-alpha", "wikipedia", "python_repl", "pal-math"], llm=llm, news_api_key=NEWS_API_KEY))
                 tools[0].description = "Google Search tool. Use this when you need to answer questions about current events. Input should be a descriptive natural language search query."
                 
                 tools.append(Tool(
@@ -448,7 +448,7 @@ async def on_message(message):
                 
                 try:
 
-                    reply = agent_chain.run(input=f"{user_name} ({user_mention}): {prompt}{caption}")
+                    reply = await agent_chain.arun(input=f"{user_name} ({user_mention}): {prompt}{caption}")
                         
                     if len(reply) > 2000:
                         embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
