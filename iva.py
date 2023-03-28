@@ -337,7 +337,7 @@ async def on_message(message):
 
                     files.append(image_search_result)
                     return "Success. Image attached."
-                
+                """
                 llm = OpenAI(
                     temperature=0.7,
                     model_name="text-davinci-003",
@@ -347,6 +347,11 @@ async def on_message(message):
                     presence_penalty=0.0,
                     openai_api_key=openai_key,
                 )
+                """
+                llm = ChatOpenAI(
+                    temperature=0,
+                    openai_api_key=openai_key,
+                    )
 
                 tools = []
                 tools.extend(load_tools(["google-search", "wolfram-alpha", "wikipedia", "python_repl", "pal-math"], llm=llm, news_api_key=NEWS_API_KEY))
