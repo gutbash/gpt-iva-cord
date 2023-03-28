@@ -774,8 +774,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     try:
         chat_model = "gpt-3.5-turbo"
         #chat_model = "gpt-4"
-        if "--v4" in ask_prompt:
-            ask_prompt.replace("--v4", "")
+        if "--v4" in prompt:
+            prompt.replace("--v4", "")
             chat_model = "gpt-4"
         
         ask_prompt = {"role": "system", "content": ask_prompt}
