@@ -600,7 +600,13 @@ class Menu(discord.ui.View):
         await interaction.message.edit(view=None, embeds=embeds, attachments=attachments)
         #await interaction.channel.send(embed=embed)
 
-@tree.command(name = "iva", description="write a prompt")
+@tree.command(
+    name = "iva",
+    description="write a prompt",
+    options = [
+        "gpt-4",
+        "gpt-3.5"
+    ])
 @app_commands.describe(prompt = "prompt", file = "file (txt, pdf, html, xml)")
 async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attachment=None):
     
