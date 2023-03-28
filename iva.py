@@ -1211,8 +1211,10 @@ async def setup(interaction, key: str):
         # Access the values of the columns in the row
         if key != result[1]:
             
-            # update the API key in the table
-            cursor.execute("UPDATE keys SET key = %s WHERE id = %s", (key, str(id)))
+            with psycopg2.connect(DATABASE_URL) as conn:
+                with conn.cursor() as cursor:
+                    # update the API key in the table
+                    cursor.execute("UPDATE keys SET key = %s WHERE id = %s", (key, str(id)))
             
             embed = discord.Embed(description=f"<:ivathumbsup:1051918474299056189> **Key updated for {mention}.**", color=discord.Color.dark_theme())
             await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=30)
@@ -1220,7 +1222,7 @@ async def setup(interaction, key: str):
             conn.commit()
 
             # Print the values of the columns
-            print(f'id: {id}, key: {key}')
+            #print(f'id: {id}, key: {key}')
         
         elif key == result[1]:
             
