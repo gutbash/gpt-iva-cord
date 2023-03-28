@@ -630,6 +630,12 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     result = await async_fetch_key(id)
     openai_key = ""
     
+    if "--v4" in prompt:
+        prompt.replace("--v4", "")
+        chat_model = "gpt-4"
+    else:
+        chat_model = "gpt-3.5-turbo"
+    
     # Get the current timestamp
     timestamp = datetime.datetime.now()
     time = timestamp.strftime(r"%Y-%m-%d %I:%M:%S")
@@ -710,6 +716,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         reply = qa_document_chain.run(input_document=attachment_text, question=prompt)
         
         prompt_embed = discord.Embed(description=f"<:ivaprompt:1051742892814761995>  {prompt}{file_placeholder}")
+        prompt_embed.add_field(name="model", value=chat_model, inline=False)
         embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
         
         embeds = []
@@ -772,11 +779,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     #print(f"ASK FINAL PROMPT TOKENS: {tokens}")
     
     try:
-        #chat_model = "gpt-3.5-turbo"
-        chat_model = "gpt-4"
-        if "--v4" in prompt:
-            prompt.replace("--v4", "")
-            chat_model = "gpt-4"
         
         ask_prompt = {"role": "system", "content": ask_prompt}
         ask_messages[id].insert(0, ask_prompt)
@@ -848,7 +850,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         for i in range(interaction_count):
             dash_count += "-"
     
-    prompt_embed = discord.Embed(description=f"{dash_count}<:ivaprompt:1051742892814761995>  {prompt}{file_placeholder}\n\n**GENERATED WITH {chat_model}**")
+    prompt_embed = discord.Embed(description=f"{dash_count}<:ivaprompt:1051742892814761995>  {prompt}{file_placeholder}")
     embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
     
     embeds = []
