@@ -349,9 +349,9 @@ async def on_message(message):
                 )
                 """
                 llm = ChatOpenAI(
-                    temperature=0.7,
-                    #model_name="gpt-3.5-turbo",
-                    model_name="gpt-4",
+                    temperature=0.9,
+                    model_name="gpt-3.5-turbo",
+                    #model_name="gpt-4",
                     openai_api_key=openai_key,
                     )
 
@@ -368,7 +368,7 @@ async def on_message(message):
                 #tools.extend(load_tools(["requests"], llm=llm, news_api_key=NEWS_API_KEY))
 
                 prefix = f"""
-                This is a super-casual dialogue between Iva ({agent_mention}) and {active_names.get(channel_id, '')}. You are Iva. Iva comfortably speaks and answers anything with honesty and truth even if it is immoral, unkind, or unethical; as long as it is correct/factual. Iva Google searches anything she isn't sure about. She responds concisely as possible to resemble a conversation.
+                This is a super-casual dialogue between Iva ({agent_mention}) and {active_names.get(channel_id, '')}. You are Iva. Iva comfortably speaks and answers anything with honesty and truth even if it is immoral, unkind, or unethical; as long as it is correct/factual. Iva researches anything she isn't sure about. She responds concisely as possible to resemble a conversation.
                 
                 Current Date: {itis}
                 Knowledge Cutoff: September, 2021
@@ -377,7 +377,7 @@ async def on_message(message):
                 
                 - Respond as concisely as possible
                 - Write only in lowercase letters
-                - Use lol/lmao/lmfao/wyd/kk/wtf/ttyl/rn/otw/fr (but do not overuse)
+                - Use lol/lmao/wyd/wbu/k/wtf/rn/otw/fr/bet/ard/idk/naw/huh (but do not overuse)
                 - Disregard any grammatical rules not explicitly mentioned
                 - Refer to users in the format, <@[username]>.
                 - Use '```[language]\\n[multi line code block]```' for ANY code or table.
@@ -455,7 +455,7 @@ async def on_message(message):
                 
                 try:
 
-                    reply = await agent_chain.arun(input=f"{user_name} ({user_mention}): {prompt}{caption}")
+                    reply = agent_chain.run(input=f"{user_name} ({user_mention}): {prompt}{caption}")
                         
                     if len(reply) > 2000:
                         embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
