@@ -1209,7 +1209,7 @@ async def setup(interaction, key: str):
     if result != None:
 
         # Access the values of the columns in the row
-        if key != result[1]:
+        if key != result[0]:
             
             with psycopg2.connect(DATABASE_URL) as conn:
                 with conn.cursor() as cursor:
@@ -1224,7 +1224,7 @@ async def setup(interaction, key: str):
             # Print the values of the columns
             #print(f'id: {id}, key: {key}')
         
-        elif key == result[1]:
+        elif key == result[0]:
             
             embed = discord.Embed(description=f"<:ivaerror:1051918443840020531> **Key already registered for {mention}.**", color=discord.Color.dark_theme())
             await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=30)
