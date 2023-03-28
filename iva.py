@@ -602,11 +602,8 @@ class Menu(discord.ui.View):
 
 @tree.command(
     name = "iva",
-    description="write a prompt",
-    options = [
-        "gpt-4",
-        "gpt-3.5"
-    ])
+    description="write a prompt"
+)
 @app_commands.describe(prompt = "prompt", file = "file (txt, pdf, html, xml)")
 async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attachment=None):
     
