@@ -349,12 +349,14 @@ async def on_message(message):
                 )
                 """
                 llm = ChatOpenAI(
-                    temperature=0,
+                    temperature=0.7,
+                    #model_name="gpt-3.5-turbo",
+                    model_name="gpt-4",
                     openai_api_key=openai_key,
                     )
 
                 tools = []
-                tools.extend(load_tools(["google-search", "wolfram-alpha", "wikipedia", "python_repl"], llm=llm, news_api_key=NEWS_API_KEY))
+                tools.extend(load_tools(["google-search", "requests", "wolfram-alpha", "wikipedia", "python_repl"], llm=llm, news_api_key=NEWS_API_KEY))
                 tools[0].description = "Google Search tool. Use this when you need to answer questions about current events. Input should be a descriptive natural language search query."
                 
                 tools.append(Tool(
