@@ -455,7 +455,7 @@ async def on_message(message):
                 
                 try:
 
-                    reply = agent_chain.run(input=f"{user_name} ({user_mention}): {prompt}{caption}")
+                    reply = await agent_chain.arun(input=f"{user_name} ({user_mention}): {prompt}{caption}")
                         
                     if len(reply) > 2000:
                         embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
