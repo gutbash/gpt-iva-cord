@@ -354,7 +354,7 @@ async def on_message(message):
                     )
 
                 tools = []
-                tools.extend(load_tools(["google-search", "wolfram-alpha", "wikipedia", "python_repl", "pal-math"], llm=llm, news_api_key=NEWS_API_KEY))
+                tools.extend(load_tools(["google-search", "wolfram-alpha", "wikipedia", "python_repl"], llm=llm, news_api_key=NEWS_API_KEY))
                 tools[0].description = "Google Search tool. Use this when you need to answer questions about current events. Input should be a descriptive natural language search query."
                 
                 tools.append(Tool(
