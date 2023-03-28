@@ -716,7 +716,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         reply = qa_document_chain.run(input_document=attachment_text, question=prompt)
         
         prompt_embed = discord.Embed(description=f"<:ivaprompt:1051742892814761995>  {prompt}{file_placeholder}")
-        prompt_embed.add_field(name="model", value=chat_model, inline=True)
         embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
         
         embeds = []
@@ -851,6 +850,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             dash_count += "-"
     
     prompt_embed = discord.Embed(description=f"{dash_count}<:ivaprompt:1051742892814761995>  {prompt}{file_placeholder}")
+    prompt_embed.add_field(name="model", value=chat_model, inline=True)
     embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
     
     embeds = []
