@@ -1234,10 +1234,10 @@ async def setup(interaction, key: str):
         
     else:
         
-        # insert a new API key into the table
-        cursor.execute("INSERT INTO keys (id, key) VALUES (%s, %s)", (str(id), key))
-        
-        conn.commit()
+        with psycopg2.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cursor:
+                # insert a new API key into the table
+                cursor.execute("INSERT INTO keys (id, key) VALUES (%s, %s)", (str(id), key))
 
         embed = discord.Embed(description=f"<:ivathumbsup:1051918474299056189> **Key registered for {mention}.**", color=discord.Color.dark_theme())
         await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=30)
