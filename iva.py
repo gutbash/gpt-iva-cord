@@ -631,7 +631,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     openai_key = ""
     
     if "--v4" in prompt:
-        prompt.replace("--v4", "")
+        prompt = prompt.replace("--v4", "")
         chat_model = "gpt-4"
     else:
         chat_model = "gpt-3.5-turbo"
