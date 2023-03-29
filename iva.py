@@ -186,7 +186,7 @@ async def on_message(message):
                 files = []
 
                 llm = ChatOpenAI(
-                    temperature=0.5,
+                    temperature=0.7,
                     model_name="gpt-3.5-turbo",
                     #model_name="gpt-4",
                     openai_api_key=openai_key,
@@ -203,13 +203,13 @@ async def on_message(message):
                 tools.append(Tool(
                     name = "Search Results",
                     func=get_top_search_results,
-                    description="Get a list of website results. Input should be a descriptive name of the web page or search query in question. The output will be the top 10 results with their URL and description."
+                    description="Get a list of website results. Input should be a descriptive name of the web page or search query in question. Do not input URL links. The output will be the top 10 results with their URL and description."
                 ))
                 
                 tools.append(Tool(
                     name = "Requests",
                     func=get_important_text,
-                    description="Scrape and read the content of a specific web page. Use this when you need to get specific content from a website. Input should be a  url (i.e. https://www.google.com). The output will be the text response of the GET request."
+                    description="Scrape and read the content of a specific web page. Use this when you need to get specific content from a website. Input should be a url (i.e. https://www.google.com). The output will be the text response of the GET request."
                 ))
                 
                 tools.extend(load_tools(["google-search", "wolfram-alpha", "wikipedia"], llm=llm, news_api_key=NEWS_API_KEY))
