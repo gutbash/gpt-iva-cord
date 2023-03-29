@@ -195,13 +195,13 @@ async def on_message(message):
                 tools = []
                 
                 tools.append(Tool(
-                    name = "Search Results",
+                    name = "Get Search Results",
                     func=get_top_search_results,
                     description="Get a list of website results. Input should be a descriptive name of the web page or search query in question. Do not input URL links. The output will be the top 10 results with their URL and description."
                 ))
                 
                 tools.append(Tool(
-                    name = "Requests",
+                    name = "Read Web Page",
                     func=get_important_text,
                     description="Scrape and read the content of a specific web page. Use this when you need to get specific content from a website. Input should be a url (i.e. https://www.google.com). The output will be the text response of the GET request."
                 ))
