@@ -152,7 +152,7 @@ async def load_dict_from_redis(key):
     redis_client.close()
 
     if json_data is None:
-        return None
+        return {}
     return json.loads(json_data)
 
 def fetch_key(id):
@@ -248,7 +248,7 @@ async def on_message(message):
         global active_names
         global chat_mems
         
-        active_users = await load_dict_from_redis("active_users")
+        active_users = await load_dict_from_redis('active_users')
         chat_mems = await load_dict_from_redis('chat_mems')
         
         # Get the current timestamp
