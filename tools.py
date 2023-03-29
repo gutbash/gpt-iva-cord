@@ -6,13 +6,14 @@ import os
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_TOKEN")
 GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
 os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
+SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
 
-def get_top_search_result(query, api_key):
+def get_top_search_result(query):
     try:
         # Configure the GoogleSearch object with the provided query and API key
         search = GoogleSearch({
             "q": query,
-            "api_key": api_key
+            "api_key": SERPAPI_API_KEY
         })
 
         # Perform the search and get the search results
