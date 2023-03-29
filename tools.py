@@ -9,7 +9,7 @@ GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
 os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
 SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
 
-def get_top_search_result(query):
+def get_top_search_results(query):
     try:
         # Configure the GoogleSearch object with the provided query and API key
         search = GoogleSearch({
@@ -21,15 +21,23 @@ def get_top_search_result(query):
         results = search.get_dict()
         organic_results = results.get("organic_results")
 
-        # Return the URL of the top search result
+        # Extract the URLs and short descriptions of the top 10 search results
+        top_results = []
         if organic_results and len(organic_results) > 0:
-            return organic_results[0]["link"]
-        else:
-            return None
+            for i in range(10):
+                if i < len(organic_results):
+                    result = {}
+                    result["url"] = organic_results[i]["link"]
+                    result["description"] = organic_results[i]["snippet"]
+                    top_results.append(result)
+                else:
+                    break
+        return top_results
 
     except Exception as e:
         print(f"Error: {e}")
         return None
+
     
 def get_image_from_search(query):
     # Replace YOUR_API_KEY and YOUR_CSE_ID with your own API key and CSE ID

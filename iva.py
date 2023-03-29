@@ -6,7 +6,7 @@ import discord.ext.tasks
 from log_utils import colors
 from redis_utils import save_pickle_to_redis, load_pickle_from_redis
 from postgres_utils import async_fetch_key
-from tools import get_top_search_result, get_image_from_search, get_important_text
+from tools import get_top_search_results, get_image_from_search, get_important_text
 
 import os
 import openai
@@ -204,8 +204,8 @@ async def on_message(message):
                 
                 tools.append(Tool(
                     name = "Share URL",
-                    func=get_top_search_result,
-                    description="Share a link to a website. Input should be a descriptive name of the web page or search query. The output will be the link to the website"
+                    func=get_top_search_results,
+                    description="Share a link to a website. Input should be a descriptive name of the web page or search query. The output will be the top 10 results with their URL and description."
                 ))
                 
                 tools.append(Tool(
