@@ -53,7 +53,8 @@ def get_important_text(url):
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
 
-    important_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'article', 'section', 'span', 'figcaption', 'blockquote']
+    #important_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'article', 'section', 'span', 'figcaption', 'blockquote']
+    important_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p']
     important_text = ''
 
     for tag in important_tags:
