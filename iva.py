@@ -201,15 +201,15 @@ async def on_message(message):
                 ))
                 
                 tools.append(Tool(
-                    name = "Share Link",
+                    name = "Search Results",
                     func=get_top_search_results,
-                    description="Share a URL link to a website. Input should be a descriptive name of the web page or search query. The output will be the top 10 results with their URL and description."
+                    description="Get a list of website results. Input should be a descriptive name of the web page or search query in question. The output will be the top 10 results with their URL and description."
                 ))
                 
                 tools.append(Tool(
                     name = "Requests",
                     func=get_important_text,
-                    description="Scrape and read the content of a web page. Use this when you need to get specific content from a website. Input should be a  url (i.e. https://www.google.com). The output will be the text response of the GET request."
+                    description="Scrape and read the content of a specific web page. Use this when you need to get specific content from a website. Input should be a  url (i.e. https://www.google.com). The output will be the text response of the GET request."
                 ))
                 
                 tools.extend(load_tools(["google-search", "wolfram-alpha", "wikipedia"], llm=llm, news_api_key=NEWS_API_KEY))
