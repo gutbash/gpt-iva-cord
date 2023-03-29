@@ -3,7 +3,6 @@ from discord import app_commands
 import discord.ext.commands
 import discord.ext.tasks
 import os
-from dotenv import load_dotenv
 import openai
 import psycopg2
 import datetime
@@ -31,18 +30,10 @@ from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from langchain.chains.conversation.memory import ConversationSummaryBufferMemory
-
 from langchain.agents import Tool, ConversationalAgent, AgentExecutor, load_tools
-from langchain.prompts import PromptTemplate
-
-from langchain import PromptTemplate, LLMChain
-from langchain.prompts import PromptTemplate
-
+from langchain import LLMChain
 from langchain.chains import AnalyzeDocumentChain
-
 from langchain.chains.question_answering import load_qa_chain
-
-load_dotenv() # load .env file
 
 class colors:
 
