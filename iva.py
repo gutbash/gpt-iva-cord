@@ -15,6 +15,7 @@ import datetime
 from transformers import GPT2TokenizerFast
 import replicate
 import re
+import requests
 import itertools
 import pydot
 import PyPDF2
