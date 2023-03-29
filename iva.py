@@ -143,13 +143,13 @@ async def save_dict_to_redis(key, data):
     redis_client = await get_redis_client()
     json_data = json.dumps(data)
     await redis_client.set(key, json_data)
-    redis_client.close()
+    await redis_client.close()
 
 # Async function to load a dictionary from Redis
 async def load_dict_from_redis(key):
     redis_client = await get_redis_client()
     json_data = await redis_client.get(key)
-    redis_client.close()
+    await redis_client.close()
 
     if json_data is None:
         return {}
