@@ -206,7 +206,7 @@ async def on_message(message):
                     return "Success. Image attached."
 
                 llm = ChatOpenAI(
-                    temperature=1.0,
+                    temperature=0.5,
                     model_name="gpt-3.5-turbo",
                     #model_name="gpt-4",
                     openai_api_key=openai_key,
@@ -304,8 +304,8 @@ async def on_message(message):
                     memory=guild_memory,
                     ai_prefix=f"Iva ({agent_mention})",
                     llm_prefix=f"Iva ({agent_mention})",
-                    #max_iterations=5,
-                    #early_stopping_method="generate"
+                    max_iterations=4,
+                    early_stopping_method="generate"
                 )
                 
                 try:
