@@ -3,6 +3,10 @@ from discord import app_commands
 import discord.ext.commands
 import discord.ext.tasks
 
+from colors import colors
+from redis_utils import save_pickle_to_redis, load_pickle_from_redis
+from postgres_utils import async_fetch_key
+
 import os
 import openai
 import psycopg2
@@ -33,43 +37,6 @@ from langchain import LLMChain
 from langchain.chains import AnalyzeDocumentChain
 from langchain.chains.question_answering import load_qa_chain
 
-class colors:
-
-    reset = '\033[0m'
-    bold = '\033[01m'
-    disable = '\033[02m'
-    underline = '\033[04m'
-    reverse = '\033[07m'
-    strikethrough = '\033[09m'
-    invisible = '\033[08m'
-
-    class fg:
-        black = '\033[30m'
-        red = '\033[31m'
-        green = '\033[32m'
-        orange = '\033[33m'
-        blue = '\033[34m'
-        purple = '\033[35m'
-        cyan = '\033[36m'
-        lightgrey = '\033[37m'
-        darkgrey = '\033[90m'
-        lightred = '\033[91m'
-        lightgreen = '\033[92m'
-        yellow = '\033[93m'
-        lightblue = '\033[94m'
-        pink = '\033[95m'
-        lightcyan = '\033[96m'
- 
-    class bg:
-        black = '\033[40m'
-        red = '\033[41m'
-        green = '\033[42m'
-        orange = '\033[43m'
-        blue = '\033[44m'
-        purple = '\033[45m'
-        cyan = '\033[46m'
-        lightgrey = '\033[47m'
-
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_TOKEN")
 GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
 os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
@@ -78,8 +45,8 @@ GUILD_ID = os.getenv("GUILD_ID") # load dev guild
 SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 WOLFRAM_ALPHA_APPID = os.getenv("WOLFRAM_ALPHA_APPID")
-DATABASE_URL = os.getenv("DATABASE_URL")
 REPLICATE_API_TOKEN = os.getenv("REPLICATE_API_TOKEN")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 model_blip = replicate.models.get("salesforce/blip-2")
 version_blip = model_blip.versions.get("4b32258c42e9efd4288bb9910bc532a69727f9acd26aa08e175713a0a857a608")
@@ -89,40 +56,6 @@ version_sd = model_sd.versions.get("f178fa7a1ae43a9a9af01b833b9d2ecf97b1bcb0acfd
 replicate.Client(api_token=REPLICATE_API_TOKEN)
 
 tokenizer = GPT2TokenizerFast.from_pretrained("gpt2") # initialize tokenizer
-
-# Function to create an aioredis client
-async def get_redis_client():
-    REDIS_URL = os.getenv('REDIS_URL')
-    return await aioredis.from_url(REDIS_URL)
-
-# Async function to save a dictionary to Redis
-async def save_pickle_to_redis(key, data):
-    redis_client = await get_redis_client()
-    pickled_data = pickle.dumps(data)
-    await redis_client.set(key, pickled_data)
-    await redis_client.close()
-
-# Async function to load a dictionary from Redis
-async def load_pickle_from_redis(key):
-    redis_client = await get_redis_client()
-    pickled_data = await redis_client.get(key)
-    await redis_client.close()
-
-    if pickled_data is None:
-        return {}
-    return pickle.loads(pickled_data)
-
-def fetch_key(id):
-    with psycopg2.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cursor:
-            cursor.execute("SELECT key FROM keys WHERE id = %s", (str(id),))
-            result = cursor.fetchone()
-    return result
-
-async def async_fetch_key(id):
-    loop = asyncio.get_event_loop()
-    result = await loop.run_in_executor(None, fetch_key, id)
-    return result
 
 with psycopg2.connect(DATABASE_URL) as conn:
     with conn.cursor() as cursor:
@@ -142,7 +75,6 @@ tree = app_commands.CommandTree(client)
 
 active_users = {} # dict of lists
 active_names = {} # dict of strings
-chat_context = {} # dict of strings
 chat_messages = {} # dict of lists
 chat_ltm = {} # dict of lists
 chat_mems = {} # dict of ConversationChains
@@ -166,7 +98,6 @@ async def on_ready():
             
         active_users[guild.id] = []
         active_names[guild.id] = ""
-        chat_context[guild.id] = ""
         chat_messages[guild.id] = []
         chat_ltm[guild.id] = []
         chat_mems[guild.id] = None
@@ -184,7 +115,6 @@ async def on_guild_join(guild):
         
     active_users[guild.id] = []
     active_names[guild.id] = ""
-    chat_context[guild.id] = ""
     chat_messages[guild.id] = []
     chat_ltm[guild.id] = []
     chat_mems[guild.id] = None
@@ -244,9 +174,6 @@ async def on_message(message):
             
             caption = f" I attached an image [Answer:{answer}, Attached Image: {description}]"
             print(caption)
-        
-        #elif any(word in prompt for word in ("photo", "picture", "image", "photograph")):
-            #prompt += " (hint: use a tool)"
         
         print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightgreen}CHAT     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@{str(user_name).lower()}: {colors.reset}{prompt}")
 
@@ -509,7 +436,6 @@ class Menu(discord.ui.View):
     async def resets(self, interaction: discord.Interaction, button: discord.ui.Button):
         
         global chat_messages
-        global chat_context
         global ask_messages
         global ask_context
         global message_limit
@@ -553,7 +479,6 @@ class Menu(discord.ui.View):
 async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attachment=None):
     
     global chat_messages
-    global chat_context
     global ask_messages
     global ask_context
     global message_limit
@@ -1028,7 +953,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
 async def reset(interaction):
     
     global chat_messages
-    global chat_context
     global ask_messages
     global ask_context
     global message_limit
@@ -1062,7 +986,6 @@ async def reset(interaction):
 async def help(interaction):
     
     global chat_messages
-    global chat_context
     global ask_messages
     global ask_context
     global message_limit
@@ -1093,7 +1016,6 @@ async def help(interaction):
 async def tutorial(interaction):
     
     global chat_messages
-    global chat_context
     global ask_messages
     global ask_context
     global message_limit
@@ -1126,7 +1048,6 @@ async def tutorial(interaction):
 async def setup(interaction, key: str):
     
     global chat_messages
-    global chat_context
     global ask_messages
     global ask_context
     global message_limit
