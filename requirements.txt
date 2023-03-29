@@ -15,4 +15,4 @@ tiktoken
 wikipedia
 graphviz
 psycopg2
-redis
+aioredis

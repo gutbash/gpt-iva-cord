@@ -19,13 +19,12 @@ import io
 import base64
 from PIL import Image
 
+import aioredis
 import json
-import redis
 import asyncio
 
 from serpapi import GoogleSearch
 import textwrap
-import pickle
 from xml.etree import ElementTree
 
 from langchain.prompts.chat import (
@@ -134,6 +133,27 @@ replicate.Client(api_token=REPLICATE_API_TOKEN)
 
 tokenizer = GPT2TokenizerFast.from_pretrained("gpt2") # initialize tokenizer
 
+async def get_redis_client():
+    REDIS_URL = os.getenv('REDIS_URL')
+    return await aioredis.from_url(REDIS_URL)
+
+async def save_dict_to_redis(key, data):
+    redis_client = await get_redis_client()
+    json_data = json.dumps(data)
+    await redis_client.set(key, json_data)
+    redis_client.close()
+    await redis_client.wait_closed()
+
+async def load_dict_from_redis(key):
+    redis_client = await get_redis_client()
+    json_data = await redis_client.get(key)
+    redis_client.close()
+    await redis_client.wait_closed()
+
+    if json_data is None:
+        return None
+    return json.loads(json_data)
+
 def fetch_key(id):
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cursor:
@@ -227,29 +247,8 @@ async def on_message(message):
         global active_names
         global chat_mems
         
-        subfolder_a = "users"
-        file_path_a = os.path.join(subfolder_a, f'users.pickle')
-        
-        if os.path.exists(file_path_a):
-            with open(file_path_a, "rb") as handle:
-                active_users = pickle.load(handle)
-        else:
-            active_users = {}  # or an appropriate default value
-            os.makedirs(subfolder_a, exist_ok=True)
-            with open(file_path_a, "wb") as handle:
-                pickle.dump(active_users, handle)
-                
-        subfolder_b = "data"
-        file_path_b = os.path.join(subfolder_b, f'mems.pickle')
-        
-        if os.path.exists(file_path_b):
-            with open(file_path_b, "rb") as handle:
-                chat_mems = pickle.load(handle)
-        else:
-            chat_mems = {}  # or an appropriate default value
-            os.makedirs(subfolder_b, exist_ok=True)
-            with open(file_path_b, "wb") as handle:
-                pickle.dump(chat_mems, handle)
+        active_users = await load_dict_from_redis("active_users")
+        chat_mems = await load_dict_from_redis('chat_mems')
         
         # Get the current timestamp
         timestamp = datetime.datetime.now()
@@ -467,18 +466,9 @@ async def on_message(message):
                     
                     chat_mems[channel_id] = guild_memory
                     
-                    subfolder_a = "users"
-                    file_path_a = os.path.join(subfolder_a, f'users.pickle')
+                    await save_dict_to_redis('active_users', active_users)
+                    await save_dict_to_redis('chat_mems', chat_mems)
                     
-                    with open(file_path_a, "wb") as handle:
-                        pickle.dump(active_users, handle)
-                            
-                    subfolder_b = "data"
-                    file_path_b = os.path.join(subfolder_b, f'mems.pickle')
-
-                    with open(file_path_b, "wb") as handle:
-                        pickle.dump(chat_mems, handle)
-                        
                     """
                     embeds = []
                     files = []
@@ -1113,17 +1103,8 @@ async def reset(interaction):
     chat_mems[channel_id] = None
     active_users[channel_id] = []
     
-    subfolder_a = "users"
-    file_path_a = os.path.join(subfolder_a, f'users.pickle')
-    
-    with open(file_path_a, "wb") as handle:
-        pickle.dump(active_users, handle)
-            
-    subfolder_b = "data"
-    file_path_b = os.path.join(subfolder_b, f'mems.pickle')
-
-    with open(file_path_b, "wb") as handle:
-        pickle.dump(chat_mems, handle)
+    await save_dict_to_redis('active_users', active_users)
+    await save_dict_to_redis('chat_mems', chat_mems)
     
     embed = discord.Embed(description="<:ivareset:1051691297443950612>", color=discord.Color.dark_theme())
     await interaction.response.send_message(embed=embed, ephemeral=False)
