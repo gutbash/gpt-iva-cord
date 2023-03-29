@@ -320,29 +320,26 @@ async def on_message(message):
                 
                 files = []
                 
-                async def image_search(query):
-                    async with aiohttp.ClientSession() as session:
-                        # Replace YOUR_API_KEY and YOUR_CSE_ID with your own API key and CSE ID
-                        url = f"https://www.googleapis.com/customsearch/v1?q={query}&key={GOOGLE_API_KEY}&cx={GOOGLE_CSE_ID}&searchType=image"
-                        async with session.get(url) as response:
-                            results = await response.json()
-                        # Extract the image URLs for the top 10 results
-                        image_urls = [item['link'] for item in results['items'][:10]]
-                        # Randomly pick one image URL
-                        chosen_image_url = random.choice(image_urls)
-                        async with session.get(chosen_image_url) as response:
-                            img_data = await response.read()
-                        subfolder = 'image_search'
+                def image_search(query):
+                    # Replace YOUR_API_KEY and YOUR_CSE_ID with your own API key and CSE ID
+                    url = f"https://www.googleapis.com/customsearch/v1?q={query}&key={GOOGLE_API_KEY}&cx={GOOGLE_CSE_ID}&searchType=image"
+                    response = requests.get(url)
+                    results = response.json()
+                    # Extract the image URL for the first result (best/most relevant image)
+                    image_urls = [item['link'] for item in results['items'][:10]]
+                    chosen_image_url = random.choice(image_urls)
+                    img_data = requests.get(chosen_image_url).content
+                    subfolder = 'image_search'
 
-                        if not os.path.exists(subfolder):
-                            os.makedirs(subfolder)
+                    if not os.path.exists(subfolder):
+                        os.makedirs(subfolder)
 
-                        with open(f'{subfolder}/image_search.png', 'wb') as handler:
-                            handler.write(img_data)
-                        image_search_result = discord.File(f'{subfolder}/image_search.png')
+                    with open(f'{subfolder}/image_search.png', 'wb') as handler:
+                        handler.write(img_data)
+                    image_search_result = discord.File(f'{subfolder}/image_search.png')
 
-                        files.append(image_search_result)
-                        return "Success. Image attached."
+                    files.append(image_search_result)
+                    return "Success. Image attached."
 
                 llm = ChatOpenAI(
                     temperature=0.7,
@@ -357,7 +354,7 @@ async def on_message(message):
                 
                 tools.append(Tool(
                     name = "Image Search",
-                    coroutine=image_search,
+                    func=image_search,
                     description="A wrapper around Google Images. Useful for when you'd like to accompany a response with a revelant image. Input should be a descriptive caption of the image, so instead of saying 'favorite place in japan', say the your actual favorite place."
                 ))
                 
