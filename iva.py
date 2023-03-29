@@ -6,6 +6,7 @@ import discord.ext.tasks
 from log_utils import colors
 from redis_utils import save_pickle_to_redis, load_pickle_from_redis
 from postgres_utils import async_fetch_key
+from tools import get_top_search_result, get_image_from_search
 
 import os
 import openai
@@ -183,27 +184,6 @@ async def on_message(message):
             try:
                 
                 files = []
-                
-                def image_search(query):
-                    # Replace YOUR_API_KEY and YOUR_CSE_ID with your own API key and CSE ID
-                    url = f"https://www.googleapis.com/customsearch/v1?q={query}&key={GOOGLE_API_KEY}&cx={GOOGLE_CSE_ID}&searchType=image"
-                    response = requests.get(url)
-                    results = response.json()
-                    # Extract the image URL for the first result (best/most relevant image)
-                    image_urls = [item['link'] for item in results['items'][:10]]
-                    chosen_image_url = random.choice(image_urls)
-                    img_data = requests.get(chosen_image_url).content
-                    subfolder = 'image_search'
-
-                    if not os.path.exists(subfolder):
-                        os.makedirs(subfolder)
-
-                    with open(f'{subfolder}/image_search.png', 'wb') as handler:
-                        handler.write(img_data)
-                    image_search_result = discord.File(f'{subfolder}/image_search.png')
-
-                    files.append(image_search_result)
-                    return "Success. Image attached."
 
                 llm = ChatOpenAI(
                     temperature=0.5,
@@ -218,8 +198,14 @@ async def on_message(message):
                 
                 tools.append(Tool(
                     name = "Image Search",
-                    func=image_search,
+                    func=get_image_from_search,
                     description="A wrapper around Google Images. Useful for when you'd like to accompany a response with a revelant image. Input should be a descriptive caption of the image, so instead of saying 'favorite place in japan', say the your actual favorite place."
+                ))
+                
+                tools.append(Tool(
+                    name = "Share URL",
+                    func=get_top_search_result,
+                    description="Share a link to a website. Input should be a descriptive name of the web page or search query."
                 ))
                 
                 #tools.extend(load_tools(["requests"], llm=llm, news_api_key=NEWS_API_KEY))
