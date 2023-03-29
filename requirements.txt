@@ -16,3 +16,4 @@ wikipedia
 graphviz
 psycopg2
 aioredis
+aiohttp

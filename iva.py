@@ -19,6 +19,8 @@ import io
 import base64
 from PIL import Image
 
+import aiohttp
+import random
 import aioredis
 import pickle
 import asyncio
@@ -318,25 +320,29 @@ async def on_message(message):
                 
                 files = []
                 
-                def image_search(query):
-                    # Replace YOUR_API_KEY and YOUR_CSE_ID with your own API key and CSE ID
-                    url = f"https://www.googleapis.com/customsearch/v1?q={query}&key={GOOGLE_API_KEY}&cx={GOOGLE_CSE_ID}&searchType=image"
-                    response = requests.get(url)
-                    results = response.json()
-                    # Extract the image URL for the first result (best/most relevant image)
-                    image_url = results['items'][0]['link']
-                    img_data = requests.get(image_url).content
-                    subfolder = 'image_search'
+                async def image_search(query):
+                    async with aiohttp.ClientSession() as session:
+                        # Replace YOUR_API_KEY and YOUR_CSE_ID with your own API key and CSE ID
+                        url = f"https://www.googleapis.com/customsearch/v1?q={query}&key={GOOGLE_API_KEY}&cx={GOOGLE_CSE_ID}&searchType=image"
+                        async with session.get(url) as response:
+                            results = await response.json()
+                        # Extract the image URLs for the top 10 results
+                        image_urls = [item['link'] for item in results['items'][:10]]
+                        # Randomly pick one image URL
+                        chosen_image_url = random.choice(image_urls)
+                        async with session.get(chosen_image_url) as response:
+                            img_data = await response.read()
+                        subfolder = 'image_search'
 
-                    if not os.path.exists(subfolder):
-                        os.makedirs(subfolder)
+                        if not os.path.exists(subfolder):
+                            os.makedirs(subfolder)
 
-                    with open(f'{subfolder}/image_search.png', 'wb') as handler:
-                        handler.write(img_data)
-                    image_search_result = discord.File(f'{subfolder}/image_search.png')
+                        with open(f'{subfolder}/image_search.png', 'wb') as handler:
+                            handler.write(img_data)
+                        image_search_result = discord.File(f'{subfolder}/image_search.png')
 
-                    files.append(image_search_result)
-                    return "Success. Image attached."
+                        files.append(image_search_result)
+                        return "Success. Image attached."
 
                 llm = ChatOpenAI(
                     temperature=0.7,
