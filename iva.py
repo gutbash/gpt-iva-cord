@@ -13,10 +13,8 @@ import re
 import itertools
 import requests
 import pydot
-import requests
 import PyPDF2
 import io
-import base64
 from PIL import Image
 
 import aiohttp
@@ -25,56 +23,24 @@ import aioredis
 import pickle
 import asyncio
 
-from serpapi import GoogleSearch
 import textwrap
-from xml.etree import ElementTree
-
-from langchain.prompts.chat import (
-    ChatPromptTemplate,
-    SystemMessagePromptTemplate,
-    AIMessagePromptTemplate,
-    HumanMessagePromptTemplate,
-)
-
-from langchain.schema import (
-    AIMessage,
-    HumanMessage,
-    SystemMessage
-)
 
 from langchain.memory import ConversationEntityMemory
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import OpenAI
-from langchain.llms import AzureOpenAI
 from langchain.prompts import PromptTemplate
-from langchain.chains import ConversationChain, LLMChain
+from langchain.chains import LLMChain
 from langchain.chains.conversation.memory import ConversationSummaryBufferMemory
 
-from langchain.agents import initialize_agent, Tool, ConversationalAgent, AgentExecutor, load_tools, ZeroShotAgent
-from langchain.utilities import GoogleSearchAPIWrapper, SerpAPIWrapper
-
-from langchain.llms import OpenAI
-from langchain.docstore.document import Document
-import requests
-from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.text_splitter import CharacterTextSplitter
+from langchain.agents import Tool, ConversationalAgent, AgentExecutor, load_tools
 from langchain.prompts import PromptTemplate
-import pathlib
-import subprocess
-import tempfile
 
-from langchain import OpenAI, PromptTemplate, LLMChain
-from langchain.text_splitter import CharacterTextSplitter
-from langchain.chains.mapreduce import MapReduceChain
+from langchain import PromptTemplate, LLMChain
 from langchain.prompts import PromptTemplate
-from langchain.chains.summarize import load_summarize_chain
 
 from langchain.chains import AnalyzeDocumentChain
-from langchain import OpenAI
-from langchain.chains.summarize import load_summarize_chain
 
 from langchain.chains.question_answering import load_qa_chain
-from langchain.llms import OpenAI
 
 load_dotenv() # load .env file
 
