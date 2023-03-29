@@ -199,7 +199,7 @@ async def on_message(message):
                 tools.append(Tool(
                     name = "Image Search",
                     func=get_image_from_search,
-                    description="A wrapper around Google Images. Useful for when you'd like to accompany a response with a revelant image. Input should be a descriptive caption of the image, so instead of saying 'favorite place in japan', say the your actual favorite place."
+                    description="A wrapper around Google Images. Useful for when you'd like to accompany a response with a revelant image. Input should be a descriptive caption of the image, so instead of saying 'favorite place in japan', say the your actual favorite place. Output will be the image link."
                 ))
                 
                 tools.append(Tool(
