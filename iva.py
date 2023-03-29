@@ -20,7 +20,7 @@ import base64
 from PIL import Image
 
 import aioredis
-import json
+import pickle
 import asyncio
 
 from serpapi import GoogleSearch
@@ -139,21 +139,21 @@ async def get_redis_client():
     return await aioredis.from_url(REDIS_URL)
 
 # Async function to save a dictionary to Redis
-async def save_dict_to_redis(key, data):
+async def save_pickle_to_redis(key, data):
     redis_client = await get_redis_client()
-    json_data = json.dumps(data)
-    await redis_client.set(key, json_data)
+    pickled_data = pickle.dumps(data)
+    await redis_client.set(key, pickled_data)
     await redis_client.close()
 
 # Async function to load a dictionary from Redis
-async def load_dict_from_redis(key):
+async def load_pickle_from_redis(key):
     redis_client = await get_redis_client()
-    json_data = await redis_client.get(key)
+    pickled_data = await redis_client.get(key)
     await redis_client.close()
 
-    if json_data is None:
+    if pickled_data is None:
         return {}
-    return json.loads(json_data)
+    return pickle.loads(pickled_data)
 
 def fetch_key(id):
     with psycopg2.connect(DATABASE_URL) as conn:
@@ -248,8 +248,8 @@ async def on_message(message):
         global active_names
         global chat_mems
         
-        active_users = await load_dict_from_redis('active_users')
-        chat_mems = await load_dict_from_redis('chat_mems')
+        active_users = await load_pickle_from_redis('active_users')
+        chat_mems = await load_pickle_from_redis('chat_mems')
         
         # Get the current timestamp
         timestamp = datetime.datetime.now()
@@ -467,8 +467,8 @@ async def on_message(message):
                     
                     chat_mems[channel_id] = guild_memory
                     
-                    await save_dict_to_redis('active_users', active_users)
-                    await save_dict_to_redis('chat_mems', chat_mems)
+                    await save_pickle_to_redis('active_users', active_users)
+                    await save_pickle_to_redis('chat_mems', chat_mems)
                     
                     """
                     embeds = []
@@ -529,7 +529,7 @@ async def on_message(message):
                     """
 
                 except Exception as e:
-                    print(e.with_traceback())
+                    print(e)
                     #if type(e) == openai.error.RateLimitError:
                     embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {user_mention} {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
                     await message.channel.send(embed=embed)
@@ -1104,8 +1104,8 @@ async def reset(interaction):
     chat_mems[channel_id] = None
     active_users[channel_id] = []
     
-    await save_dict_to_redis('active_users', active_users)
-    await save_dict_to_redis('chat_mems', chat_mems)
+    await save_pickle_to_redis('active_users', active_users)
+    await save_pickle_to_redis('chat_mems', chat_mems)
     
     embed = discord.Embed(description="<:ivareset:1051691297443950612>", color=discord.Color.dark_theme())
     await interaction.response.send_message(embed=embed, ephemeral=False)
