@@ -7,7 +7,6 @@ from log_utils import colors
 from redis_utils import save_pickle_to_redis, load_pickle_from_redis
 from postgres_utils import async_fetch_key
 
-import googlesearch
 import os
 import openai
 import psycopg2
@@ -23,7 +22,6 @@ import io
 import random
 import textwrap
 
-from langchain.memory import ConversationEntityMemory
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
