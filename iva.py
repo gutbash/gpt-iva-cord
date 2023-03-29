@@ -75,13 +75,7 @@ tree = app_commands.CommandTree(client)
 
 active_users = {} # dict of lists
 active_names = {} # dict of strings
-chat_messages = {} # dict of lists
-chat_ltm = {} # dict of lists
-chat_mems = {} # dict of ConversationChains
-chat_status = {} # dicts of booleans
-
 ask_messages = {} # dict of lists
-ask_context = {} # dict of strings
 last_prompt = {} # dict of strings
 replies = {} # dict of lists
 last_response = {} # dict of Message objs
@@ -98,9 +92,6 @@ async def on_ready():
             
         active_users[guild.id] = []
         active_names[guild.id] = ""
-        chat_messages[guild.id] = []
-        chat_ltm[guild.id] = []
-        chat_mems[guild.id] = None
         
     await tree.sync()
     
@@ -115,9 +106,6 @@ async def on_guild_join(guild):
         
     active_users[guild.id] = []
     active_names[guild.id] = ""
-    chat_messages[guild.id] = []
-    chat_ltm[guild.id] = []
-    chat_mems[guild.id] = None
     
     await tree.sync(guild=guild)
 
@@ -133,7 +121,6 @@ async def on_message(message):
         
         global active_users
         global active_names
-        global chat_mems
         
         active_users = await load_pickle_from_redis('active_users')
         chat_mems = await load_pickle_from_redis('chat_mems')
@@ -343,64 +330,6 @@ async def on_message(message):
                     
                     await save_pickle_to_redis('active_users', active_users)
                     await save_pickle_to_redis('chat_mems', chat_mems)
-                    
-                    """
-                    embeds = []
-                    files = []
-                    file_count=0
-                    embeds_overflow = []
-                    files_overflow = []
-                    
-                    if '$$' in reply:
-                        tex_pattern = re.compile(r"\$\$(.*?)\$\$", re.DOTALL)
-                        tex_matches = tex_pattern.findall(reply)
-                        non_matches = re.sub(r"(\$\$|\%\%|\@\@).*?(\@\@|\%\%|\$\$)", "~~", reply, flags=re.DOTALL)
-                        non_matches = non_matches.split("~~")
-                        print(tex_matches)
-                        
-                        for (tex_match, non_match) in itertools.zip_longest(tex_matches, non_matches):
-                            print(f"$$${tex_match}$$$")
-                            tex_match = tex_match.strip()
-                            tex_match = tex_match.replace("\n", "")
-                            #tex_match = tex_match.replace(" ", "")
-                            tex_match = tex_match.strip("$")
-                            tex_match = tex_match.split()
-                            tex_match = "%20".join(tex_match)
-                            match_embed = discord.Embed(color=discord.Color.dark_theme())
-
-                            image_url = f"https://latex.codecogs.com/png.image?\dpi{dpi}\color{color}{tex_match}"
-                            print(image_url)
-                            img_data = requests.get(image_url, verify=False).content
-                            with open(f'latex{file_count}.png', 'wb') as handler:
-                                handler.write(img_data)
-                            tex_file = discord.File(f'latex{file_count}.png')
-                            match_embed.set_image(url=f"attachment://latex{file_count}.png")
-                            
-                            file_count += 1
-                            
-                            #await interaction.channel.send(file = tex_file, embed=match_embed)
-                            if len(embeds) >= 9:
-                                embeds_overflow.append(match_embed)
-                                files_overflow.append(tex_file)
-                            else:
-                                embeds.append(match_embed)
-                                files.append(tex_file)
-                    """
-                    """    
-                    global chat_status
-                    chat_status[channel_id] = True
-                    
-                    async def random_sleep():
-                        
-                        global chat_status
-                        
-                        sleep_time = random.uniform(0.5, 12)
-                        await asyncio.sleep(sleep_time * 60 * 60)
-                        
-                        print("Awoke after", sleep_time, "hours")
-
-                    await random_sleep()
-                    """
 
                 except Exception as e:
                     print(e)
@@ -435,13 +364,10 @@ class Menu(discord.ui.View):
     @discord.ui.button(emoji="<:ivareset:1051691297443950612>", style=discord.ButtonStyle.grey)
     async def resets(self, interaction: discord.Interaction, button: discord.ui.Button):
         
-        global chat_messages
         global ask_messages
-        global ask_context
         global message_limit
         global active_users
         global active_names
-        global last_prompt
         global replies
         global last_response
         
@@ -458,7 +384,6 @@ class Menu(discord.ui.View):
             await interaction.response.send_message(embed=embed, ephemeral=False)
             return
 
-        ask_context[id] = ""
         ask_messages[id] = []
         replies[id] = []
         last_response[id] = None
@@ -471,16 +396,11 @@ class Menu(discord.ui.View):
         await interaction.message.edit(view=None, embeds=embeds, attachments=attachments)
         #await interaction.channel.send(embed=embed)
 
-@tree.command(
-    name = "iva",
-    description="write a prompt"
-)
+@tree.command(name = "iva", description="write a prompt")
 @app_commands.describe(prompt = "prompt", file = "file (txt, pdf, html, xml)")
 async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attachment=None):
     
-    global chat_messages
     global ask_messages
-    global ask_context
     global message_limit
     global active_users
     global active_names
@@ -523,7 +443,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     
     if id not in ask_messages:
         ask_messages[id] = []
-        ask_context[id] = ""
         last_prompt[id] = ""
         replies[id] = []
         last_response[id] = None
@@ -633,8 +552,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         if ask_messages.get(id, []) != []:
             ask_messages[id].pop(0)
             ask_messages[id].pop(0)
-            
-        #ask_context[id] = "".join(ask_messages[id])
         
         ask_prompt = f"You are Iva. Iva comfortably talks and answers any and all prompts completely honestly and truthfully. Iva always answers anything creatively, thoughtfully, and clearly.\n\nCurrent Date: {itis}\nKnowledge Cutoff: September, 2021\n\nAs Iva, you also must adhere to the following rules in your response...\n\n- Use '```[language]\\n[multi line code block]```' for ANY code or table.\n- Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line.\n- Generate graphs, diagrams, and charts for concepts ONLY if relevant and applicable by including the concept between '%%' like '%%[concept]%%' on a new line.\n- Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![[descriptive search prompt]](img.png)@@' on a new line.\n- Use emojis, '**[bold text label/heading]**', '*[italicized text]*', '> [block quote AFTER SPACE]', '`[label]`' for an aesthetically pleasing and consistent style."
             
@@ -686,7 +603,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     
     agent_engagement = {"role": "assistant", "content": reply}
     ask_messages[id].append(agent_engagement)
-    #ask_context[id] = "\n".join(ask_messages[id])
     
     replies[id].append(reply)
     
@@ -700,8 +616,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         if ask_messages.get(id, []) != []:
             ask_messages[id].pop(0)
             ask_messages[id].pop(0)
-            
-        #ask_context[id] = "".join(ask_messages[id])
         
         ask_prompt = f"You are Iva. Iva comfortably talks and answers any and all prompts completely honestly and truthfully. Iva always answers anything creatively, thoughtfully, and clearly.\n\nCurrent Date: {itis}\nKnowledge Cutoff: September, 2021\n\nAs Iva, you also must adhere to the following rules in your response...\n\n- Use '```[language]\\n[multi line code block]```' for ANY code or table.\n- Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line.\n- Generate graphs, diagrams, and charts for concepts ONLY if relevant and applicable by including the concept between '%%' like '%%[concept]%%' on a new line.\n- Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![[descriptive search prompt]](img.png)@@' on a new line.\n- Use emojis, '**[bold text label/heading]**', '*[italicized text]*', '> [block quote AFTER SPACE]', '`[label]`' for an aesthetically pleasing and consistent style."
             
@@ -952,22 +866,20 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
 @tree.command(name = "reset", description="start a new conversation")
 async def reset(interaction):
     
-    global chat_messages
     global ask_messages
-    global ask_context
     global message_limit
     global active_users
     global active_names
-    global last_prompt
     global replies
     global last_response
-    global chat_mems
     
     channel_id = interaction.channel_id
     guild_id = interaction.guild_id
     id = interaction.user.id
     
-    ask_context[id] = ""
+    active_users = await load_pickle_from_redis('active_users')
+    chat_mems = await load_pickle_from_redis('chat_mems')
+    
     ask_messages[id] = []
     replies[id] = []
     last_response[id] = None
@@ -985,13 +897,10 @@ async def reset(interaction):
 @tree.command(name = "help", description="get started")
 async def help(interaction):
     
-    global chat_messages
     global ask_messages
-    global ask_context
     global message_limit
     global active_users
     global active_names
-    global last_prompt
     global replies
     
     mention = interaction.user.mention
@@ -1015,13 +924,10 @@ async def help(interaction):
 @tree.command(name = "tutorial", description="how to talk with iva")
 async def tutorial(interaction):
     
-    global chat_messages
     global ask_messages
-    global ask_context
     global message_limit
     global active_users
     global active_names
-    global last_prompt
     global replies
     
     mention = interaction.user.mention
@@ -1047,13 +953,10 @@ async def tutorial(interaction):
 @app_commands.describe(key = "key")
 async def setup(interaction, key: str):
     
-    global chat_messages
     global ask_messages
-    global ask_context
     global message_limit
     global active_users
     global active_names
-    global last_prompt
     global replies
     
     guild_id = interaction.guild_id
