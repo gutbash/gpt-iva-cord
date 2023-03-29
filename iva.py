@@ -6,7 +6,7 @@ import discord.ext.tasks
 from log_utils import colors
 from redis_utils import save_pickle_to_redis, load_pickle_from_redis
 from postgres_utils import async_fetch_key
-from tools import get_top_search_result, get_image_from_search
+from tools import get_top_search_result, get_image_from_search, get_important_text
 
 import os
 import openai
@@ -193,7 +193,7 @@ async def on_message(message):
                     )
 
                 tools = []
-                tools.extend(load_tools(["google-search", "requests", "wolfram-alpha", "wikipedia", "python_repl"], llm=llm, news_api_key=NEWS_API_KEY))
+                tools.extend(load_tools(["google-search", "wolfram-alpha", "wikipedia", "python_repl"], llm=llm, news_api_key=NEWS_API_KEY))
                 tools[0].description = "Google Search tool. Use this when you need to answer questions about current events. Input should be a descriptive natural language search query."
                 
                 tools.append(Tool(
@@ -205,7 +205,13 @@ async def on_message(message):
                 tools.append(Tool(
                     name = "Share URL",
                     func=get_top_search_result,
-                    description="Share a link to a website. Input should be a descriptive name of the web page or search query."
+                    description="Share a link to a website. Input should be a descriptive name of the web page or search query. The output will be the link to the website"
+                ))
+                
+                tools.append(Tool(
+                    name = "Requests",
+                    func=get_important_text,
+                    description="A portal to the internet. Use this when you need to get specific content from a website. Input should be a  url (i.e. https://www.google.com). The output will be the text response of the GET request."
                 ))
                 
                 #tools.extend(load_tools(["requests"], llm=llm, news_api_key=NEWS_API_KEY))

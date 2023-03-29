@@ -1,6 +1,7 @@
 from serpapi import GoogleSearch
 import requests
 import random
+from bs4 import BeautifulSoup
 import os
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_TOKEN")
@@ -39,3 +40,28 @@ def get_image_from_search(query):
     image_urls = [item['link'] for item in results['items'][:10]]
     chosen_image_url = random.choice(image_urls)
     return chosen_image_url
+
+def get_important_text(url):
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, 'html.parser')
+
+    important_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'article', 'section', 'span', 'figcaption', 'blockquote']
+    important_text = ''
+
+    for tag in important_tags:
+        elements = soup.find_all(tag)
+        for element in elements:
+            important_text += element.get_text(strip=True) + ' '
+
+    # Handling iframes
+    iframes = soup.find_all('iframe')
+    for iframe in iframes:
+        src = iframe.get('src')
+        if src:
+            try:
+                iframe_content = get_important_text(src)
+                important_text += iframe_content
+            except:
+                pass
+
+    return important_text
