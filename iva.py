@@ -16,7 +16,6 @@ from transformers import GPT2TokenizerFast
 import replicate
 import re
 import itertools
-import requests
 import pydot
 import PyPDF2
 import io
