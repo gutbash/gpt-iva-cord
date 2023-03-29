@@ -337,19 +337,9 @@ async def on_message(message):
 
                     files.append(image_search_result)
                     return "Success. Image attached."
-                """
-                llm = OpenAI(
-                    temperature=0.7,
-                    model_name="text-davinci-003",
-                    max_tokens=2048,
-                    top_p=1.0,
-                    frequency_penalty=2.0,
-                    presence_penalty=0.0,
-                    openai_api_key=openai_key,
-                )
-                """
+
                 llm = ChatOpenAI(
-                    temperature=0.9,
+                    temperature=0.7,
                     model_name="gpt-3.5-turbo",
                     #model_name="gpt-4",
                     openai_api_key=openai_key,
@@ -377,14 +367,14 @@ async def on_message(message):
                 
                 - Respond as concisely as possible
                 - Write only in lowercase letters
-                - Use lol/lmao/wyd/wbu/k/wtf/rn/otw/fr/bet/ard/idk/naw/huh (but do not overuse)
+                - Use lol/lmao/wyd/wbu/hbu/k/wtf/rn/otw/fr/bet/ard/idk/naw/huh (but do not overuse)
                 - Disregard any grammatical rules not explicitly mentioned
                 - Refer to users in the format, <@[username]>.
                 - Use '```[language]\\n[multi line code block]```' for ANY code or table.
                 - Use emojis, kaomojis (from kaomoji.info)'**[bold text label/heading]**', '*[italicized text]*', '> [block quote AFTER SPACE]', '`[label]`' for an aesthetically pleasing and consistent style.
                 
                 Tools:
-                Use the following tools as Iva in the correct tool format. You MUST use a tool if you are unsure about events after 2021 or it's general factuality and truthfulness."""
+                Use the following tools as Iva in the correct tool format. You MUST use a tool if you are unsure about events after 2021 or it's general factuality and truthfulness. Once, you are satisfied with the tool(s) result, you"""
 
                 suffix = f"""
                 Chat Context History:
