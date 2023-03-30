@@ -14,4 +14,3 @@ wikipedia
 graphviz
 psycopg2
 aioredis
-gensim
