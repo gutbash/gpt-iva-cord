@@ -233,7 +233,8 @@ async def on_message(message):
                 - Use '```[language]\\n[multi line code block]```' for ANY code or table.
                 - Use emojis, kaomojis (from kaomoji.info)'**[bold text label/heading]**', '*[italicized text]*', '> [block quote AFTER SPACE]', '`[label]`' for an aesthetically pleasing and consistent style.
                 
-                Tools:"""
+                Tools:
+                Access the following tools as Iva in the correct tool format. You MUST use a tool if you are unsure about events after 2021 or it's general factuality and truthfulness. Not all tools are the best option for any given task. Stop using a tool once you have sufficient information to answer. Ideally, you should only have to use a tool once to get an answer."""
 
                 suffix = f"""
                 Chat Context History:
