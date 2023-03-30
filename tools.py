@@ -3,7 +3,6 @@ import requests
 import random
 from bs4 import BeautifulSoup
 import os
-from gensim.summarization import summarize
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_TOKEN")
 GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
@@ -62,7 +61,5 @@ def get_important_text(url):
         elements = soup.find_all(tag)
         for element in elements:
             important_text += element.get_text(strip=True) + ' '
-            
-    summary = summarize(important_text, word_count=100)
 
-    return summary
+    return important_text
