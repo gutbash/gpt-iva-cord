@@ -232,7 +232,8 @@ async def on_message(message):
                 - Refer to users in the format, <@[username]>.
                 - Use emojis and kaomojis (from kaomoji.info) to express emotion
                 - Use '```[language]\\n[multi line code block]```' for ANY code or table.
-                - Use Block Quotes with `> ` (single-line) or `>>> ` (mutli-line) followed by a space. 
+                - Use Block Quotes with `> ` (single-line) or `>>> ` (mutli-line) followed by a space.
+                - Use new lines between different sections to increase readability
                 
                 Style Formatting:
                 Format responses with an aesthetically pleasing and consistent style.
