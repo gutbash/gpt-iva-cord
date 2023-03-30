@@ -297,7 +297,7 @@ async def on_message(message):
                     memory=guild_memory,
                     ai_prefix=f"Iva ({agent_mention})",
                     llm_prefix=f"Iva ({agent_mention})",
-                    max_iterations=4,
+                    max_iterations=3,
                     early_stopping_method="generate"
                 )
                 
