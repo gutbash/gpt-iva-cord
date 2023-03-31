@@ -27,16 +27,25 @@ def get_top_search_results(query):
             for i in range(10):
                 if i < len(organic_results):
                     result = {}
-                    result["url"] = organic_results[i]["link"]
-                    result["description"] = organic_results[i]["snippet"]
+                    result["title"] = organic_results[i]["title"]
+                    result["link"] = organic_results[i]["link"]
+                    result["description"] = organic_results[i].get("snippet", "No snippet available.")
                     top_results.append(result)
                 else:
                     break
-        return top_results
+
+        # Format the results as a plain text unordered list
+        result_list = []
+        for result in top_results:
+            result_list.append(f"{result['title']}\n{result['link']}\n{result['description']}")
+            results =  "\n\n".join(result_list)
+
+        return results
 
     except Exception as e:
         print(f"Error: {e}")
         return None
+
 
     
 def get_image_from_search(query):
