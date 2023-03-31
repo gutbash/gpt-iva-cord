@@ -222,7 +222,7 @@ async def on_message(message):
                 files = []
 
                 llm = ChatOpenAI(
-                    temperature=0.7,
+                    temperature=0.5,
                     model_name="gpt-3.5-turbo",
                     #model_name="gpt-4",
                     openai_api_key=openai_key,
@@ -335,7 +335,7 @@ async def on_message(message):
                     memory=guild_memory,
                     ai_prefix=f"Iva ({agent_mention})",
                     llm_prefix=f"Iva ({agent_mention})",
-                    max_iterations=1,
+                    max_iterations=3,
                     early_stopping_method="generate",
                     return_intermediate_steps=False
                 )
