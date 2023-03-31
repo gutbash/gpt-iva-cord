@@ -24,7 +24,7 @@ def get_top_search_results(query):
         # Extract the URLs and short descriptions of the top 10 search results
         top_results = []
         if organic_results and len(organic_results) > 0:
-            for i in range(10):
+            for i in range(5):
                 if i < len(organic_results):
                     result = {}
                     result["title"] = organic_results[i]["title"]

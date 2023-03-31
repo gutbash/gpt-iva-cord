@@ -197,7 +197,7 @@ async def on_message(message):
                 tools.append(Tool(
                     name = "Results",
                     func=get_top_search_results,
-                    description="You MUST use this tool to share ANY links. Input should be a descriptive name of the web page or search query in question. Do not input URL links. Output returns a list of results to choose from."
+                    description="You MUST use this tool to share ANY links. Input should be a descriptive name of the web page or search query in question. Do not input URL links. Output returns a list of results you must choose from."
                 ))
                 
                 tools.append(Tool(
