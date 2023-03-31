@@ -3,12 +3,7 @@ import requests
 import random
 import os
 from bs4 import BeautifulSoup
-
-from sumy.parsers.plaintext import PlaintextParser
-from sumy.nlp.tokenizers import Tokenizer
-from sumy.summarizers.lsa import LsaSummarizer
-from sumy.nlp.stemmers import Stemmer
-from sumy.utils import get_stop_words
+from transformers import pipeline
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_TOKEN")
 GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
@@ -75,18 +70,12 @@ def get_important_text(url):
         for element in elements:
             important_text += element.get_text(strip=True) + ' '
 
-    summary = generate_summary(important_text, sentence_count=10, language="english")
+    summary = summarize_text(important_text)
     
     return summary
 
 
-def generate_summary(text, sentence_count=5, language="english"):
-    parser = PlaintextParser.from_string(text, Tokenizer(language))
-    stemmer = Stemmer(language)
-    summarizer = LsaSummarizer(stemmer)
-    summarizer.stop_words = get_stop_words(language)
-
-    summarized_sentences = summarizer(parser.document, sentence_count)
-    summary = ' '.join([str(sentence) for sentence in summarized_sentences])
-
-    return summary
+def summarize_text(text):
+    summarizer = pipeline("summarization")
+    summary = summarizer(text, max_length=150, min_length=50, do_sample=False)
+    return summary[0]['summary_text']
