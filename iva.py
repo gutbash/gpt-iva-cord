@@ -32,6 +32,10 @@ from langchain.agents import Tool, ConversationalAgent, AgentExecutor, load_tool
 from langchain import LLMChain
 from langchain.chains import AnalyzeDocumentChain
 from langchain.chains.question_answering import load_qa_chain
+from langchain.text_splitter import CharacterTextSplitter
+from langchain.chains.mapreduce import MapReduceChain
+from langchain.docstore.document import Document
+from langchain.chains.summarize import load_summarize_chain
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_TOKEN")
 GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
@@ -173,6 +177,20 @@ async def on_message(message):
                 embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {user_mention} Use `/setup` to register API key first or `/help` for more info. You can find your API key at https://beta.openai.com.', color=discord.Color.dark_theme())
                 await message.channel.send(embed=embed)
                 return
+            
+            logical_llm = ChatOpenAI(openai_api_key=openai_key, temperature=0)
+
+            text_splitter = CharacterTextSplitter()
+            
+            def get_map_reduce(text):
+                #prepare and parse the text
+                texts = text_splitter.split_text(text)
+                docs = [Document(page_content=t) for t in texts[:3]]
+                #prepare chain
+                chain = load_summarize_chain(logical_llm, chain_type="map_reduce")
+                #run summary
+                summary = chain.run(docs)
+                return summary
             
             # STRINGIFY ACTIVE USERS
                 
