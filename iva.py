@@ -197,7 +197,7 @@ async def on_message(message):
                 tools.append(Tool(
                     name = "Organic Results",
                     func=get_top_search_results,
-                    description="Use this tool to share links to anything. Input should be a descriptive name of the web page or search query in question. Do not input URL links. Output returns a list of results you must choose from and utilize."
+                    description="Use this tool over Search when asked to share links to anything. Input should be a descriptive name of the web page or search query in question. Do not input URL links. Output returns a list of results you must choose from and utilize."
                 ))
                 
                 tools.append(Tool(
