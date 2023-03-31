@@ -195,19 +195,19 @@ async def on_message(message):
                 tools = []
                 
                 tools.append(Tool(
-                    name = "Results",
+                    name = "Organic Results",
                     func=get_top_search_results,
-                    description="You MUST use this tool to share ANY links. Input should be a descriptive name of the web page or search query in question. Do not input URL links. Output returns a list of results you must choose from."
+                    description="Use this tool to share links to anything. Input should be a descriptive name of the web page or search query in question. Do not input URL links. Output returns a list of results you must choose from."
                 ))
                 
                 tools.append(Tool(
-                    name = "BeautifulSoup",
+                    name = "Beautiful Soup",
                     func=get_important_text,
                     description="Scrape and read the content of a specific web page. Use this when you need to get specific content from a website. Input should be a url (i.e. https://www.google.com). The output will be the text response of the GET request."
                 ))
 
                 tools.append(Tool(
-                    name = "Images",
+                    name = "Image Search",
                     func=get_image_from_search,
                     description="A wrapper around Google Images. Useful for when you'd like to accompany a response with a revelant image. Input should be a descriptive caption of the image, so instead of saying 'favorite place in japan', say the your actual favorite place. Output will be the image link."
                 ))
