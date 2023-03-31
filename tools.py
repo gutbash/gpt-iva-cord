@@ -20,7 +20,9 @@ def get_top_search_results(query):
         # Perform the search and get the search results
         results = search.get_dict()
         organic_results = results.get("organic_results")
-
+        if organic_results and len(organic_results) > 0:
+            results = organic_results[0:3]
+        """
         # Extract the URLs and short descriptions of the top 10 search results
         top_results = []
         if organic_results and len(organic_results) > 0:
@@ -39,7 +41,7 @@ def get_top_search_results(query):
         for result in top_results:
             result_list.append(f"{result['title']}\n{result['link']}\n{result['description']}")
             results =  "\n\n".join(result_list)
-
+        """
         return results
 
     except Exception as e:
