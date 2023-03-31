@@ -2,8 +2,6 @@ from serpapi import GoogleSearch
 import requests
 import random
 import os
-from bs4 import BeautifulSoup
-from iva import get_map_reduce
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_TOKEN")
 GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
@@ -56,20 +54,3 @@ def get_image_from_search(query):
     image_urls = [item['link'] for item in results['items'][:10]]
     chosen_image_url = random.choice(image_urls)
     return chosen_image_url
-
-def get_important_text(url):
-    response = requests.get(url)
-    soup = BeautifulSoup(response.content, 'html.parser')
-
-    #important_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'article', 'section', 'span', 'figcaption', 'blockquote']
-    important_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p']
-    important_text = ''
-
-    for tag in important_tags:
-        elements = soup.find_all(tag)
-        for element in elements:
-            important_text += element.get_text(strip=True) + ' '
-            
-    summary = get_map_reduce(important_text)
-    
-    return summary

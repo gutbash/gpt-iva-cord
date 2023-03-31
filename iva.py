@@ -6,7 +6,7 @@ import discord.ext.tasks
 from log_utils import colors
 from redis_utils import save_pickle_to_redis, load_pickle_from_redis
 from postgres_utils import async_fetch_key
-from tools import get_top_search_results, get_image_from_search, get_important_text
+from tools import get_top_search_results, get_image_from_search
 
 import os
 import openai
@@ -22,6 +22,7 @@ import PyPDF2
 import io
 import random
 import textwrap
+from bs4 import BeautifulSoup
 
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import OpenAI
@@ -181,6 +182,23 @@ async def on_message(message):
             logical_llm = ChatOpenAI(openai_api_key=openai_key, temperature=0)
 
             text_splitter = CharacterTextSplitter()
+            
+            def get_important_text(url):
+                response = requests.get(url)
+                soup = BeautifulSoup(response.content, 'html.parser')
+
+                #important_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'article', 'section', 'span', 'figcaption', 'blockquote']
+                important_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p']
+                important_text = ''
+
+                for tag in important_tags:
+                    elements = soup.find_all(tag)
+                    for element in elements:
+                        important_text += element.get_text(strip=True) + ' '
+                        
+                summary = get_map_reduce(important_text)
+                
+                return summary
             
             def get_map_reduce(text):
                 #prepare and parse the text
