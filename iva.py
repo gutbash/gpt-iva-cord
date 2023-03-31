@@ -203,7 +203,7 @@ async def on_message(message):
                 tools.append(Tool(
                     name = "Beautiful Soup",
                     func=get_important_text,
-                    description="Scrape and read the content of a specific web page. Use this when you need to get specific content from a website. Input should be a url (i.e. https://www.google.com). The output will be the text response of the GET request."
+                    description="Scrape and read the content of a specific web page. Use this when you need to get specific content from a website given by a user or Organic Results. Input should be a url (i.e. https://www.google.com). The output will be the contents of the page."
                 ))
 
                 tools.append(Tool(
