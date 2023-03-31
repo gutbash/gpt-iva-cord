@@ -3,7 +3,18 @@ import requests
 import random
 import os
 from bs4 import BeautifulSoup
-from transformers import pipeline
+
+from langchain.chat_models import ChatOpenAI
+from langchain import PromptTemplate, LLMChain
+from langchain.text_splitter import CharacterTextSplitter
+from langchain.chains.mapreduce import MapReduceChain
+from langchain.prompts import PromptTemplate
+from langchain.docstore.document import Document
+from langchain.chains.summarize import load_summarize_chain
+
+llm = ChatOpenAI(temperature=0)
+
+text_splitter = CharacterTextSplitter()
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_TOKEN")
 GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
@@ -69,13 +80,17 @@ def get_important_text(url):
         elements = soup.find_all(tag)
         for element in elements:
             important_text += element.get_text(strip=True) + ' '
-
-    summary = summarize_text(important_text)
+            
+    summary = get_map_reduce(important_text)
     
     return summary
 
-
-def summarize_text(text):
-    summarizer = pipeline("summarization")
-    summary = summarizer(text, max_length=150, min_length=50, do_sample=False)
-    return summary[0]['summary_text']
+def get_map_reduce(text):
+    #prepare and parse the text
+    texts = text_splitter.split_text(text)
+    docs = [Document(page_content=t) for t in texts[:3]]
+    #prepare chain
+    chain = load_summarize_chain(llm, chain_type="map_reduce")
+    #run summary
+    summary = chain.run(docs)
+    return summary
