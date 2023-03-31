@@ -336,7 +336,7 @@ async def on_message(message):
                     llm_prefix=f"Iva ({agent_mention})",
                     max_iterations=1,
                     early_stopping_method="generate",
-                    return_intermediate_steps=True
+                    return_intermediate_steps=False
                 )
                 
                 try:
