@@ -606,10 +606,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         reply = openai.ChatCompletion.create(
             model=chat_model,
             messages=ask_messages[id],
-            temperature=0.7,
+            temperature=0.0,
             max_tokens=max_tokens,
             top_p=1.0,
-            frequency_penalty=1.0,
+            frequency_penalty=0.0,
             presence_penalty=0.0,
             )
         
