@@ -453,7 +453,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         prompt = prompt.replace("--v3", "")
         chat_model = "gpt-3.5-turbo"
     else:
-        chat_model = "gpt-4"
+        chat_model = "gpt-3.5-turbo"
     
     # Get the current timestamp
     timestamp = datetime.datetime.now()
@@ -606,7 +606,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         reply = openai.ChatCompletion.create(
             model=chat_model,
             messages=ask_messages[id],
-            temperature=0.0,
+            temperature=0.5,
             max_tokens=max_tokens,
             top_p=1.0,
             frequency_penalty=0.0,
