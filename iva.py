@@ -188,7 +188,8 @@ async def on_message(message):
                 soup = BeautifulSoup(response.content, 'html.parser')
 
                 #important_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'article', 'section', 'span', 'figcaption', 'blockquote']
-                important_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p']
+                #important_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p']
+                important_tags = ['p']
                 important_text = ''
 
                 for tag in important_tags:
@@ -512,7 +513,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             f.write(attachment_text)
             
         llm = ChatOpenAI(
-            chat_model=chat_model,
+            model_name=chat_model,
             temperature=0.7,
             max_tokens=1500,
             #logit_bias={"50256": -25},
