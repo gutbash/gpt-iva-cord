@@ -502,6 +502,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         elif file_type.startswith("text"): #txt css csv html xml
             attachment_text = f"\n\n{attachment_bytes}"
             attachment_text = attachment_text.encode().decode()
+            print(attachment_text)
             
         else:
             
@@ -608,7 +609,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         reply = openai.ChatCompletion.create(
             model=chat_model,
             messages=ask_messages[id],
-            temperature=0.5,
+            temperature=0.7,
             max_tokens=max_tokens,
             top_p=1.0,
             frequency_penalty=0.0,
