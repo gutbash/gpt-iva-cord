@@ -512,7 +512,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             f.write(attachment_text)
             
         llm = ChatOpenAI(
-            chat_model=chat_model
+            chat_model=chat_model,
             temperature=0.7,
             max_tokens=1500,
             #logit_bias={"50256": -25},
