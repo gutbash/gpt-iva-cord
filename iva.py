@@ -453,7 +453,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         prompt = prompt.replace("--v3", "")
         chat_model = "gpt-3.5-turbo"
     else:
-        chat_model = "gpt-4"
+        chat_model = "gpt-3.5-turbo"
     
     # Get the current timestamp
     timestamp = datetime.datetime.now()
