@@ -513,7 +513,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         with open(f'{file.filename}.txt', 'w') as f:
             f.write(attachment_text)
             
-        llm = ChatOpenAI(
+        file_llm = ChatOpenAI(
             model_name=chat_model,
             temperature=0.7,
             max_tokens=1500,
@@ -532,7 +532,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             template=combine_prompt_template, input_variables=["summaries", "question"]
         )
         
-        qa_chain = load_qa_chain(llm, chain_type="map_reduce", combine_prompt=COMBINE_PROMPT)
+        qa_chain = load_qa_chain(file_llm, chain_type="map_reduce", combine_prompt=COMBINE_PROMPT)
         qa_document_chain = AnalyzeDocumentChain(combine_docs_chain=qa_chain)
         reply = qa_document_chain.run(input_document=attachment_text, question=prompt)
         
