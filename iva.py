@@ -674,8 +674,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             dash_count += "-"
     
     prompt_embed = discord.Embed(description=f"{dash_count}<:ivaprompt:1051742892814761995>  {prompt}{file_placeholder}")
-    prompt_embed.add_field(name="model", value=f"`{chat_model}`", inline=False)
-    prompt_embed.add_field(name="temperature", value=f"`{temperature}`", inline=False)
+    prompt_embed.add_field(name="model", value=f"`{chat_model}`", inline=True)
+    prompt_embed.add_field(name="temperature", value=f"`{temperature}`", inline=True)
     embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
     
     embeds = []
