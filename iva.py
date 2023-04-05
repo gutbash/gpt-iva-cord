@@ -611,11 +611,13 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         ask_messages[id].append(user_engagement)
         
         #print(ask_messages[id])
+        
+        temperature = 0.7
 
         reply = openai.ChatCompletion.create(
             model=chat_model,
             messages=ask_messages[id],
-            temperature=0.7,
+            temperature=temperature,
             max_tokens=max_tokens,
             top_p=1.0,
             frequency_penalty=0.0,
@@ -673,6 +675,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     
     prompt_embed = discord.Embed(description=f"{dash_count}<:ivaprompt:1051742892814761995>  {prompt}{file_placeholder}")
     prompt_embed.add_field(name="model", value=f"`{chat_model}`", inline=False)
+    prompt_embed.add_field(name="temperature", value=f"`{temperature}`", inline=False)
     embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
     
     embeds = []
