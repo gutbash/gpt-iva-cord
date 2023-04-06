@@ -881,6 +881,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         if len(reply) > 4096:
             try:
                 embeds = []
+                embeds.append(prompt_embed)
                 substrings = []
                 for i in range(0, len(reply), 4096):
                     substring = reply[i:i+4096]
