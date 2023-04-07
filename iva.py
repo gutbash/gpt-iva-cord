@@ -592,7 +592,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     try:
         if last_response[id]:
             #embed_filler = discord.Embed(color=discord.Color.dark_theme())
-            await last_response[id].edit_original_response(content="` `", view=None)
+            await last_response[id].edit_original_response(content="⠀", view=None)
     except Exception as e:
         print(e)
     
