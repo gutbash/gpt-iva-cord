@@ -443,9 +443,25 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     mention = interaction.user.mention
     bot = client.user.display_name
     user_name = interaction.user.name
+
     # Use the `SELECT` statement to fetch the row with the given id
     result = await async_fetch_key(id)
     openai_key = ""
+
+    # Regular expression pattern to match the --t attribute command
+    pattern = r'--t\s*(1(\.0{1,2})?|0(\.\d{1,2})?)'
+    
+    # Search for the attribute command in the given string
+    match = re.search(pattern, prompt)
+    
+    if match:
+        # Extract the floating point number
+        temperature = float(match.group(1))
+
+        # Remove the attribute command from the string
+        prompt = re.sub(pattern, '', prompt)
+    else:
+        temperature = 0.7
     
     if "--v4" in prompt:
         prompt = prompt.replace("--v4", "")
@@ -612,8 +628,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         ask_messages[id].append(user_engagement)
         
         #print(ask_messages[id])
-        
-        temperature = 0.7
 
         reply = openai.ChatCompletion.create(
             model=chat_model,
