@@ -23,6 +23,7 @@ import io
 import random
 import textwrap
 from bs4 import BeautifulSoup
+import chardet
 
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import OpenAI
@@ -424,7 +425,7 @@ class Menu(discord.ui.View):
         #await interaction.channel.send(embed=embed)
 
 @tree.command(name = "iva", description="write a prompt")
-@app_commands.describe(prompt = "prompt", file = "file (txt, pdf, html, xml)")
+@app_commands.describe(prompt = "prompt", file = "file")
 async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attachment=None):
     
     global ask_messages
@@ -514,24 +515,30 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         file_type = file.content_type
         
         if file_type == "application/pdf": #pdf
+
             pdf_file = io.BytesIO(attachment_bytes)
             pdf_reader = PyPDF2.PdfReader(pdf_file)
             pdf_content = ""
             for page in range(len(pdf_reader.pages)):
                 pdf_content += pdf_reader.pages[page].extract_text()
             attachment_text = f"\n\n{pdf_content}"
-            attachment_text = attachment_text.encode().decode()
-        
-        elif file_type.startswith("text"): #txt css csv html xml
-            attachment_text = f"\n\n{attachment_bytes}"
-            attachment_text = attachment_text.encode().decode()
-            print(attachment_text)
-            
+
         else:
-            
-            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} the attachment\'s file type is unknown. consider converting it to `.txt`, `.pdf`, or `.html`.', color=discord.Color.dark_theme())
-            await interaction.followup.send(embed=embed, ephemeral=False)
-            return
+
+            try:
+
+                # Detect encoding
+                detected = chardet.detect(attachment_bytes)
+                encoding = detected['encoding']
+
+                # Decode using the detected encoding
+                attachment_text = f"\n\n{attachment_bytes.decode(encoding)}"
+                
+            except:
+
+                embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} the attachment\'s file type is unknown. consider converting it to plain text such as `.txt`.', color=discord.Color.dark_theme())
+                await interaction.followup.send(embed=embed, ephemeral=False)
+                return
         
         with open(f'{file.filename}.txt', 'w') as f:
             f.write(attachment_text)
