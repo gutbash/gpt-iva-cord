@@ -542,48 +542,52 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         with open(f'{file.filename}.txt', 'w') as f:
             f.write(attachment_text)
+        
+        file_tokens = len(tokenizer(ask_prompt + attachment_text, truncation=True, max_length=12000)['input_ids'])
+
+        if file_tokens >= 4096:
+
+            file_llm = ChatOpenAI(
+                model_name=chat_model,
+                temperature=0.7,
+                max_tokens=1500,
+                #logit_bias={"50256": -25},
+                openai_api_key=openai_key,
+            )
             
-        file_llm = ChatOpenAI(
-            model_name=chat_model,
-            temperature=0.7,
-            max_tokens=1500,
-            #logit_bias={"50256": -25},
-            openai_api_key=openai_key,
-        )
-        
-        combine_prompt_template = """Given the following extracted parts of a long document and a prompt, create a final answer in a concise, creative, thoughtful, understandable, organized, and clear format.
+            combine_prompt_template = """Given the following extracted parts of a long document and a prompt, create a final answer in a concise, creative, thoughtful, understandable, organized, and clear format.
 
-        PROMPT: {question}
-        =========
-        {summaries}
-        =========
-        ANSWER:"""
-        COMBINE_PROMPT = PromptTemplate(
-            template=combine_prompt_template, input_variables=["summaries", "question"]
-        )
-        
-        qa_chain = load_qa_chain(file_llm, chain_type="map_reduce", combine_prompt=COMBINE_PROMPT)
-        qa_document_chain = AnalyzeDocumentChain(combine_docs_chain=qa_chain)
-        reply = qa_document_chain.run(input_document=attachment_text, question=prompt)
-        
-        prompt_embed = discord.Embed(description=f"<:ivaprompt:1051742892814761995>  {prompt}{file_placeholder}")
-        embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
-        
-        embeds = []
-        files = []
+            PROMPT: {question}
+            =========
+            {summaries}
+            =========
+            ANSWER:"""
+            COMBINE_PROMPT = PromptTemplate(
+                template=combine_prompt_template, input_variables=["summaries", "question"]
+            )
+            
+            qa_chain = load_qa_chain(file_llm, chain_type="map_reduce", combine_prompt=COMBINE_PROMPT)
+            qa_document_chain = AnalyzeDocumentChain(combine_docs_chain=qa_chain)
+            reply = qa_document_chain.run(input_document=attachment_text, question=prompt)
+            
+            prompt_embed = discord.Embed(description=f"<:ivaprompt:1051742892814761995>  {prompt}{file_placeholder}")
+            embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
+            
+            embeds = []
+            files = []
 
-        #files.append(discord.File(f"{file.filename}.txt"))
-        embeds.append(prompt_embed)
-        embeds.append(embed)
+            #files.append(discord.File(f"{file.filename}.txt"))
+            embeds.append(prompt_embed)
+            embeds.append(embed)
 
-        try:
-            #print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightcyan}ASK     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@iva: {colors.reset}{reply}")
-            await interaction.followup.send(files=files, embeds=embeds)
-            #last_response[id] = interaction
-            #print(files, embeds)
-            return
-        except Exception as e:
-            print(e)
+            try:
+                #print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightcyan}ASK     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@iva: {colors.reset}{reply}")
+                await interaction.followup.send(files=files, embeds=embeds)
+                #last_response[id] = interaction
+                #print(files, embeds)
+                return
+            except Exception as e:
+                print(e)
         
     try:
         if last_response[id]:
