@@ -693,7 +693,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         human_prefix = f"{user_name}",
         )
         
-        ask_messages[id] = None
+        ask_messages[id] = []
         last_response[id] = None
         
     else:
