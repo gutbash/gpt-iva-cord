@@ -359,12 +359,8 @@ async def on_message(message):
 
                 except Exception as e:
                     print(e)
-                    #if type(e) == openai.error.RateLimitError:
                     embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {user_mention} {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
                     await message.channel.send(embed=embed)
-                    #else:
-                        #embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {user_mention} your key might be incorrect.\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
-                        #await message.channel.send(embed=embed)
                     return
                 
             except Exception as e:
@@ -687,13 +683,12 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     if id not in ask_messages:
         
         memory = ConversationBufferMemory(
-        memory_key="chat_history",
-        input_key="input",
-        ai_prefix=f"Iva",
-        human_prefix = f"{user_name}",
+            memory_key="chat_history",
+            input_key="input",
+            ai_prefix=f"Iva",
+            human_prefix = f"{user_name}",
         )
         
-        ask_messages[id] = memory
         last_response[id] = None
         
     else:
