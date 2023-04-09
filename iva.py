@@ -727,6 +727,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     )
     
     reply = agent_chain.run(input=f"{prompt}{attachment_text}")
+    ask_messages[id] = memory
     
     dash_count = ""
     interaction_count = len(ask_messages.get(id, 0))
