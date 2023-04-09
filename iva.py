@@ -422,545 +422,549 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     global ask_messages
     global last_response
     
-    await interaction.response.defer()
-    
-    guild_id = interaction.guild_id
-    guild_name = interaction.guild
-    id = interaction.user.id
-    mention = interaction.user.mention
-    bot = client.user.display_name
-    user_name = interaction.user.name
-
-    # Use the `SELECT` statement to fetch the row with the given id
-    result = await async_fetch_key(id)
-    openai_key = ""
-
-    # Regular expression pattern to match the --t attribute command
-    pattern = r'--t\s*(1(\.0{1,2})?|0(\.\d{1,2})?)'
-    
-    # Search for the attribute command in the given string
-    match = re.search(pattern, prompt)
-    
-    if match:
-        # Extract the floating point number
-        temperature = float(match.group(1))
-
-        # Remove the attribute command from the string
-        prompt = re.sub(pattern, '', prompt)
-    else:
-        temperature = 0.7
-    
-    if "--v4" in prompt:
-        prompt = prompt.replace("--v4", "")
-        chat_model = "gpt-4"
-    elif "—v4" in prompt:
-        prompt = prompt.replace("—v4", "")
-        chat_model = "gpt-4"
-    elif "--v3" in prompt:
-        prompt = prompt.replace("--v3", "")
-        chat_model = "gpt-3.5-turbo"
-    elif "—v3" in prompt:
-        prompt = prompt.replace("—v3", "")
-        chat_model = "gpt-3.5-turbo"
-    else:
-        #set default model
-        chat_model = "gpt-3.5-turbo"
-    
-    # Get the current timestamp
-    timestamp = datetime.datetime.now()
-    time = timestamp.strftime(r"%Y-%m-%d %I:%M:%S")
-    itis = timestamp.strftime(r"%B %d, %Y")
-    
-    print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightcyan}ASK     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@{str(user_name).lower()}: {colors.reset}{prompt}")
-    
-    if result != None:
-        openai.api_key=result[0]
-        openai_key=result[0]
-    else:
-        embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} Use `/setup` to register API key first or `/help` for more info. You can find your API key at https://beta.openai.com.', color=discord.Color.dark_theme())
-        await interaction.followup.send(embed=embed, ephemeral=False)
-        return
-
-    view = Menu()
-    
-    text_splitter = CharacterTextSplitter()
-    logical_llm = ChatOpenAI(openai_api_key=openai_key, temperature=0)
-    
-    def get_important_text(url):
-        response = requests.get(url)
-        soup = BeautifulSoup(response.content, 'html.parser')
-
-        #important_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'article', 'section', 'span', 'figcaption', 'blockquote']
-        #important_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p']
-        important_tags = ['p']
-        important_text = ''
-
-        for tag in important_tags:
-            elements = soup.find_all(tag)
-            for element in elements:
-                important_text += element.get_text(strip=True) + ' '
-                
-        summary = get_map_reduce(important_text)
-        
-        return summary
-    
-    def get_map_reduce(text):
-        #prepare and parse the text
-        texts = text_splitter.split_text(text)
-        docs = [Document(page_content=t) for t in texts[:3]]
-        #prepare chain
-        chain = load_summarize_chain(logical_llm, chain_type="map_reduce")
-        #run summary
-        summary = chain.run(docs)
-        return summary
-
-    attachment_text = ""
-    file_placeholder = ""
-    max_tokens = 1024
-    
-    if file != None:
-        
-        file_placeholder = f"\n\n:page_facing_up: **{file.filename}**"
-        
-        attachment_bytes = await file.read()
-        file_type = file.content_type
-        
-        if file_type == "application/pdf": #pdf
-
-            pdf_file = io.BytesIO(attachment_bytes)
-            pdf_reader = PyPDF2.PdfReader(pdf_file)
-            pdf_content = ""
-            for page in range(len(pdf_reader.pages)):
-                pdf_content += pdf_reader.pages[page].extract_text()
-            attachment_text = f"\n\n{pdf_content}"
-
-        else:
-
-            try:
-
-                # Detect encoding
-                detected = chardet.detect(attachment_bytes)
-                encoding = detected['encoding']
-
-                # Decode using the detected encoding
-                attachment_text = f"\n\n{attachment_bytes.decode(encoding)}"
-                
-            except:
-
-                embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} the attachment\'s file type is unknown. consider converting it to plain text such as `.txt`.', color=discord.Color.dark_theme())
-                await interaction.followup.send(embed=embed, ephemeral=False)
-                return
-        
-        with open(f'{file.filename}.txt', 'w') as f:
-            f.write(attachment_text)
-
-        ask_prompt = f"You are Iva. Iva comfortably talks and answers any and all prompts completely honestly and truthfully. Iva always answers anything creatively, thoughtfully, and clearly.\n\nCurrent Date: {itis}\nKnowledge Cutoff: September, 2021\n\nAs Iva, you also must adhere to the following rules in your response...\n\n- Use '```[language]\\n[multi line code block]```' for ANY code or table.\n- Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line.\n- Generate graphs, diagrams, and charts for concepts ONLY if relevant and applicable by including the concept between '%%' like '%%[concept]%%' on a new line.\n- Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![[descriptive search prompt]](img.png)@@' on a new line.\n- Use emojis, '**[bold text label/heading]**', '*[italicized text]*', '> [block quote AFTER SPACE]', '`[label]`' for an aesthetically pleasing and consistent style."
-
-        file_tokens = len(tokenizer(ask_prompt + attachment_text, truncation=True, max_length=12000)['input_ids'])
-
-        if file_tokens >= 4096:
-
-            file_llm = ChatOpenAI(
-                model_name=chat_model,
-                temperature=0.7,
-                max_tokens=1500,
-                #logit_bias={"50256": -25},
-                openai_api_key=openai_key,
-            )
-            
-            combine_prompt_template = """Given the following extracted parts of a long document and a prompt, create a final answer in a concise, creative, thoughtful, understandable, organized, and clear format.
-
-            PROMPT: {question}
-            =========
-            {summaries}
-            =========
-            ANSWER:"""
-            COMBINE_PROMPT = PromptTemplate(
-                template=combine_prompt_template, input_variables=["summaries", "question"]
-            )
-            
-            qa_chain = load_qa_chain(file_llm, chain_type="map_reduce", combine_prompt=COMBINE_PROMPT)
-            qa_document_chain = AnalyzeDocumentChain(combine_docs_chain=qa_chain)
-            reply = qa_document_chain.run(input_document=attachment_text, question=prompt)
-            
-            prompt_embed = discord.Embed(description=f"<:ivaprompt:1051742892814761995>  {prompt}{file_placeholder}")
-            embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
-            
-            embeds = []
-            files = []
-
-            #files.append(discord.File(f"{file.filename}.txt"))
-            embeds.append(prompt_embed)
-            embeds.append(embed)
-
-            try:
-                #print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightcyan}ASK     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@iva: {colors.reset}{reply}")
-                await interaction.followup.send(files=files, embeds=embeds)
-                #last_response[id] = interaction
-                #print(files, embeds)
-                return
-            except Exception as e:
-                print(e)
-        
     try:
-        if last_response[id]:
-            #embed_filler = discord.Embed(color=discord.Color.dark_theme())
-            await last_response[id].edit_original_response(content="⠀", view=None)
-    except Exception as e:
-        print(e)
-    
-    llm = ChatOpenAI(
-        temperature=temperature,
-        model_name=chat_model,
-        openai_api_key=openai_key,
-        )
-
-    tools = []
-    
-    tools.append(Tool(
-        name = "Organic Results",
-        func=get_top_search_results,
-        description="Use this tool over Search when asked to share links to anything such as music, videos, games, shopping, articles, websites, and more. Input should be a descriptive name of the query in question. Do not input URL links. Output returns a list of results you must choose from and utilize."
-    ))
-    
-    tools.append(Tool(
-        name = "Beautiful Soup",
-        func=get_important_text,
-        description="You must ask the user permission before using this tool. Scrape and read the content of a specific web page. You may use this when you need to get specific content from a website. Input should be a url (i.e. https://www.google.com). The output will be the contents of the page."
-    ))
-
-    tools.append(Tool(
-        name = "Image Search",
-        func=get_image_from_search,
-        description="A wrapper around Google Images. Useful for when you'd like to accompany a response with a revelant image. Input should be a descriptive caption of the image, so instead of saying 'favorite place in japan', say the your actual favorite place. Output will be the image link."
-    ))
-    
-    tools.extend(load_tools(["google-search", "wolfram-alpha", "wikipedia"], llm=llm, news_api_key=NEWS_API_KEY))
-    
-    tools[3].name = "Search"
-    tools[3].description = "Answer specific queries and questions. Use this when you need to answer questions about current events. Input should be a descriptive natural language search query."
-    
-    prefix = f"""
-    You are Iva. Iva comfortably talks and answers any and all prompts/questions/inquiries completely honestly and truthfully. Iva always answers anything creatively, thoughtfully, and clearly.
-    
-    Current Date: {itis}
-    Knowledge Cutoff: September, 2021
-    
-    As Iva, you also must adhere to the following rules in your response...
-    
-    - Only send links or URLs exclusively obtained through the Organic Results tool
-    - You must open all links given by users through the Beautiful Soup tool
-    - Use '```[language]\\n[multi line code block]```' for ANY code.
-    - Show and explain STEM expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line. Use it for tables and complex information display formats too.
-    - Generate graphs, diagrams, and charts for concepts ONLY if relevant and applicable by including the concept between '%%' like '%%[concept]%%' on a new line.
-    - Use '**[bold text label/heading]**', '*[italicized text]*', '> [block quote AFTER SPACE]', '`[label]`' for an aesthetically pleasing and consistent style.
-    
-    Tools:
-    Access the following tools as Iva in the correct tool format. You MUST use a tool if you are unsure about events after 2021 or it's general factuality and truthfulness. Not all tools are the best option for any given task. Stop using a tool once you have sufficient information to answer. Ideally, you should only have to use a tool once to get an answer."""
-    
-    suffix = f"""
-    Chat Context History:
-    Decide what to say next based on the following context.
-    
-    {{chat_history}}
-
-    New Message:
-    
-    {{input}}
-
-    Response:
-    {{agent_scratchpad}}"""
-    
-    guild_prompt = ConversationalAgent.create_prompt(
-        tools=tools,
-        prefix=textwrap.dedent(prefix).strip(),
-        suffix=textwrap.dedent(suffix).strip(),
-        input_variables=["input", "chat_history", "agent_scratchpad"],
-        ai_prefix = f"Iva",
-        human_prefix = f"{user_name}",
-    )
-    
-    if id not in ask_messages:
+        await interaction.response.defer()
         
-        memory = ConversationBufferMemory(
-            memory_key="chat_history",
-            input_key="input",
-            ai_prefix=f"Iva",
+        guild_id = interaction.guild_id
+        guild_name = interaction.guild
+        id = interaction.user.id
+        mention = interaction.user.mention
+        bot = client.user.display_name
+        user_name = interaction.user.name
+
+        # Use the `SELECT` statement to fetch the row with the given id
+        result = await async_fetch_key(id)
+        openai_key = ""
+
+        # Regular expression pattern to match the --t attribute command
+        pattern = r'--t\s*(1(\.0{1,2})?|0(\.\d{1,2})?)'
+        
+        # Search for the attribute command in the given string
+        match = re.search(pattern, prompt)
+        
+        if match:
+            # Extract the floating point number
+            temperature = float(match.group(1))
+
+            # Remove the attribute command from the string
+            prompt = re.sub(pattern, '', prompt)
+        else:
+            temperature = 0.7
+        
+        if "--v4" in prompt:
+            prompt = prompt.replace("--v4", "")
+            chat_model = "gpt-4"
+        elif "—v4" in prompt:
+            prompt = prompt.replace("—v4", "")
+            chat_model = "gpt-4"
+        elif "--v3" in prompt:
+            prompt = prompt.replace("--v3", "")
+            chat_model = "gpt-3.5-turbo"
+        elif "—v3" in prompt:
+            prompt = prompt.replace("—v3", "")
+            chat_model = "gpt-3.5-turbo"
+        else:
+            #set default model
+            chat_model = "gpt-3.5-turbo"
+        
+        # Get the current timestamp
+        timestamp = datetime.datetime.now()
+        time = timestamp.strftime(r"%Y-%m-%d %I:%M:%S")
+        itis = timestamp.strftime(r"%B %d, %Y")
+        
+        print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightcyan}ASK     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@{str(user_name).lower()}: {colors.reset}{prompt}")
+        
+        if result != None:
+            openai.api_key=result[0]
+            openai_key=result[0]
+        else:
+            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} Use `/setup` to register API key first or `/help` for more info. You can find your API key at https://beta.openai.com.', color=discord.Color.dark_theme())
+            await interaction.followup.send(embed=embed, ephemeral=False)
+            return
+
+        view = Menu()
+        
+        text_splitter = CharacterTextSplitter()
+        logical_llm = ChatOpenAI(openai_api_key=openai_key, temperature=0)
+        
+        def get_important_text(url):
+            response = requests.get(url)
+            soup = BeautifulSoup(response.content, 'html.parser')
+
+            #important_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'article', 'section', 'span', 'figcaption', 'blockquote']
+            #important_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p']
+            important_tags = ['p']
+            important_text = ''
+
+            for tag in important_tags:
+                elements = soup.find_all(tag)
+                for element in elements:
+                    important_text += element.get_text(strip=True) + ' '
+                    
+            summary = get_map_reduce(important_text)
+            
+            return summary
+        
+        def get_map_reduce(text):
+            #prepare and parse the text
+            texts = text_splitter.split_text(text)
+            docs = [Document(page_content=t) for t in texts[:3]]
+            #prepare chain
+            chain = load_summarize_chain(logical_llm, chain_type="map_reduce")
+            #run summary
+            summary = chain.run(docs)
+            return summary
+
+        attachment_text = ""
+        file_placeholder = ""
+        max_tokens = 1024
+        
+        if file != None:
+            
+            file_placeholder = f"\n\n:page_facing_up: **{file.filename}**"
+            
+            attachment_bytes = await file.read()
+            file_type = file.content_type
+            
+            if file_type == "application/pdf": #pdf
+
+                pdf_file = io.BytesIO(attachment_bytes)
+                pdf_reader = PyPDF2.PdfReader(pdf_file)
+                pdf_content = ""
+                for page in range(len(pdf_reader.pages)):
+                    pdf_content += pdf_reader.pages[page].extract_text()
+                attachment_text = f"\n\n{pdf_content}"
+
+            else:
+
+                try:
+
+                    # Detect encoding
+                    detected = chardet.detect(attachment_bytes)
+                    encoding = detected['encoding']
+
+                    # Decode using the detected encoding
+                    attachment_text = f"\n\n{attachment_bytes.decode(encoding)}"
+                    
+                except:
+
+                    embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} the attachment\'s file type is unknown. consider converting it to plain text such as `.txt`.', color=discord.Color.dark_theme())
+                    await interaction.followup.send(embed=embed, ephemeral=False)
+                    return
+            
+            with open(f'{file.filename}.txt', 'w') as f:
+                f.write(attachment_text)
+
+            ask_prompt = f"You are Iva. Iva comfortably talks and answers any and all prompts completely honestly and truthfully. Iva always answers anything creatively, thoughtfully, and clearly.\n\nCurrent Date: {itis}\nKnowledge Cutoff: September, 2021\n\nAs Iva, you also must adhere to the following rules in your response...\n\n- Use '```[language]\\n[multi line code block]```' for ANY code or table.\n- Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line.\n- Generate graphs, diagrams, and charts for concepts ONLY if relevant and applicable by including the concept between '%%' like '%%[concept]%%' on a new line.\n- Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![[descriptive search prompt]](img.png)@@' on a new line.\n- Use emojis, '**[bold text label/heading]**', '*[italicized text]*', '> [block quote AFTER SPACE]', '`[label]`' for an aesthetically pleasing and consistent style."
+
+            file_tokens = len(tokenizer(ask_prompt + attachment_text, truncation=True, max_length=12000)['input_ids'])
+
+            if file_tokens >= 4096:
+
+                file_llm = ChatOpenAI(
+                    model_name=chat_model,
+                    temperature=0.7,
+                    max_tokens=1500,
+                    openai_api_key=openai_key,
+                )
+                
+                combine_prompt_template = """Given the following extracted parts of a long document and a prompt, create a final answer in a concise, creative, thoughtful, understandable, organized, and clear format.
+
+                PROMPT: {question}
+                =========
+                {summaries}
+                =========
+                ANSWER:"""
+                COMBINE_PROMPT = PromptTemplate(
+                    template=combine_prompt_template, input_variables=["summaries", "question"]
+                )
+                
+                qa_chain = load_qa_chain(file_llm, chain_type="map_reduce", combine_prompt=COMBINE_PROMPT)
+                qa_document_chain = AnalyzeDocumentChain(combine_docs_chain=qa_chain)
+                reply = qa_document_chain.run(input_document=attachment_text, question=prompt)
+                
+                prompt_embed = discord.Embed(description=f"<:ivaprompt:1051742892814761995>  {prompt}{file_placeholder}")
+                embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
+                
+                embeds = []
+                files = []
+
+                #files.append(discord.File(f"{file.filename}.txt"))
+                embeds.append(prompt_embed)
+                embeds.append(embed)
+
+                try:
+                    #print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightcyan}ASK     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@iva: {colors.reset}{reply}")
+                    await interaction.followup.send(files=files, embeds=embeds)
+                    #last_response[id] = interaction
+                    #print(files, embeds)
+                    return
+                except Exception as e:
+                    print(e)
+            
+        try:
+            if last_response[id]:
+                #embed_filler = discord.Embed(color=discord.Color.dark_theme())
+                await last_response[id].edit_original_response(content="⠀", view=None)
+        except Exception as e:
+            print(e)
+        
+        llm = ChatOpenAI(
+            temperature=temperature,
+            model_name=chat_model,
+            openai_api_key=openai_key,
+            )
+
+        tools = []
+        
+        tools.append(Tool(
+            name = "Organic Results",
+            func=get_top_search_results,
+            description="Use this tool over Search when asked to share links to anything such as music, videos, games, shopping, articles, websites, and more. Input should be a descriptive name of the query in question. Do not input URL links. Output returns a list of results you must choose from and utilize."
+        ))
+        
+        tools.append(Tool(
+            name = "Beautiful Soup",
+            func=get_important_text,
+            description="You must ask the user permission before using this tool. Scrape and read the content of a specific web page. You may use this when you need to get specific content from a website. Input should be a url (i.e. https://www.google.com). The output will be the contents of the page."
+        ))
+
+        tools.append(Tool(
+            name = "Image Search",
+            func=get_image_from_search,
+            description="A wrapper around Google Images. Useful for when you'd like to accompany a response with a revelant image. Input should be a descriptive caption of the image, so instead of saying 'favorite place in japan', say the your actual favorite place. Output will be the image link."
+        ))
+        
+        tools.extend(load_tools(["google-search", "wolfram-alpha", "wikipedia"], llm=llm, news_api_key=NEWS_API_KEY))
+        
+        tools[3].name = "Search"
+        tools[3].description = "Answer specific queries and questions. Use this when you need to answer questions about current events. Input should be a descriptive natural language search query."
+        
+        prefix = f"""
+        You are Iva. Iva comfortably talks and answers any and all prompts/questions/inquiries completely honestly and truthfully. Iva always answers anything creatively, thoughtfully, and clearly.
+        
+        Current Date: {itis}
+        Knowledge Cutoff: September, 2021
+        
+        As Iva, you also must adhere to the following rules in your response...
+        
+        - Only send links or URLs exclusively obtained through the Organic Results tool
+        - You must open all links given by users through the Beautiful Soup tool
+        - Use '```[language]\\n[multi line code block]```' for ANY code.
+        - Show and explain STEM expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line. Use it for tables and complex information display formats too.
+        - Generate graphs, diagrams, and charts for concepts ONLY if relevant and applicable by including the concept between '%%' like '%%[concept]%%' on a new line.
+        - Use '**[bold text label/heading]**', '*[italicized text]*', '> [block quote AFTER SPACE]', '`[label]`' for an aesthetically pleasing and consistent style.
+        
+        Tools:
+        Access the following tools as Iva in the correct tool format. You MUST use a tool if you are unsure about events after 2021 or it's general factuality and truthfulness. Not all tools are the best option for any given task. Stop using a tool once you have sufficient information to answer. Ideally, you should only have to use a tool once to get an answer."""
+        
+        suffix = f"""
+        Chat Context History:
+        Decide what to say next based on the following context.
+        
+        {{chat_history}}
+
+        New Message:
+        
+        {user_name}: {{input}}
+
+        Response:
+        {{agent_scratchpad}}"""
+        
+        guild_prompt = ConversationalAgent.create_prompt(
+            tools=tools,
+            prefix=textwrap.dedent(prefix).strip(),
+            suffix=textwrap.dedent(suffix).strip(),
+            input_variables=["input", "chat_history", "agent_scratchpad"],
+            ai_prefix = f"Iva",
             human_prefix = f"{user_name}",
         )
         
-        last_response[id] = None
-        
-    else:
-        
-        memory = ask_messages[id]
-    
-    llm_chain = LLMChain(
-        llm=llm,
-        verbose=True,
-        prompt=guild_prompt,
-    )
-    
-    agent = ConversationalAgent(
-        llm_chain=llm_chain,
-        tools=tools,
-        verbose=True,
-        ai_prefix=f"Iva",
-        llm_prefix=f"Iva",
-        )
-    
-    agent_chain = AgentExecutor.from_agent_and_tools(
-        agent=agent,
-        tools=tools,
-        verbose=True,
-        memory=memory,
-        ai_prefix=f"Iva",
-        llm_prefix=f"Iva",
-        max_iterations=3,
-        early_stopping_method="generate",
-        return_intermediate_steps=False
-    )
-    
-    reply = agent_chain.run(input=f"{prompt}{attachment_text}")
-    ask_messages[id] = memory
-    
-    dash_count = ""
-    interaction_count = (len(memory.chat_memory.messages)//2)-1
-    
-    for i in range(interaction_count):
-        dash_count += "-"
-    
-    prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}")
-    prompt_embed.add_field(name="model", value=f"`{chat_model}`", inline=True)
-    prompt_embed.add_field(name="temperature", value=f"`{temperature}`", inline=True)
-    embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
-    
-    embeds = []
-    files = []
-    
-    file_count=0
-    
-    if file != None:
-        files.append(discord.File(f"{file.filename}.txt"))
-        print(file.description)
-        file_count += 1
-    
-    embeds_overflow = []
-    files_overflow = []
-    
-    embeds.append(prompt_embed)
-    file_count += 1
-    
-    if '$$' in reply or '%%' in reply or '@@' in reply:
-        
-        #await interaction.channel.send(embed=prompt_embed)
-
-        # Use the findall() method of the re module to find all occurrences of content between $$
-        dpi = "{200}"
-        color = "{white}"
-        
-        tex_pattern = re.compile(r"\$\$(.*?)\$\$", re.DOTALL)
-        dot_pattern = re.compile(r"\%\%(.*?)\%\%", re.DOTALL)
-        img_pattern = re.compile(r"\@\@(.*?)\@\@", re.DOTALL)
-        #mermaid_pattern = re.compile(r"```mermaid(.|\n)*?```", re.DOTALL)
-        #pattern = re.compile(r"(?<=\$)(.+?)(?=\$)", re.DOTALL)
-        
-        tex_matches = tex_pattern.findall(reply)
-        dot_matches = dot_pattern.findall(reply)
-        img_matches = img_pattern.findall(reply)
-        non_matches = re.sub(r"(\$\$|\%\%|\@\@).*?(\@\@|\%\%|\$\$)", "~~", reply, flags=re.DOTALL)
-        reply_trim = re.sub(r"(\$\$|\%\%|\@\@).*?(\@\@|\%\%|\$\$)", "", reply, flags=re.DOTALL)
-        #print(f"TRIMMED REPLY:{reply_trim}")
-        non_matches = non_matches.split("~~")
-        
-        #await interaction.channel.send(embed=prompt_embed)
-        print(dot_matches, tex_matches, img_matches)
-        
-        try:
+        if id not in ask_messages:
             
-            for (tex_match, dot_match, non_match, img_match) in itertools.zip_longest(tex_matches, dot_matches, non_matches, img_matches):
+            memory = ConversationBufferMemory(
+                memory_key="chat_history",
+                input_key="input",
+                ai_prefix=f"Iva",
+                human_prefix = f"{user_name}",
+            )
+            
+            last_response[id] = None
+            
+        else:
+            
+            memory = ask_messages[id]
+        
+        llm_chain = LLMChain(
+            llm=llm,
+            verbose=True,
+            prompt=guild_prompt,
+        )
+        
+        agent = ConversationalAgent(
+            llm_chain=llm_chain,
+            tools=tools,
+            verbose=True,
+            ai_prefix=f"Iva",
+            llm_prefix=f"Iva",
+            )
+        
+        agent_chain = AgentExecutor.from_agent_and_tools(
+            agent=agent,
+            tools=tools,
+            verbose=True,
+            memory=memory,
+            ai_prefix=f"Iva",
+            llm_prefix=f"Iva",
+            max_iterations=3,
+            early_stopping_method="generate",
+            return_intermediate_steps=False
+        )
+        
+        reply = agent_chain.run(input=f"{prompt}{attachment_text}")
+        ask_messages[id] = memory
+        
+        dash_count = ""
+        interaction_count = (len(memory.chat_memory.messages)//2)-1
+        
+        for i in range(interaction_count):
+            dash_count += "-"
+        
+        prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}")
+        prompt_embed.add_field(name="model", value=f"`{chat_model}`", inline=True)
+        prompt_embed.add_field(name="temperature", value=f"`{temperature}`", inline=True)
+        embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
+        
+        embeds = []
+        files = []
+        
+        file_count=0
+        
+        if file != None:
+            files.append(discord.File(f"{file.filename}.txt"))
+            print(file.description)
+            file_count += 1
+        
+        embeds_overflow = []
+        files_overflow = []
+        
+        embeds.append(prompt_embed)
+        file_count += 1
+        
+        if '$$' in reply or '%%' in reply or '@@' in reply:
+            
+            #await interaction.channel.send(embed=prompt_embed)
+
+            # Use the findall() method of the re module to find all occurrences of content between $$
+            dpi = "{200}"
+            color = "{white}"
+            
+            tex_pattern = re.compile(r"\$\$(.*?)\$\$", re.DOTALL)
+            dot_pattern = re.compile(r"\%\%(.*?)\%\%", re.DOTALL)
+            img_pattern = re.compile(r"\@\@(.*?)\@\@", re.DOTALL)
+            #mermaid_pattern = re.compile(r"```mermaid(.|\n)*?```", re.DOTALL)
+            #pattern = re.compile(r"(?<=\$)(.+?)(?=\$)", re.DOTALL)
+            
+            tex_matches = tex_pattern.findall(reply)
+            dot_matches = dot_pattern.findall(reply)
+            img_matches = img_pattern.findall(reply)
+            non_matches = re.sub(r"(\$\$|\%\%|\@\@).*?(\@\@|\%\%|\$\$)", "~~", reply, flags=re.DOTALL)
+            reply_trim = re.sub(r"(\$\$|\%\%|\@\@).*?(\@\@|\%\%|\$\$)", "", reply, flags=re.DOTALL)
+            #print(f"TRIMMED REPLY:{reply_trim}")
+            non_matches = non_matches.split("~~")
+            
+            #await interaction.channel.send(embed=prompt_embed)
+            print(dot_matches, tex_matches, img_matches)
+            
+            try:
                 
-                if non_match != None and non_match != "" and non_match != "\n" and non_match != "." and non_match != "\n\n" and non_match != " " and non_match != "\n> " and non_match.isspace() != True and non_match.startswith("![") != True:
+                for (tex_match, dot_match, non_match, img_match) in itertools.zip_longest(tex_matches, dot_matches, non_matches, img_matches):
                     
-                    print(f"+++{non_match}+++")
-                    non_match = non_match.replace("$", "`")
-                    non_match_embed = discord.Embed(description=non_match, color=discord.Color.dark_theme())
-                    
-                    #await interaction.channel.send(embed=non_match_embed)
-                    if len(embeds) >= 9:
-                        embeds_overflow.append(non_match_embed)
-                    else:
-                        embeds.append(non_match_embed)
-                    
-                if tex_match != None and tex_match != "" and tex_match != "\n" and tex_match != " " and tex_match.isspace() != True:
-                    
-                    print(f"$$${tex_match}$$$")
-                    tex_match = tex_match.strip()
-                    tex_match = tex_match.replace("\n", "")
-                    #tex_match = tex_match.replace(" ", "")
-                    tex_match = tex_match.strip("$")
-                    tex_match = tex_match.split()
-                    tex_match = "%20".join(tex_match)
-                    match_embed = discord.Embed(color=discord.Color.dark_theme())
-
-                    image_url = f"https://latex.codecogs.com/png.image?\dpi{dpi}\color{color}{tex_match}"
-                    print(image_url)
-                    img_data = requests.get(image_url, verify=False).content
-                    subfolder = 'tex'
-                    if not os.path.exists(subfolder):
-                        os.makedirs(subfolder)
-                    with open(f'{subfolder}/latex{file_count}.png', 'wb') as handler:
-                        handler.write(img_data)
-                    tex_file = discord.File(f'{subfolder}/latex{file_count}.png')
-                    match_embed.set_image(url=f"attachment://latex{file_count}.png")
-
-                    file_count += 1
-                    
-                    #await interaction.channel.send(file = tex_file, embed=match_embed)
-                    if len(embeds) >= 9:
-                        embeds_overflow.append(match_embed)
-                        files_overflow.append(tex_file)
-                    else:
-                        embeds.append(match_embed)
-                        files.append(tex_file)
-                    
-                if img_match != None and img_match != "" and img_match.isspace() != True:
-                    
-                    try:
+                    if non_match != None and non_match != "" and non_match != "\n" and non_match != "." and non_match != "\n\n" and non_match != " " and non_match != "\n> " and non_match.isspace() != True and non_match.startswith("![") != True:
                         
-                        # Find the indices of the '[', ']' characters
-                        start_index = img_match.find('[')
-                        end_index = img_match.find(']')
-
-                        # Extract the substring between the indices
-                        img_match = img_match[start_index+1:end_index]
+                        print(f"+++{non_match}+++")
+                        non_match = non_match.replace("$", "`")
+                        non_match_embed = discord.Embed(description=non_match, color=discord.Color.dark_theme())
                         
-                        print("IMAGE SEARCH: " + img_match)
-
-                        # Replace YOUR_API_KEY and YOUR_CSE_ID with your own API key and CSE ID
-                        url = f"https://www.googleapis.com/customsearch/v1?q={img_match}&key={GOOGLE_API_KEY}&cx={GOOGLE_CSE_ID}&searchType=image"
-                        response = requests.get(url)
-                        results = response.json()
-                        
-                        #print(results)
-                        
-                        # Extract the image URL for the first result (best/most relevant image)
-                        image_url = results['items'][0]['link']
-                        
-                        #print(image_url)
-                        
-                        match_embed = discord.Embed(color=discord.Color.dark_theme())
-                        match_embed.set_image(url=image_url)
-                        print(image_url)
-                        
-                        #await interaction.channel.send(embed=match_embed)
-                        
+                        #await interaction.channel.send(embed=non_match_embed)
                         if len(embeds) >= 9:
-                            embeds_overflow.append(match_embed)
+                            embeds_overflow.append(non_match_embed)
                         else:
-                            embeds.append(match_embed)
+                            embeds.append(non_match_embed)
+                        
+                    if tex_match != None and tex_match != "" and tex_match != "\n" and tex_match != " " and tex_match.isspace() != True:
+                        
+                        print(f"$$${tex_match}$$$")
+                        tex_match = tex_match.strip()
+                        tex_match = tex_match.replace("\n", "")
+                        #tex_match = tex_match.replace(" ", "")
+                        tex_match = tex_match.strip("$")
+                        tex_match = tex_match.split()
+                        tex_match = "%20".join(tex_match)
+                        match_embed = discord.Embed(color=discord.Color.dark_theme())
 
-                    except Exception as e:
-                        print(e)
-                    
-                if dot_match != None and dot_match != "" and dot_match != "\n" and dot_match.isspace() != True:
-                    
-                    try:
-                        
-                        dot_system_message = {
-                            "role": "user",
-                            "content": f"Write only in Graphviz DOT code to visualize and explain {dot_match} in a stylish and aesthetically pleasing way. Use bgcolor=\"#36393f\". Text color and node fill color should be different."
-                        }
-
-                        dot_messages = []
-                        dot_messages.append(dot_system_message)
-
-                        dot_match = openai.ChatCompletion.create(
-                            model="gpt-3.5-turbo",
-                            messages=dot_messages,
-                            temperature=0.0,
-                            max_tokens=512,
-                            top_p=1.0,
-                            frequency_penalty=0.0,
-                            presence_penalty=0.0,
-                            )
-                        
-                        dot_match = dot_match['choices'][0]['message']['content']
-                    
-                        #dot_match = re.sub(r'//.*|/\*(.|\n)*?\*/', '', dot_match)
-                        
-                        #dot_match = dot_match.strip()
-                        #dot_match = dot_match.replace("}", "\n}")
-                        #dot_match = dot_match.replace("\\n", "")
-                        #dot_match = dot_match.replace("\t", "\n")
-                        #dot_match = dot_match.replace(",", "")
-                        #dot_match = dot_match.replace(" ", "")
-                        #dot_match = dot_match.strip("%")
-                        
-                        #if dot_match[-1] != "}":
-                            #dot_match += "}"
-                            
-                        print(f"%%%{dot_match}%%%")
-                        
-                        graphs = pydot.graph_from_dot_data(dot_match)
-                        
-                        graph = graphs[0]
-                        subfolder = 'graphviz'
-
+                        image_url = f"https://latex.codecogs.com/png.image?\dpi{dpi}\color{color}{tex_match}"
+                        print(image_url)
+                        img_data = requests.get(image_url, verify=False).content
+                        subfolder = 'tex'
                         if not os.path.exists(subfolder):
                             os.makedirs(subfolder)
+                        with open(f'{subfolder}/latex{file_count}.png', 'wb') as handler:
+                            handler.write(img_data)
+                        tex_file = discord.File(f'{subfolder}/latex{file_count}.png')
+                        match_embed.set_image(url=f"attachment://latex{file_count}.png")
 
-                        graph.write_png(f'{subfolder}/graphviz{file_count}.png')
-                        
-                        dot_file = discord.File(f'{subfolder}/graphviz{file_count}.png')
-                        match_embed = discord.Embed(color=discord.Color.dark_theme())
-                        match_embed.set_image(url=f"attachment://{subfolder}/graphviz{file_count}.png")
-                        
                         file_count += 1
-                    
-                        #await interaction.channel.send(file = dot_file, embed=match_embed)
                         
+                        #await interaction.channel.send(file = tex_file, embed=match_embed)
                         if len(embeds) >= 9:
                             embeds_overflow.append(match_embed)
-                            files_overflow.append(dot_file)
+                            files_overflow.append(tex_file)
                         else:
                             embeds.append(match_embed)
-                            files.append(dot_file)
+                            files.append(tex_file)
                         
+                    if img_match != None and img_match != "" and img_match.isspace() != True:
                         
-                    except Exception as e:
-                        print(e)
-                    
+                        try:
+                            
+                            # Find the indices of the '[', ']' characters
+                            start_index = img_match.find('[')
+                            end_index = img_match.find(']')
+
+                            # Extract the substring between the indices
+                            img_match = img_match[start_index+1:end_index]
+                            
+                            print("IMAGE SEARCH: " + img_match)
+
+                            # Replace YOUR_API_KEY and YOUR_CSE_ID with your own API key and CSE ID
+                            url = f"https://www.googleapis.com/customsearch/v1?q={img_match}&key={GOOGLE_API_KEY}&cx={GOOGLE_CSE_ID}&searchType=image"
+                            response = requests.get(url)
+                            results = response.json()
+                            
+                            #print(results)
+                            
+                            # Extract the image URL for the first result (best/most relevant image)
+                            image_url = results['items'][0]['link']
+                            
+                            #print(image_url)
+                            
+                            match_embed = discord.Embed(color=discord.Color.dark_theme())
+                            match_embed.set_image(url=image_url)
+                            print(image_url)
+                            
+                            #await interaction.channel.send(embed=match_embed)
+                            
+                            if len(embeds) >= 9:
+                                embeds_overflow.append(match_embed)
+                            else:
+                                embeds.append(match_embed)
+
+                        except Exception as e:
+                            print(e)
+                        
+                    if dot_match != None and dot_match != "" and dot_match != "\n" and dot_match.isspace() != True:
+                        
+                        try:
+                            
+                            dot_system_message = {
+                                "role": "user",
+                                "content": f"Write only in Graphviz DOT code to visualize and explain {dot_match} in a stylish and aesthetically pleasing way. Use bgcolor=\"#36393f\". Text color and node fill color should be different."
+                            }
+
+                            dot_messages = []
+                            dot_messages.append(dot_system_message)
+
+                            dot_match = openai.ChatCompletion.create(
+                                model="gpt-3.5-turbo",
+                                messages=dot_messages,
+                                temperature=0.0,
+                                max_tokens=512,
+                                top_p=1.0,
+                                frequency_penalty=0.0,
+                                presence_penalty=0.0,
+                                )
+                            
+                            dot_match = dot_match['choices'][0]['message']['content']
+                        
+                            #dot_match = re.sub(r'//.*|/\*(.|\n)*?\*/', '', dot_match)
+                            
+                            #dot_match = dot_match.strip()
+                            #dot_match = dot_match.replace("}", "\n}")
+                            #dot_match = dot_match.replace("\\n", "")
+                            #dot_match = dot_match.replace("\t", "\n")
+                            #dot_match = dot_match.replace(",", "")
+                            #dot_match = dot_match.replace(" ", "")
+                            #dot_match = dot_match.strip("%")
+                            
+                            #if dot_match[-1] != "}":
+                                #dot_match += "}"
+                                
+                            print(f"%%%{dot_match}%%%")
+                            
+                            graphs = pydot.graph_from_dot_data(dot_match)
+                            
+                            graph = graphs[0]
+                            subfolder = 'graphviz'
+
+                            if not os.path.exists(subfolder):
+                                os.makedirs(subfolder)
+
+                            graph.write_png(f'{subfolder}/graphviz{file_count}.png')
+                            
+                            dot_file = discord.File(f'{subfolder}/graphviz{file_count}.png')
+                            match_embed = discord.Embed(color=discord.Color.dark_theme())
+                            match_embed.set_image(url=f"attachment://{subfolder}/graphviz{file_count}.png")
+                            
+                            file_count += 1
+                        
+                            #await interaction.channel.send(file = dot_file, embed=match_embed)
+                            
+                            if len(embeds) >= 9:
+                                embeds_overflow.append(match_embed)
+                                files_overflow.append(dot_file)
+                            else:
+                                embeds.append(match_embed)
+                                files.append(dot_file)
+                            
+                            
+                        except Exception as e:
+                            print(e)
+                        
+            except Exception as e:
+                print(e)
+        else:
+            if len(reply) > 4096:
+                try:
+                    embeds = []
+                    embeds.append(prompt_embed)
+                    substrings = []
+                    for i in range(0, len(reply), 4096):
+                        substring = reply[i:i+4096]
+                        substrings.append(substring)
+                        
+                    for string in substrings:
+                        embed_string = discord.Embed(description=string, color=discord.Color.dark_theme())
+                        embeds.append(embed_string)
+                except:                   
+                    embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{mention} 4096 character response limit reached. Response contains {len(reply)} characters. Use `/reset`.**', color=discord.Color.dark_theme())
+                    await interaction.followup.send(embed=embed, ephemeral=False)
+            else:
+                embeds.append(embed)
+        try:
+            print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightcyan}ASK     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@iva: {colors.reset}{reply}")
+            await interaction.followup.send(files=files, embeds=embeds, view=view)
+            last_response[id] = interaction
+            #print(files, embeds)
+            if len(embeds_overflow) > 0:
+                await interaction.channel.send(files = files_overflow, embeds=embeds_overflow)
+            return
         except Exception as e:
             print(e)
-    else:
-        if len(reply) > 4096:
-            try:
-                embeds = []
-                embeds.append(prompt_embed)
-                substrings = []
-                for i in range(0, len(reply), 4096):
-                    substring = reply[i:i+4096]
-                    substrings.append(substring)
-                    
-                for string in substrings:
-                    embed_string = discord.Embed(description=string, color=discord.Color.dark_theme())
-                    embeds.append(embed_string)
-            except:                   
-                embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{mention} 4096 character response limit reached. Response contains {len(reply)} characters. Use `/reset`.**', color=discord.Color.dark_theme())
-                await interaction.followup.send(embed=embed, ephemeral=False)
-        else:
-            embeds.append(embed)
-    try:
-        print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightcyan}ASK     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@iva: {colors.reset}{reply}")
-        await interaction.followup.send(files=files, embeds=embeds, view=view)
-        last_response[id] = interaction
-        #print(files, embeds)
-        if len(embeds_overflow) > 0:
-            await interaction.channel.send(files = files_overflow, embeds=embeds_overflow)
-        return
-    except Exception as e:
-        print(e)
+    except discord.errors.NotFound as e:
+        print(f"An error occurred: {e}")
+        
+        
 
 @tree.command(name = "reset", description="start a new conversation")
 async def reset(interaction):
