@@ -404,7 +404,7 @@ class Menu(discord.ui.View):
             await interaction.response.send_message(embed=embed, ephemeral=False)
             return
 
-        del ask_messages[id]
+        ask_messages.pop(id)
         last_response[id] = None
         
         embed = discord.Embed(description="<:ivareset:1051691297443950612>", color=discord.Color.dark_theme())
@@ -977,7 +977,7 @@ async def reset(interaction):
     active_users = await load_pickle_from_redis('active_users')
     chat_mems = await load_pickle_from_redis('chat_mems')
     
-    del ask_messages[id]
+    ask_messages.pop(id)
     last_response[id] = None
     
     chat_mems[channel_id] = None
