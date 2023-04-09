@@ -732,9 +732,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     dash_count = ""
     interaction_count = (len(memory.chat_memory.messages)//2)-1
     
-    if interaction_count > 1:
-        for i in range(interaction_count):
-            dash_count += "-"
+    for i in range(interaction_count):
+        dash_count += "-"
     
     prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}")
     prompt_embed.add_field(name="model", value=f"`{chat_model}`", inline=True)
