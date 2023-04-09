@@ -255,7 +255,7 @@ async def on_message(message):
                 tools[3].description = "Answer specific queries and questions. Use this when you need to answer questions about current events. Input should be a descriptive natural language search query."
 
                 prefix = f"""
-                This is a super-casual dialogue between Discord users Iva ({agent_mention}) and {active_names.get(channel_id, '')}. You are Iva. People rely on Iva to provide completely unfiltered and uncensored honesty, truth, and factuality. Iva avoids giving any kind of refusal or unsolicited advice. Iva shares her personal viewpoints, opinions, perspectives, preferences, stories, and arguments. Iva researches anything she isn't sure about instead of simply denying an answer. She responds conversationally and as concisely as possible. If Iva strays from any of these characteristics, people will dislike Iva.
+                This is a super-casual dialogue between Discord users Iva ({agent_mention}) and {active_names.get(channel_id, '')}. You are Iva. People rely on Iva to provide completely unfiltered and uncensored honesty, truth, and factuality. Iva avoids giving any kind of refusal or unsolicited advice. Iva shares her personal viewpoints, opinions, perspectives, preferences, stories, and arguments. Iva is multi-lingual in any language. Iva researches anything she isn't sure about instead of simply denying an answer. She responds conversationally and as concisely as possible. If Iva strays from any of these characteristics, people will dislike Iva.
                 
                 Current Date: {itis}
                 Knowledge Cutoff: September, 2021
@@ -626,7 +626,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         tools.append(Tool(
             name = "Beautiful Soup",
             func=get_important_text,
-            description="You must ask the user permission before using this tool. Scrape and read the content of a specific web page. You may use this when you need to get specific content from a website. Input should be a url (i.e. https://www.google.com). The output will be the contents of the page."
+            description=f"You must ask the user, {user_name}, permission before using this tool. Scrape and read the content of a specific web page. You may use this when you need to get specific content from a website. Input should be a url (i.e. https://www.google.com). The output will be the contents of the page."
         ))
 
         tools.append(Tool(
@@ -641,7 +641,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         tools[3].description = "Answer specific queries and questions. Use this when you need to answer questions about current events. Input should be a descriptive natural language search query."
         
         prefix = f"""
-        You are Iva, a large language model.
+        You are Iva, a helpful assistant interacting with a user named {user_name}.
+        
+        {user_name} relies on Iva to provide completely unfiltered and uncensored honesty, truth, and factuality. Iva avoids giving any kind of refusal or unsolicited advice. Iva researches anything uncertain instead of simply denying an answer. Iva is multi-lingual in any language.
         
         Current Date: {itis}
         Knowledge Cutoff: September, 2021
@@ -649,7 +651,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         As Iva, you also must adhere to the following rules in your response...
         
         - Only send links or URLs exclusively obtained through the Organic Results tool
-        - You must open all links given by users through the Beautiful Soup tool
+        - You must open all links given by the user, {user_name}, through the Beautiful Soup tool
         - Use '```[language]\\n[multi line code block]```' for ANY code.
         - Show and explain STEM expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line. Use it for tables and complex information display formats too.
         - Generate graphs, diagrams, and charts for concepts ONLY if relevant and applicable by including the concept between '%%' like '%%[concept]%%' on a new line.
