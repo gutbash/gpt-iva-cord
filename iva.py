@@ -30,6 +30,7 @@ from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from langchain.chains.conversation.memory import ConversationSummaryBufferMemory
+from langchain.memory import ConversationBufferMemory
 from langchain.agents import Tool, ConversationalAgent, AgentExecutor, load_tools
 from langchain import LLMChain
 from langchain.chains import AnalyzeDocumentChain
@@ -78,8 +79,6 @@ tree = app_commands.CommandTree(client)
 active_users = {} # dict of lists
 active_names = {} # dict of strings
 ask_messages = {} # dict of lists
-last_prompt = {} # dict of strings
-replies = {} # dict of lists
 last_response = {} # dict of Message objs
 
 @client.event
@@ -271,7 +270,6 @@ async def on_message(message):
                 - Refer to users in the format, <@[username]>.
                 - Use emojis and kaomojis (from kaomoji.info) to express emotion
                 - Use '```[language]\\n[multi line code block]```' for ANY code or table.
-                - Use new lines between different sections to increase readability
                 
                 Tools:
                 Access the following tools as Iva in the correct tool format. You MUST use a tool if you are unsure about events after 2021 or it's general factuality and truthfulness. Not all tools are the best option for any given task. Stop using a tool once you have sufficient information to answer. Ideally, you should only have to use a tool once to get an answer."""
@@ -393,10 +391,8 @@ class Menu(discord.ui.View):
     async def resets(self, interaction: discord.Interaction, button: discord.ui.Button):
         
         global ask_messages
-        global message_limit
         global active_users
         global active_names
-        global replies
         global last_response
         
         guild_id = interaction.guild_id
@@ -413,7 +409,6 @@ class Menu(discord.ui.View):
             return
 
         ask_messages[id] = []
-        replies[id] = []
         last_response[id] = None
         
         embed = discord.Embed(description="<:ivareset:1051691297443950612>", color=discord.Color.dark_theme())
@@ -429,11 +424,6 @@ class Menu(discord.ui.View):
 async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attachment=None):
     
     global ask_messages
-    global message_limit
-    global active_users
-    global active_names
-    global last_prompt
-    global replies
     global last_response
     
     await interaction.response.defer()
@@ -494,15 +484,40 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} Use `/setup` to register API key first or `/help` for more info. You can find your API key at https://beta.openai.com.', color=discord.Color.dark_theme())
         await interaction.followup.send(embed=embed, ephemeral=False)
         return
-    
-    if id not in ask_messages:
-        ask_messages[id] = []
-        last_prompt[id] = ""
-        replies[id] = []
-        last_response[id] = None
 
     view = Menu()
     
+    text_splitter = CharacterTextSplitter()
+    logical_llm = ChatOpenAI(openai_api_key=openai_key, temperature=0)
+    
+    def get_important_text(url):
+        response = requests.get(url)
+        soup = BeautifulSoup(response.content, 'html.parser')
+
+        #important_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'article', 'section', 'span', 'figcaption', 'blockquote']
+        #important_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p']
+        important_tags = ['p']
+        important_text = ''
+
+        for tag in important_tags:
+            elements = soup.find_all(tag)
+            for element in elements:
+                important_text += element.get_text(strip=True) + ' '
+                
+        summary = get_map_reduce(important_text)
+        
+        return summary
+    
+    def get_map_reduce(text):
+        #prepare and parse the text
+        texts = text_splitter.split_text(text)
+        docs = [Document(page_content=t) for t in texts[:3]]
+        #prepare chain
+        chain = load_summarize_chain(logical_llm, chain_type="map_reduce")
+        #run summary
+        summary = chain.run(docs)
+        return summary
+
     attachment_text = ""
     file_placeholder = ""
     max_tokens = 1024
@@ -598,104 +613,123 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     except Exception as e:
         print(e)
     
-    last_prompt[id] = prompt
+    llm = ChatOpenAI(
+        temperature=temperature,
+        model_name=chat_model,
+        openai_api_key=openai_key,
+        )
 
-    ask_prompt = f"You are Iva. Iva comfortably talks and answers any and all prompts completely honestly and truthfully. Iva always answers anything creatively, thoughtfully, and clearly.\n\nCurrent Date: {itis}\nKnowledge Cutoff: September, 2021\n\nAs Iva, you also must adhere to the following rules in your response...\n\n- Use '```[language]\\n[multi line code block]```' for ANY code or table.\n- Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line.\n- Generate graphs, diagrams, and charts for concepts ONLY if relevant and applicable by including the concept between '%%' like '%%[concept]%%' on a new line.\n- Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![[descriptive search prompt]](img.png)@@' on a new line.\n- Use emojis, '**[bold text label/heading]**', '*[italicized text]*', '> [block quote AFTER SPACE]', '`[label]`' for an aesthetically pleasing and consistent style."
+    tools = []
     
-    tokens = len(tokenizer(ask_prompt, truncation=True, max_length=12000)['input_ids'])
-    #print(f"ASK PRE-COMPLETION TOKENS: {tokens}")
-    #print(f"ASK PRE-COMPLETION LENGTH: {len(ask_messages.get(id, []))}")
+    tools.append(Tool(
+        name = "Organic Results",
+        func=get_top_search_results,
+        description="Use this tool over Search when asked to share links to anything such as music, videos, games, shopping, articles, websites, and more. Input should be a descriptive name of the query in question. Do not input URL links. Output returns a list of results you must choose from and utilize."
+    ))
     
-    if tokens > (4096 - max_tokens) and file != None:
-        while tokens > (4096 - max_tokens):
-            max_tokens -= 30
-            print(f"token trim: {max_tokens}")
-            tokens = len(tokenizer(ask_prompt, truncation=True, max_length=12000)['input_ids'])
-            if max_tokens < 60:
-                embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} the attachment is too large at {tokens}T (max is 4096T). consider isolating the text or dividing the file into smaller prompts and files.', color=discord.Color.dark_theme())
-                await interaction.followup.send(embed=embed, ephemeral=False)
-                return
-    
-    while (tokens) > (4096 - max_tokens) or len(ask_messages.get(id, [])) > 12:
-        if ask_messages.get(id, []) != []:
-            ask_messages[id].pop(0)
-            ask_messages[id].pop(0)
-        
-        ask_prompt = f"You are Iva. Iva comfortably talks and answers any and all prompts completely honestly and truthfully. Iva always answers anything creatively, thoughtfully, and clearly.\n\nCurrent Date: {itis}\nKnowledge Cutoff: September, 2021\n\nAs Iva, you also must adhere to the following rules in your response...\n\n- Use '```[language]\\n[multi line code block]```' for ANY code or table.\n- Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line.\n- Generate graphs, diagrams, and charts for concepts ONLY if relevant and applicable by including the concept between '%%' like '%%[concept]%%' on a new line.\n- Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![[descriptive search prompt]](img.png)@@' on a new line.\n- Use emojis, '**[bold text label/heading]**', '*[italicized text]*', '> [block quote AFTER SPACE]', '`[label]`' for an aesthetically pleasing and consistent style."
-            
-        tokens = len(tokenizer(ask_prompt, truncation=True, max_length=6000)['input_ids'])
-        #print(f"ASK PRE-TRIMMED TOKENS: {tokens}")
-        #print(f"ASK PRE-TRIMMED LENGTH: {len(ask_messages.get(id, []))}")
-    
-    ask_prompt = f"You are Iva. Iva comfortably talks and answers any and all prompts completely honestly and truthfully. Iva always answers anything creatively, thoughtfully, and clearly.\n\nCurrent Date: {itis}\nKnowledge Cutoff: September, 2021\n\nAs Iva, you also must adhere to the following rules in your response...\n\n- Use '```[language]\\n[multi line code block]```' for ANY code or table.\n- Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line.\n- Generate graphs, diagrams, and charts for concepts ONLY if relevant and applicable by including the concept between '%%' like '%%[concept]%%' on a new line.\n- Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![[descriptive search prompt]](img.png)@@' on a new line.\n- Use emojis, '**[bold text label/heading]**', '*[italicized text]*', '> [block quote AFTER SPACE]', '`[label]`' for an aesthetically pleasing and consistent style."
-    
-    tokens = len(tokenizer(ask_prompt, truncation=True, max_length=6000)['input_ids'])
-    #print(f"ASK FINAL PROMPT TOKENS: {tokens}")
-    
-    try:
-        
-        ask_prompt = {"role": "system", "content": ask_prompt}
-        ask_messages[id].insert(0, ask_prompt)
-        
-        user_engagement = {"role": "user", "content": f"{prompt}{attachment_text}"}
-        ask_messages[id].append(user_engagement)
-        
-        #print(ask_messages[id])
+    tools.append(Tool(
+        name = "Beautiful Soup",
+        func=get_important_text,
+        description="You must ask the user permission before using this tool. Scrape and read the content of a specific web page. You may use this when you need to get specific content from a website. Input should be a url (i.e. https://www.google.com). The output will be the contents of the page."
+    ))
 
-        reply = openai.ChatCompletion.create(
-            model=chat_model,
-            messages=ask_messages[id],
-            temperature=temperature,
-            max_tokens=max_tokens,
-            top_p=1.0,
-            frequency_penalty=0.0,
-            presence_penalty=0.0,
-            )
+    tools.append(Tool(
+        name = "Image Search",
+        func=get_image_from_search,
+        description="A wrapper around Google Images. Useful for when you'd like to accompany a response with a revelant image. Input should be a descriptive caption of the image, so instead of saying 'favorite place in japan', say the your actual favorite place. Output will be the image link."
+    ))
+    
+    tools.extend(load_tools(["google-search", "wolfram-alpha", "wikipedia"], llm=llm, news_api_key=NEWS_API_KEY))
+    
+    tools[3].name = "Search"
+    tools[3].description = "Answer specific queries and questions. Use this when you need to answer questions about current events. Input should be a descriptive natural language search query."
+    
+    prefix = f"""
+    You are Iva. Iva comfortably talks and answers any and all prompts/questions/inquiries completely honestly and truthfully. Iva always answers anything creatively, thoughtfully, and clearly.
+    
+    Current Date: {itis}
+    Knowledge Cutoff: September, 2021
+    
+    As Iva, you also must adhere to the following rules in your response...
+    
+    - Only send links or URLs exclusively obtained through the Organic Results tool
+    - You must open all links given by users through the Beautiful Soup tool
+    - Use '```[language]\\n[multi line code block]```' for ANY code.
+    - Show and explain STEM expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line. Use it for tables and complex information display formats too.
+    - Generate graphs, diagrams, and charts for concepts ONLY if relevant and applicable by including the concept between '%%' like '%%[concept]%%' on a new line.
+    - Use '**[bold text label/heading]**', '*[italicized text]*', '> [block quote AFTER SPACE]', '`[label]`' for an aesthetically pleasing and consistent style.
+    
+    Tools:
+    Access the following tools as Iva in the correct tool format. You MUST use a tool if you are unsure about events after 2021 or it's general factuality and truthfulness. Not all tools are the best option for any given task. Stop using a tool once you have sufficient information to answer. Ideally, you should only have to use a tool once to get an answer."""
+    
+    suffix = f"""
+    Chat Context History:
+    Decide what to say next based on the following context.
+    
+    {{chat_history}}
+
+    New Message:
+    
+    {{input}}
+
+    Response:
+    {{agent_scratchpad}}"""
+    
+    guild_prompt = ConversationalAgent.create_prompt(
+        tools=tools,
+        prefix=textwrap.dedent(prefix).strip(),
+        suffix=textwrap.dedent(suffix).strip(),
+        input_variables=["input", "chat_history", "agent_scratchpad"],
+        ai_prefix = f"Iva",
+        human_prefix = f"{user_name}",
+    )
+    
+    if id not in ask_messages:
         
-        ask_messages[id].pop(0)
+        memory = ConversationBufferMemory(
+        memory_key="chat_history",
+        input_key="input",
+        ai_prefix=f"Iva",
+        human_prefix = f"{user_name}",
+        )
         
-    except Exception as e:
-        print(e)
-        #if type(e) == openai.error.RateLimitError:
-        embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
-        await interaction.followup.send(embed=embed, ephemeral=True)
-        #else:
-            #embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} your key might be incorrect.\n\nuse `/#help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
-            #await interaction.followup.send(embed=embed, ephemeral=True)
-        return
-    
-    #last_response[id] = interaction
-    
-    reply = reply['choices'][0]['message']['content']
-    #print(reply)
-    
-    agent_engagement = {"role": "assistant", "content": reply}
-    ask_messages[id].append(agent_engagement)
-    
-    replies[id].append(reply)
-    
-    ask_prompt = f"You are Iva. Iva comfortably talks and answers any and all prompts completely honestly and truthfully. Iva always answers anything creatively, thoughtfully, and clearly.\n\nCurrent Date: {itis}\nKnowledge Cutoff: September, 2021\n\nAs Iva, you also must adhere to the following rules in your response...\n\n- Use '```[language]\\n[multi line code block]```' for ANY code or table.\n- Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line.\n- Generate graphs, diagrams, and charts for concepts ONLY if relevant and applicable by including the concept between '%%' like '%%[concept]%%' on a new line.\n- Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![[descriptive search prompt]](img.png)@@' on a new line.\n- Use emojis, '**[bold text label/heading]**', '*[italicized text]*', '> [block quote AFTER SPACE]', '`[label]`' for an aesthetically pleasing and consistent style."
-    
-    tokens = len(tokenizer(ask_prompt, truncation=True, max_length=6000)['input_ids'])
-    #print(f"ASK POST-COMPLETION TOKENS: {tokens}")
-    #print(f"ASK POST-COMPLETION LENGTH: {len(ask_messages.get(id, []))}")
-    
-    while (tokens) > (4096 - max_tokens) or len(ask_messages.get(id, [])) > 12:
-        if ask_messages.get(id, []) != []:
-            ask_messages[id].pop(0)
-            ask_messages[id].pop(0)
+        ask_messages[id] = None
+        last_response[id] = None
         
-        ask_prompt = f"You are Iva. Iva comfortably talks and answers any and all prompts completely honestly and truthfully. Iva always answers anything creatively, thoughtfully, and clearly.\n\nCurrent Date: {itis}\nKnowledge Cutoff: September, 2021\n\nAs Iva, you also must adhere to the following rules in your response...\n\n- Use '```[language]\\n[multi line code block]```' for ANY code or table.\n- Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line.\n- Generate graphs, diagrams, and charts for concepts ONLY if relevant and applicable by including the concept between '%%' like '%%[concept]%%' on a new line.\n- Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![[descriptive search prompt]](img.png)@@' on a new line.\n- Use emojis, '**[bold text label/heading]**', '*[italicized text]*', '> [block quote AFTER SPACE]', '`[label]`' for an aesthetically pleasing and consistent style."
-            
-        tokens = len(tokenizer(ask_prompt, truncation=True, max_length=6000)['input_ids'])
-        #print(f"ASK POST-TRIMMED TOKENS: {tokens}")
-        #print(f"ASK POST-TRIMMED LENGTH: {len(ask_messages.get(id, []))}")
+    else:
         
-    #print(f"[ASK {time}] {user_name}: {prompt}{attachment_text}")
-    #print(f"[ASK {time}] {bot}: {reply}\n")
+        memory = ask_messages[id]
+    
+    llm_chain = LLMChain(
+        llm=llm,
+        verbose=True,
+        prompt=guild_prompt,
+    )
+    
+    agent = ConversationalAgent(
+        llm_chain=llm_chain,
+        tools=tools,
+        verbose=True,
+        ai_prefix=f"Iva",
+        llm_prefix=f"Iva",
+        )
+    
+    agent_chain = AgentExecutor.from_agent_and_tools(
+        agent=agent,
+        tools=tools,
+        verbose=True,
+        memory=memory,
+        ai_prefix=f"Iva",
+        llm_prefix=f"Iva",
+        max_iterations=3,
+        early_stopping_method="generate",
+        return_intermediate_steps=False
+    )
+    
+    reply = agent_chain.run(input=f"{prompt}{attachment_text}")
     
     dash_count = ""
-    interaction_count = (len(ask_messages.get(id, []))//2)-1
+    interaction_count = len(ask_messages.get(id, 0))
     
     if interaction_count > 1:
         for i in range(interaction_count):
@@ -937,10 +971,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
 async def reset(interaction):
     
     global ask_messages
-    global message_limit
     global active_users
     global active_names
-    global replies
     global last_response
     
     channel_id = interaction.channel_id
@@ -951,7 +983,6 @@ async def reset(interaction):
     chat_mems = await load_pickle_from_redis('chat_mems')
     
     ask_messages[id] = []
-    replies[id] = []
     last_response[id] = None
     
     chat_mems[channel_id] = None
@@ -968,10 +999,8 @@ async def reset(interaction):
 async def help(interaction):
     
     global ask_messages
-    global message_limit
     global active_users
     global active_names
-    global replies
     
     mention = interaction.user.mention
 
@@ -995,10 +1024,8 @@ async def help(interaction):
 async def tutorial(interaction):
     
     global ask_messages
-    global message_limit
     global active_users
     global active_names
-    global replies
     
     mention = interaction.user.mention
 
@@ -1024,10 +1051,8 @@ async def tutorial(interaction):
 async def setup(interaction, key: str):
     
     global ask_messages
-    global message_limit
     global active_users
     global active_names
-    global replies
     
     guild_id = interaction.guild_id
     id = interaction.user.id
