@@ -693,7 +693,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         human_prefix = f"{user_name}",
         )
         
-        ask_messages[id] = []
+        ask_messages[id] = memory
         last_response[id] = None
         
     else:
@@ -730,7 +730,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     ask_messages[id] = memory
     
     dash_count = ""
-    interaction_count = len(ask_messages.get(id, 0))
+    interaction_count = len(memory.chat_memory.messages)
+    print(f"INTERACTION COUNT!!!!!!!!!!!!!!!!!!: {interaction_count}")
     
     if interaction_count > 1:
         for i in range(interaction_count):
