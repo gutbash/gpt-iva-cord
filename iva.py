@@ -730,14 +730,13 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     ask_messages[id] = memory
     
     dash_count = ""
-    interaction_count = len(memory.chat_memory.messages)
-    print(f"INTERACTION COUNT!!!!!!!!!!!!!!!!!!: {interaction_count}")
+    interaction_count = (len(memory.chat_memory.messages)//2)-1
     
     if interaction_count > 1:
         for i in range(interaction_count):
             dash_count += "-"
     
-    prompt_embed = discord.Embed(description=f"{dash_count}<:ivaprompt:1051742892814761995>  {prompt}{file_placeholder}")
+    prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}")
     prompt_embed.add_field(name="model", value=f"`{chat_model}`", inline=True)
     prompt_embed.add_field(name="temperature", value=f"`{temperature}`", inline=True)
     embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
