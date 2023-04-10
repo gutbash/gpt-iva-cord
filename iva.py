@@ -29,6 +29,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
+from langchain.callbacks import get_openai_callback
 from langchain.chains.conversation.memory import ConversationSummaryBufferMemory
 from langchain.memory import ConversationBufferMemory
 from langchain.agents import Tool, ConversationalAgent, AgentExecutor, load_tools
@@ -747,11 +748,17 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             return_intermediate_steps=False
         )
         
-        try:
+        tokens_used = 0
         
-            reply = agent_chain.run(input=f"{prompt}{attachment_text}")
-            ask_messages[id] = memory
+        try:
             
+            with get_openai_callback() as cb:
+        
+                reply = agent_chain.run(input=f"{prompt}{attachment_text}")
+                ask_messages[id] = memory
+
+                tokens_used = cb.total_tokens
+                
         except Exception as e:
             print(e)
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
@@ -767,6 +774,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}")
         prompt_embed.add_field(name="model", value=f"`{chat_model}`", inline=True)
         prompt_embed.add_field(name="temperature", value=f"`{temperature}`", inline=True)
+        prompt_embed.add_field(name="tokens", value=f"`{tokens_used}`", inline=True)
         embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
         
         embeds = []
