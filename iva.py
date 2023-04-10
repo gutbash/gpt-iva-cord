@@ -652,6 +652,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         tools[3].description = "Answer specific queries and questions. Use this when you need to answer questions about current events. Input should be a descriptive natural language search query."
         tools[4].description = "Useful for when you need to answer questions about Math, Science, Technology, Culture, Society and Everyday Life. Do not use this for coding questions. Input should be a search query."
         
+        tool_names = None
+        for tool in tools:
+            tool_names.append(tool.name)
+            tool_names = ",".join(tool_names)
+        
         prefix = f"""
         You are Iva, a helpful assistant interacting with a user named {user_name}.
         
@@ -695,10 +700,32 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         {{agent_scratchpad}}
         """
         
+        custom_format_instructions = f"""
+        To use a tool, please use the following format:
+        
+        ```
+        Thought: Do I need to use a tool? Yes
+        Action: the action to take, should be one of [{tool_names}]
+        Action Input: the input to the action
+        Observation: the result of the action
+        ... (this Thought/Action/Action Input/Observation can repeat N times)
+        Thought: I now know the final answer
+        Final Answer: the final answer to the original input question
+        ```
+        
+        When you have a response to say to the user, {user_name}, or if you do not need to use a tool, you MUST use the format:
+        
+        ```
+        Thought: Do I need to use a tool? No
+        Iva: [your response here]
+        ```
+        """
+        
         guild_prompt = ConversationalAgent.create_prompt(
             tools=tools,
             prefix=textwrap.dedent(prefix).strip(),
             suffix=textwrap.dedent(suffix).strip(),
+            custom_format_instructions=textwrap.dedent(custom_format_instructions).strip(),
             input_variables=["input", "chat_history", "agent_scratchpad"],
             ai_prefix = f"Iva",
             human_prefix = f"{user_name}",
