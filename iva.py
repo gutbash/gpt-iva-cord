@@ -199,6 +199,8 @@ async def on_message(message):
                         
                 summary = get_map_reduce(important_text)
                 
+                print(f"BS4 SUMMARY: {summary}")
+                
                 return summary
             
             def get_map_reduce(text):
