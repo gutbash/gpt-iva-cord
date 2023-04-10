@@ -655,7 +655,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         tool_names = []
         for tool in tools:
             tool_names.append(tool.name)
-        tool_names = ",".join(tool_names)
+        tool_names = ", ".join(tool_names)
         
         prefix = f"""
         You are Iva, a helpful assistant interacting with a user named {user_name}.
@@ -708,12 +708,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         Action: the action to take, should be one of [{tool_names}]
         Action Input: the input to the action
         Observation: the result of the action
-        ... (this Thought/Action/Action Input/Observation can repeat N times)
-        Thought: I now know the final answer
-        Final Answer: the final answer to the original input question
         ```
         
-        When you have a response to say to the user, {user_name}, or if you do not need to use a tool, you MUST use the format:
+        When you do not need to use a tool and you have a final response to say to the user, {user_name}, you MUST use the format:
         
         ```
         Thought: Do I need to use a tool? No
@@ -767,9 +764,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             memory=memory,
             ai_prefix=f"Iva",
             llm_prefix=f"Iva",
-            max_iterations=3,
-            early_stopping_method="generate",
-            return_intermediate_steps=False
+            #max_iterations=3,
+            #early_stopping_method="generate",
+            #return_intermediate_steps=False
         )
         
         tokens_used = 0
