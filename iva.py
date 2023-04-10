@@ -992,6 +992,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             #print(files, embeds)
             if len(embeds_overflow) > 0:
                 await interaction.channel.send(files = files_overflow, embeds=embeds_overflow)
+            pattern = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+            links = re.findall(pattern, reply)
+            if len(links) > 0:
+                formatted_links = "\n".join(links)
+                await interaction.channel.send(content=formatted_links)
             return
         except Exception as e:
             print(e)
