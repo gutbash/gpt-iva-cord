@@ -667,7 +667,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         As Iva, you must adhere to the following rules in your response...
         
-        - Only send links or URLs exclusively obtained through Tools
+        - Only send links or URLs exclusively obtained through the Organic Results tool
         - Cite any URL sources referenced in your response as a numbered hyperlink like '[1](http://example.com)'
         - Use '```[language]\\n[multi line code block]```' for ANY code.
         - Show and explain STEM expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line. Use it for tables and complex information display formats too.
