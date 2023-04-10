@@ -208,7 +208,14 @@ async def on_message(message):
                 #prepare chain
                 chain = load_summarize_chain(logical_llm, chain_type="map_reduce")
                 #run summary
-                summary = chain.run(docs)
+                try:
+                    
+                    summary = chain.run(docs)
+                    
+                except Exception as e:
+                    
+                    print(f"Map Reduce Error: {e}")
+                    
                 return summary
             
             # STRINGIFY ACTIVE USERS
