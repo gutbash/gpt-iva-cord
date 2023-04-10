@@ -746,6 +746,14 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             llm_prefix=f"Iva",
             )
         
+        agent_chain = initialize_agent(
+            tools=tools,
+            llm=llm,
+            agent="chat-conversational-react-description",
+            verbose=True,
+            memory=memory
+        )
+        
         agent_chain = AgentExecutor.from_agent_and_tools(
             agent=agent,
             tools=tools,
@@ -756,14 +764,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             #max_iterations=3,
             #early_stopping_method="generate",
             #return_intermediate_steps=False
-        )
-        
-        agent_chain = initialize_agent(
-            tools=tools,
-            llm=llm,
-            agent="chat-conversational-react-description",
-            verbose=True,
-            memory=memory
         )
         
         tokens_used = 0
