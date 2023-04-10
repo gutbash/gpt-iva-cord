@@ -31,7 +31,7 @@ from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from langchain.callbacks import get_openai_callback
 from langchain.chains.conversation.memory import ConversationSummaryBufferMemory
-from langchain.memory import ConversationBufferMemory
+from langchain.memory import ConversationBufferWindowMemory
 from langchain.agents import Tool, ConversationalAgent, AgentExecutor, load_tools
 from langchain import LLMChain
 from langchain.chains import AnalyzeDocumentChain
@@ -719,7 +719,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         if id not in ask_messages:
             
-            memory = ConversationBufferMemory(
+            memory = ConversationBufferWindowMemory(
+                k=3,
+                return_messages=True,
                 memory_key="chat_history",
                 input_key="input",
                 ai_prefix=f"Iva",
@@ -746,14 +748,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             llm_prefix=f"Iva",
             )
         
-        agent_chain = initialize_agent(
-            tools=tools,
-            llm=llm,
-            agent="chat-conversational-react-description",
-            verbose=True,
-            memory=memory
-        )
-        
         agent_chain = AgentExecutor.from_agent_and_tools(
             agent=agent,
             tools=tools,
@@ -764,6 +758,14 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             #max_iterations=3,
             #early_stopping_method="generate",
             #return_intermediate_steps=False
+        )
+        
+        agent_chain = initialize_agent(
+            tools=tools,
+            llm=llm,
+            agent="chat-conversational-react-description",
+            verbose=True,
+            memory=memory
         )
         
         tokens_used = 0
