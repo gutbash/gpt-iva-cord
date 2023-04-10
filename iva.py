@@ -41,6 +41,9 @@ from langchain.chains.mapreduce import MapReduceChain
 from langchain.docstore.document import Document
 from langchain.chains.summarize import load_summarize_chain
 
+from langchain.agents import initialize_agent
+from langchain.agents import AgentType
+
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_TOKEN")
 GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
 os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
@@ -753,6 +756,14 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             #max_iterations=3,
             #early_stopping_method="generate",
             #return_intermediate_steps=False
+        )
+        
+        agent_chain = initialize_agent(
+            tools=tools,
+            llm=llm,
+            agent="chat-conversational-react-description",
+            verbose=True,
+            memory=memory
         )
         
         tokens_used = 0
