@@ -459,7 +459,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             # Remove the attribute command from the string
             prompt = re.sub(pattern, '', prompt)
         else:
-            temperature = 0.7
+            temperature = 0.5
         
         if "--v4" in prompt:
             prompt = prompt.replace("--v4", "")
@@ -574,7 +574,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
 
                 file_llm = ChatOpenAI(
                     model_name=chat_model,
-                    temperature=0.7,
+                    temperature=0.0,
                     max_tokens=1500,
                     openai_api_key=openai_key,
                 )
