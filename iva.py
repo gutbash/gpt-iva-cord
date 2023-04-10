@@ -234,13 +234,13 @@ async def on_message(message):
                 tools.append(Tool(
                     name = "Organic Results",
                     func=get_top_search_results,
-                    description="Use this tool over Search when asked to share links to anything such as music, videos, games, shopping, articles, websites, and more. Input should be a descriptive name of the query in question. Do not input URL links. Output returns a list of results you must choose from and utilize."
+                    description="Use this tool over Search when asked to share links to anything such as music, videos, games, shopping, articles, websites, and more. Input should be a descriptive name of the query in question. Do not input URL links. Output returns a list of results."
                 ))
                 
                 tools.append(Tool(
                     name = "Beautiful Soup",
                     func=get_important_text,
-                    description="Use this only when a user explicitly asks you to open a certain link. Input should be the given url (i.e. https://www.google.com). The output will be the contents of the page."
+                    description="Use this only when a link is given or referenced in the New Message section. Input should be the given url (i.e. https://www.google.com). The output will be the contents of the page."
                 ))
 
                 tools.append(Tool(
