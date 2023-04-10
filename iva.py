@@ -35,7 +35,7 @@ from langchain.agents import Tool, ConversationalAgent, AgentExecutor, load_tool
 from langchain import LLMChain
 from langchain.chains import AnalyzeDocumentChain
 from langchain.chains.question_answering import load_qa_chain
-from langchain.text_splitter import CharacterTextSplitter
+from langchain.text_splitter import TokenTextSplitter
 from langchain.chains.mapreduce import MapReduceChain
 from langchain.docstore.document import Document
 from langchain.chains.summarize import load_summarize_chain
@@ -181,7 +181,7 @@ async def on_message(message):
             
             logical_llm = ChatOpenAI(openai_api_key=openai_key, temperature=0)
 
-            text_splitter = CharacterTextSplitter()
+            text_splitter = TokenTextSplitter(4097)
             
             def get_important_text(url):
                 response = requests.get(url)
@@ -493,7 +493,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
 
         view = Menu()
         
-        text_splitter = CharacterTextSplitter()
+        text_splitter = TokenTextSplitter(4097)
         logical_llm = ChatOpenAI(openai_api_key=openai_key, temperature=0)
         
         def get_important_text(url):
@@ -516,6 +516,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         def get_map_reduce(text):
             #prepare and parse the text
+            text_splitter = TokenTextSplitter(4097)
             texts = text_splitter.split_text(text)
             docs = [Document(page_content=t) for t in texts[:3]]
             #prepare chain
