@@ -650,6 +650,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         tools[3].name = "Search"
         tools[3].description = "Answer specific queries and questions. Use this when you need to answer questions about current events. Input should be a descriptive natural language search query."
+        tools[4].description = "Useful for when you need to answer questions about Math, Science, Technology, Culture, Society and Everyday Life. Do not use this for coding questions. Input should be a search query."
         
         prefix = f"""
         You are Iva, a helpful assistant interacting with a user named {user_name}.
