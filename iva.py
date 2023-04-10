@@ -181,7 +181,7 @@ async def on_message(message):
             
             logical_llm = ChatOpenAI(openai_api_key=openai_key, temperature=0)
 
-            text_splitter = TokenTextSplitter(4097)
+            text_splitter = TokenTextSplitter()
             
             def get_important_text(url):
                 response = requests.get(url)
@@ -493,7 +493,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
 
         view = Menu()
         
-        text_splitter = TokenTextSplitter(4097)
+        text_splitter = TokenTextSplitter()
         logical_llm = ChatOpenAI(openai_api_key=openai_key, temperature=0)
         
         def get_important_text(url):
@@ -516,7 +516,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         def get_map_reduce(text):
             #prepare and parse the text
-            text_splitter = TokenTextSplitter(4097)
+            text_splitter = TokenTextSplitter()
             texts = text_splitter.split_text(text)
             docs = [Document(page_content=t) for t in texts[:3]]
             #prepare chain
