@@ -240,7 +240,7 @@ async def on_message(message):
                 tools.append(Tool(
                     name = "Beautiful Soup",
                     func=get_important_text,
-                    description="You must ask the user permission before using this tool. Scrape and read the content of a specific web page. You may use this when you need to get specific content from a website. Input should be a url (i.e. https://www.google.com). The output will be the contents of the page."
+                    description="Use this only when a user explicitly asks you to open a certain link. Input should be the given url (i.e. https://www.google.com). The output will be the contents of the page."
                 ))
 
                 tools.append(Tool(
@@ -626,7 +626,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         tools.append(Tool(
             name = "Beautiful Soup",
             func=get_important_text,
-            description=f"You must ask the user, {user_name}, permission before using this tool. Scrape and read the content of a specific web page. You may use this when you need to get specific content from a website. Input should be a url (i.e. https://www.google.com). The output will be the contents of the page."
+            description=f"Use this only when the user, {user_name}, explicitly asks you to open a certain link. Input should be the given url (i.e. https://www.google.com). The output will be the contents of the page."
         ))
 
         tools.append(Tool(
