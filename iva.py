@@ -404,7 +404,7 @@ class Menu(discord.ui.View):
             await interaction.response.send_message(embed=embed, ephemeral=False)
             return
 
-        ask_messages.pop(id)
+        ask_messages.pop(id, None)
         last_response[id] = None
         
         embed = discord.Embed(description="<:ivareset:1051691297443950612>", color=discord.Color.dark_theme())
@@ -973,8 +973,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             print(e)
     except discord.errors.NotFound as e:
         print(f"An error occurred: {e}")
-        
-        
 
 @tree.command(name = "reset", description="start a new conversation")
 async def reset(interaction):
@@ -991,7 +989,7 @@ async def reset(interaction):
     active_users = await load_pickle_from_redis('active_users')
     chat_mems = await load_pickle_from_redis('chat_mems')
     
-    ask_messages.pop(id)
+    ask_messages.pop(id, None)
     last_response[id] = None
     
     chat_mems[channel_id] = None
