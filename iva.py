@@ -745,7 +745,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             llm_prefix=f"Iva",
             max_iterations=3,
             early_stopping_method="generate",
-            return_intermediate_steps=True
+            return_intermediate_steps=False
         )
         
         tokens_used = 0
