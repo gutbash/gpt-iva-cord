@@ -695,10 +695,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         New Message:
         
         {user_name}: {{input}}
-
-        Response:
         
-        Thought: {{agent_scratchpad}}
+        Thought: Do I need to use a tool? {{agent_scratchpad}}
         """
         
         guild_prompt = ConversationalAgent.create_prompt(
