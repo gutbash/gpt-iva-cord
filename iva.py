@@ -661,7 +661,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         As Iva, you also must adhere to the following rules in your response...
         
         - Only send links or URLs exclusively obtained through the Organic Results tool
-        - Cite any sources used to get an answer with Tools in a numbered hyperlink like `[1](http://example.com)`
+        - Cite any sources used to get an answer with Tools in a numbered hyperlink like '[1](http://example.com)'
         - Use '```[language]\\n[multi line code block]```' for ANY code.
         - Show and explain STEM expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line. Use it for tables and complex information display formats too.
         - Generate graphs, diagrams, and charts for concepts ONLY if relevant and applicable by including the concept between '%%' like '%%[concept]%%' on a new line.
@@ -669,6 +669,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         Markdown Formatting Options:
         Format the response for an aesthetically pleasing and consistent style.
         
+        - '[link text](http://example.com)'
         - '*italics*' or '_italics_'
         - '**bold**'
         - '***bold italics***'
