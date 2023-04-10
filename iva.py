@@ -688,15 +688,12 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         suffix = f"""
         Chat Context History:
-        Decide what to say next based on the following context.
+        Decide what to say next based on the following message history.
         
         {{chat_history}}
-
-        New Message:
-        
         {user_name}: {{input}}
         
-        Thought: {{agent_scratchpad}}
+        {{agent_scratchpad}}
         """
         
         guild_prompt = ConversationalAgent.create_prompt(
