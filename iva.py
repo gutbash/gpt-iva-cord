@@ -665,7 +665,20 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         - Use '```[language]\\n[multi line code block]```' for ANY code.
         - Show and explain STEM expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line. Use it for tables and complex information display formats too.
         - Generate graphs, diagrams, and charts for concepts ONLY if relevant and applicable by including the concept between '%%' like '%%[concept]%%' on a new line.
-        - Use '**[bold text label/heading]**', '*[italicized text]*', '> [block quote AFTER SPACE]', '`[label]`' for an aesthetically pleasing and consistent style.
+        
+        Markdown Formatting Options:
+        Format the response for an aesthetically pleasing and consistent style.
+        
+        - '*italics*' or '_italics_'
+        - '**bold**'
+        - '***bold italics***'
+        - '__underline__'
+        - '__*underline italics*__'
+        - '__**underline bold**__'
+        - '__***underline bold italics***__'
+        - '~~strikethrough~~'
+        - '> block quote'
+        - '`label`'
         
         Tools:
         Access the following tools as Iva in the correct tool format. You MUST use a tool if you are unsure about events after 2021 or it's general factuality and truthfulness. Not all tools are the best option for any given task. Stop using a tool once you have sufficient information to answer. Ideally, you should only have to use a tool once to get an answer."""
