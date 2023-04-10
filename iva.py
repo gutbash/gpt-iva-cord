@@ -655,7 +655,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         tool_names = []
         for tool in tools:
             tool_names.append(tool.name)
-            tool_names = ",".join(tool_names)
+        tool_names = ",".join(tool_names)
         
         prefix = f"""
         You are Iva, a helpful assistant interacting with a user named {user_name}.
