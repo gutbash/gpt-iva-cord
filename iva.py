@@ -776,7 +776,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
             with get_openai_callback() as cb:
         
-                reply = agent_chain.run(input=f"{prompt}{attachment_text}")
+                reply = agent_chain.arun(input=f"{prompt}{attachment_text}")
                 ask_messages[id] = memory
 
                 tokens_used = cb.total_tokens
