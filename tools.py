@@ -1,7 +1,5 @@
 from serpapi import GoogleSearch
-import requests
 import random
-import asyncio
 import aiohttp
 import os
 
@@ -50,11 +48,14 @@ async def get_top_search_results(query: str) -> str:
         return None
 
     
-def get_image_from_search(query: str) -> str:
+async def get_image_from_search(query: str) -> str:
     # Replace YOUR_API_KEY and YOUR_CSE_ID with your own API key and CSE ID
     url = f"https://www.googleapis.com/customsearch/v1?q={query}&key={GOOGLE_API_KEY}&cx={GOOGLE_CSE_ID}&searchType=image"
-    response = requests.get(url)
-    results = response.json()
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            results = await response.json()
+
     # Extract the image URL for the first result (best/most relevant image)
     image_urls = [item['link'] for item in results['items'][:10]]
     chosen_image_url = random.choice(image_urls)
