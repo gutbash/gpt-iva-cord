@@ -683,7 +683,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         {{chat_history}}
         
-        {user_name.upper}'S INPUT
+        {user_name.upper()}'S INPUT
         --------------------
         
         {user_name}: {{input}}
@@ -696,7 +696,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         ```
         Thought: Do I need to use a tool? Yes
-        Action: the action to take, should be one of [{tool_names}]
+        Action: the action to take, should be one of {tool_names}
         Action Input: the input to the action
         Observation: the result of the action
         ```
@@ -723,7 +723,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
             memory = ConversationBufferWindowMemory(
                 k=3,
-                return_messages=True,
+                #return_messages=True,
                 memory_key="chat_history",
                 input_key="input",
                 ai_prefix=f"Iva",
