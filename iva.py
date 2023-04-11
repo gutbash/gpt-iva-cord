@@ -655,10 +655,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         tools[3].description = "Answer specific queries and questions. Use this when you need to answer questions about current events. Input should be a descriptive natural language search query."
         tools[4].description = "Useful for when you need to answer questions about Math, Science, Technology, Culture, Society and Everyday Life. Do not use this for coding questions. Input should be a search query."
         
-        tool_names = []
-        for tool in tools:
-            tool_names.append(tool.name)
-        tool_names = ", ".join(tool_names)
+        tool_names = [tool.name for tool in tools]
         
         prefix = f"""
         You are Iva, a helpful assistant interacting with a user named {user_name}.
@@ -760,7 +757,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             #human_message=textwrap.dedent(suffix).strip(),
             input_variables=["input", "chat_history", "agent_scratchpad"],
         )
-
+        """
         agent = ConversationalChatAgent(
             llm_chain=llm_chain,
             allowed_tools=tool_names,
@@ -768,7 +765,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             #ai_prefix=f"Iva",
             #llm_prefix=f"Iva",
             )
-
+        """
         agent_chain = AgentExecutor.from_agent_and_tools(
             agent=agent,
             tools=tools,
