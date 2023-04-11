@@ -639,7 +639,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             name = "Organic Results",
             func=dummy_sync_function,
             coroutine=get_top_search_results,
-            description="Use this tool over Search when asked to share links to anything such as music, videos, games, shopping, articles, websites, and more. Input should be a descriptive name of the query in question. The same input will yield the same pre-determined results. Do not input URL links. Output returns a list of results you must choose from and utilize. You must cite any sources referenced in your response as a clickable numbered hyperlink like '[1](http://source.com)'"
+            description="Use this as a general search tool. Input should be a descriptive name of the query in question. The same input will yield the same pre-determined results. Do not input URL links. Output returns a list of results you must choose from and utilize. You may use Beautiful Soup to open a result and read more if needed. You must cite any sources referenced in your response as a clickable numbered hyperlink like '[1](http://source.com)'"
         ))
         
         tools.append(Tool(
@@ -654,10 +654,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             description="A wrapper around Google Images. Useful for when you'd like to accompany a response with a revelant image. Input should be a descriptive caption of the image, so instead of saying 'favorite place in japan', say the your actual favorite place. Output will be the image link."
         ))
         
-        tools.extend(load_tools(["serpapi"], llm=llm, news_api_key=NEWS_API_KEY))
+        #tools.extend(load_tools(["serpapi"], llm=llm, news_api_key=NEWS_API_KEY))
         
-        tools[3].name = "Search"
-        tools[3].description = "Answer specific queries and questions. Use this over Organic Results when you need to simply answer questions about current events and do not need to return a link. Input should be a descriptive natural language search query."
+        #tools[3].name = "Search"
+        #tools[3].description = "Answer specific queries and questions. Use this over Organic Results when you need to simply answer questions about current events and do not need to return a link. Input should be a descriptive natural language search query."
         #tools[4].description = "Useful for when you need to answer questions about Math, Science, Technology, Culture, Society and Everyday Life. Do not use this for coding questions. Input should be a search query."
         
         tool_names = [tool.name for tool in tools]
