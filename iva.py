@@ -679,6 +679,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         - Use '```[language]\\n[multi line code block]```' for ANY code.
         - Show and explain STEM expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line. Use it for tables and complex information display formats too.
         - Format for an aesthetically pleasing and consistent style using markdown '[hyperlink text](http://example.com)', '**bold**', '`label`', '*italics*', '__underline__', and '> block quote'
+        
+        Tools:
+        Iva can ask the user, {user_name}, to use tools to look up information that may be helpful in answering {user_name}'s original question. The tools available to use are:
         """
         
         custom_format_instructions = f"""
@@ -702,11 +705,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         """
         
         suffix = f"""
-        Tools:
-        Iva can ask the user, {user_name}, to use tools to look up information that may be helpful in answering {user_name}'s original question. The tools available to use are:
-        
-        {custom_format_instructions}
-        
         Chat Context History:
         Decide what to say next based on the following message history.
         
@@ -726,7 +724,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             system_message=textwrap.dedent(prefix).strip(),
             human_message=textwrap.dedent(suffix).strip(),
             #format_instructions=textwrap.dedent(custom_format_instructions).strip(),
-            input_variables=["input", "chat_history", "agent_scratchpad", "tools"],
+            input_variables=["input", "chat_history", "agent_scratchpad"],
             #ai_prefix = f"Iva",
             #human_prefix = f"{user_name}",
         )
