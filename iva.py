@@ -645,7 +645,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         tools.append(Tool(
             name = "Beautiful Soup",
             func=get_important_text,
-            description=f"Use this only when the user, {user_name}, explicitly asks you to open a certain link. Input should be the given url (i.e. https://www.google.com). The output will be the contents of the page."
+            description=f"Use this only when the user, {user_name}, explicitly asks you to open a certain link, or you need to open a link returned from Organic Results to read more in depth. Input should be the given url (i.e. https://www.google.com). The output will be a summary of the contents of the page."
         ))
 
         tools.append(Tool(
