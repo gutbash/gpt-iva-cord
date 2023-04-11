@@ -638,7 +638,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             name = "Organic Results",
             func=dummy_sync_function,
             coroutine=get_top_search_results,
-            description="Use this tool over Search when asked to share links to anything such as music, videos, games, shopping, articles, websites, and more. Input should be a descriptive name of the query in question. Do not input URL links. Output returns a list of results you must choose from and utilize."
+            description="Use this tool over Search when asked to share links to anything such as music, videos, games, shopping, articles, websites, and more. Input should be a descriptive name of the query in question. Do not input URL links. Output returns a list of results you must choose from and utilize. You must cite any sources referenced in your response as a clickable numbered hyperlink like '[1](http://source.com)'"
         ))
         
         tools.append(Tool(
