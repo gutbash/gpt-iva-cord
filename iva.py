@@ -1155,7 +1155,7 @@ async def setup(interaction, key: str):
             await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=30)
             
             # Print the values of the columns
-            print(f'id: {id}, key: {key}')
+            #print(f'id: {id}, key: {key}')
         
     else:
         
@@ -1179,7 +1179,9 @@ async def model(interaction, choices: app_commands.Choice[str]):
     
     user_settings = await load_pickle_from_redis('user_settings')
     
-    user_settings[id]['model'] = choices.value
+    print(user_settings)
+    
+    #user_settings.setdefault(id, {})['model'] = choices.value
     
     await save_pickle_to_redis('user_settings', user_settings)
     
