@@ -1009,17 +1009,20 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 embeds.append(embed)
         try:
             print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightcyan}ASK     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@iva: {colors.reset}{reply}")
-            await interaction.followup.send(files=files, embeds=embeds, view=view)
-            last_response[id] = interaction
-            #print(files, embeds)
-            if len(embeds_overflow) > 0:
-                await interaction.channel.send(files = files_overflow, embeds=embeds_overflow)
+            
             url_pattern = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
             links = url_pattern.findall(reply)
             stripped_links = [link.rstrip(',.:)') for link in links]
             if len(stripped_links) > 0:
                 formatted_links = "\n".join(stripped_links)
-                await interaction.channel.send(content=formatted_links)
+                
+            await interaction.followup.send(files=files, embeds=embeds, content=formatted_links, view=view)
+            
+            last_response[id] = interaction
+
+            if len(embeds_overflow) > 0:
+                await interaction.channel.send(files = files_overflow, embeds=embeds_overflow)
+
             return
         except Exception as e:
             print(e)
