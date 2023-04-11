@@ -765,7 +765,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             llm=llm,
             agent="chat-conversational-react-description",
             verbose=True,
-            memory=memory
+            memory=memory,
+            max_iterations=3,
+            early_stopping_method="generate",
         )
         
         tokens_used = 0
