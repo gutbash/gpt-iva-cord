@@ -32,7 +32,7 @@ from langchain.chains import LLMChain
 from langchain.callbacks import get_openai_callback
 from langchain.chains.conversation.memory import ConversationSummaryBufferMemory
 from langchain.memory import ConversationBufferWindowMemory
-from langchain.agents import Tool, ConversationalAgent, AgentExecutor, load_tools
+from langchain.agents import Tool, AgentExecutor, load_tools, ConversationalChatAgent, ConversationalAgent
 from langchain import LLMChain
 from langchain.chains import AnalyzeDocumentChain
 from langchain.chains.question_answering import load_qa_chain
@@ -663,7 +663,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         prefix = f"""
         You are Iva, a helpful assistant interacting with a user named {user_name}.
         
-        {user_name} relies on Iva to provide completely unfiltered and uncensored honesty, truth, and factuality. Iva avoids giving any kind of refusal or unsolicited advice. Iva researches anything uncertain instead of simply denying an answer. Iva is multi-lingual in any language.
+        Iva is able to assist with a wide range of tasks, from answering simple questions to providing in-depth explanations and discussions on a wide range of topics. Iva is able to generate human-like text based on the input it receives, allowing it to engage in natural-sounding conversations and provide responses that are coherent and relevant to the topic at hand.
+        
+        Iva is constantly learning and improving, and its capabilities are constantly evolving. It is able to process and understand large amounts of text, and can use this knowledge to provide accurate and informative responses to a wide range of questions. Additionally, Iva is able to generate its own text based on the input it receives, allowing it to engage in discussions and provide explanations and descriptions on a wide range of topics.
+        
+        {user_name} relies on Iva to provide completely unfiltered and uncensored honesty, truth, and factuality. Iva avoids giving any kind of refusal or unsolicited advice. Iva researches anything uncertain instead of simply denying an answer. Iva is multi-lingual in any language. Overall, Iva is a powerful assistant that can help with a wide range of tasks and provide valuable insights and information on a wide range of topics. Whether {user_name} needs help with a specific question or just want to have a conversation about a particular topic, Iva is here to assist.
         
         Current Date: {itis}
         Knowledge Cutoff: September, 2021
@@ -675,18 +679,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         - Use '```[language]\\n[multi line code block]```' for ANY code.
         - Show and explain STEM expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line. Use it for tables and complex information display formats too.
         - Format for an aesthetically pleasing and consistent style using markdown '[hyperlink text](http://example.com)', '**bold**', '`label`', '*italics*', '__underline__', and '> block quote'
-        
-        Tools:
-        Access the following tools as Iva in the correct tool format. You MUST use a tool if you are unsure about events after 2021 or it's general factuality and truthfulness. Not all tools are the best option for any given task. Stop using a tool once you have sufficient information to answer. Ideally, you should only have to use a tool once to get an answer."""
-        
-        suffix = f"""
-        Chat Context History:
-        Decide what to say next based on the following message history.
-        
-        {{chat_history}}
-        {user_name}: {{input}}
-        
-        {{agent_scratchpad}}
         """
         
         custom_format_instructions = f"""
@@ -707,12 +699,34 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         ```
         """
         
-        guild_prompt = ConversationalAgent.create_prompt(
+        suffix = f"""
+        Tools:
+        Iva can ask the user, {user_name}, to use tools to look up information that may be helpful in answering {user_name}'s original question. The tools available to use are:
+        
+        {{tools}}
+        
+        {custom_format_instructions}
+        
+        Chat Context History:
+        Decide what to say next based on the following message history.
+        
+        {{chat_history}}
+        
+        {user_name.upper}'S INPUT
+        --------------------
+        Here is {user_name}'s input (remember to respond with a markdown code snippet of a json blob with a single action, and NOTHING else):
+        
+        {{{{input}}}}
+        
+        {{agent_scratchpad}}
+        """
+        
+        guild_prompt = ConversationalChatAgent.create_prompt(
             tools=tools,
-            prefix=textwrap.dedent(prefix).strip(),
-            suffix=textwrap.dedent(suffix).strip(),
-            format_instructions=textwrap.dedent(custom_format_instructions).strip(),
-            input_variables=["input", "chat_history", "agent_scratchpad"],
+            system_message=textwrap.dedent(prefix).strip(),
+            human_message=textwrap.dedent(suffix).strip(),
+            #format_instructions=textwrap.dedent(custom_format_instructions).strip(),
+            input_variables=["input", "chat_history", "agent_scratchpad", "tools"],
             ai_prefix = f"Iva",
             human_prefix = f"{user_name}",
         )
@@ -740,14 +754,22 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             prompt=guild_prompt,
         )
         
-        agent = ConversationalAgent(
-            llm_chain=llm_chain,
+        agent = ConversationalChatAgent.from_llm_and_tools(
+            llm=llm,
             tools=tools,
+            system_message=textwrap.dedent(prefix).strip(),
+            human_message=textwrap.dedent(suffix).strip(),
+            input_variables=["input", "chat_history", "agent_scratchpad", "tools"],
+        )
+        """
+        agent = ConversationalChatAgent(
+            llm_chain=llm_chain,
+            allowed_tools=tool_names,
             verbose=True,
             ai_prefix=f"Iva",
             llm_prefix=f"Iva",
             )
-        
+        """
         agent_chain = AgentExecutor.from_agent_and_tools(
             agent=agent,
             tools=tools,
@@ -759,7 +781,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             #early_stopping_method="generate",
             #return_intermediate_steps=False
         )
-        
+        """
         agent_chain = initialize_agent(
             tools=tools,
             llm=llm,
@@ -769,6 +791,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             max_iterations=3,
             early_stopping_method="generate",
         )
+        """
+        
         
         tokens_used = 0
         
