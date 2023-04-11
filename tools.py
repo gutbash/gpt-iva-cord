@@ -1,6 +1,8 @@
 from serpapi import GoogleSearch
 import requests
 import random
+import asyncio
+import aiohttp
 import os
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_TOKEN")
@@ -8,16 +10,18 @@ GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
 os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
 SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
 
-def get_top_search_results(query):
+async def get_top_search_results(query):
     try:
         # Configure the GoogleSearch object with the provided query and API key
-        search = GoogleSearch({
+        search = {
             "q": query,
             "api_key": SERPAPI_API_KEY
-        })
+        }
 
-        # Perform the search and get the search results
-        results = search.get_dict()
+        async with aiohttp.ClientSession() as session:
+            async with session.get("https://serpapi.com/search", params=search) as response:
+                results = await response.json()
+
         organic_results = results.get("organic_results")
 
         # Extract the URLs and short descriptions of the top 10 search results
@@ -44,6 +48,7 @@ def get_top_search_results(query):
     except Exception as e:
         print(f"Error: {e}")
         return None
+
     
 def get_image_from_search(query):
     # Replace YOUR_API_KEY and YOUR_CSE_ID with your own API key and CSE ID
