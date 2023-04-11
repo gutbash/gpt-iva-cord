@@ -456,6 +456,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             # Extract the floating point number
             temperature = float(match.group(1))
 
+            if temperature < 0.0 or temperature > 2.0:
+                temperature = 0.5
+                
             # Remove the attribute command from the string
             prompt = re.sub(pattern, '', prompt)
         else:
@@ -757,7 +760,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             memory=memory,
             ai_prefix=f"Iva",
             llm_prefix=f"Iva",
-            max_execution_time=120,
+            #max_execution_time=120,
             #max_iterations=3,
             #early_stopping_method="generate",
             #return_intermediate_steps=False
