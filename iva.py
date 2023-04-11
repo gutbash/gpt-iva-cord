@@ -655,9 +655,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         tools.extend(load_tools(["google-search"], llm=llm, news_api_key=NEWS_API_KEY))
         
-        tools[3].name = "Search"
-        tools[3].description = "Answer specific queries and questions. Use this when you need to answer questions about current events. Input should be a descriptive natural language search query."
-        tools[4].description = "Useful for when you need to answer questions about Math, Science, Technology, Culture, Society and Everyday Life. Do not use this for coding questions. Input should be a search query."
+        #tools[3].name = "Search"
+        tools[3].description = "Answer specific queries and questions. Use this over Organic Results when you need to simply answer questions about current events and do not need to return a link. Input should be a descriptive natural language search query."
+        #tools[4].description = "Useful for when you need to answer questions about Math, Science, Technology, Culture, Society and Everyday Life. Do not use this for coding questions. Input should be a search query."
         
         tool_names = [tool.name for tool in tools]
         
