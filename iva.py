@@ -527,7 +527,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             #prepare chain
             chain = load_summarize_chain(logical_llm, chain_type="map_reduce")
             #run summary
-            summary = chain.arun(docs)
+            summary = await chain.arun(docs)
             return summary
 
         attachment_text = ""
