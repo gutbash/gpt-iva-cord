@@ -1166,6 +1166,51 @@ async def setup(interaction, key: str):
 
         embed = discord.Embed(description=f"<:ivathumbsup:1051918474299056189> **Key registered for {mention}.**", color=discord.Color.dark_theme())
         await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=30)
-
+        
+@tree.command(name = "model", description="choose a completion model")
+@app_commands.choices(choices=[
+        app_commands.Choice(name="gpt-3.5", value="gpt-3.5-turbo"),
+        app_commands.Choice(name="gpt-4", value="gpt-4"),
+    ])
+async def model(interaction, choices: app_commands.Choice[str]):
+    
+    id = interaction.user.id
+    mention = interaction.user.mention
+    
+    user_settings = await load_pickle_from_redis('user_settings')
+    
+    user_settings[id]['model'] = choices.value
+    
+    await save_pickle_to_redis('user_settings', user_settings)
+    
+    embed = discord.Embed(description=f"<:ivathumbsup:1051918474299056189> **set model to `{choices.value}` for {mention}.**", color=discord.Color.dark_theme())
+    await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=30)
+    
+    return
+    
+@tree.command(name = "temperature", description="set a default temperature to use with iva.")
+@app_commands.describe(temperature = "temperature")
+async def temperature(interaction, temperature: float):
+    
+    id = interaction.user.id
+    mention = interaction.user.mention
+    
+    user_settings = await load_pickle_from_redis('user_settings')
+    
+    if (temperature >= 0.0 and temperature <= 2.0):
+        
+        embed = discord.Embed(description=f"<:ivaerror:1051918443840020531> **{mention} `temperature` must be a float value from 0.0-2.0.**", color=discord.Color.dark_theme())
+        
+        await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=30)
+        
+        return
+    
+    user_settings[id]['temperature'] = temperature
+    
+    embed = discord.Embed(description=f"<:ivathumbsup:1051918474299056189> **set temperature to `{temperature}` for {mention}.**", color=discord.Color.dark_theme())
+    
+    await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=30)
+    
+    return
     
 client.run(DISCORD_TOKEN)
