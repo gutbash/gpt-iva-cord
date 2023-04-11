@@ -23,13 +23,12 @@ def get_top_search_results(query):
         # Extract the URLs and short descriptions of the top 10 search results
         top_results = []
         if organic_results and len(organic_results) > 0:
-            for i in range(10):
+            for i in range(1):
                 if i < len(organic_results):
                     result = {}
-                    result["date"] = organic_results[i].get("date", "")
                     result["title"] = organic_results[i]["title"]
                     result["link"] = organic_results[i]["link"]
-                    result["description"] = organic_results[i].get("snippet", "")
+                    result["description"] = organic_results[i].get("snippet", "No snippet available.")
                     top_results.append(result)
                 else:
                     break
@@ -37,7 +36,7 @@ def get_top_search_results(query):
         # Format the results as a plain text unordered list
         result_list = []
         for result in top_results:
-            result_list.append(f"{result['date']}\n{result['title']}\n{result['link']}\n{result['description']}")
+            result_list.append(f"{result['title']}\n{result['link']}\n{result['description']}")
             results =  "\n\n".join(result_list)
 
         return results
