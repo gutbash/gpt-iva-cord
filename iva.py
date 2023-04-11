@@ -447,39 +447,16 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         result = await async_fetch_key(id)
         openai_key = ""
 
-        # Regular expression pattern to match the --t attribute command
-        pattern = r'--t\s*(1(\.0{1,2})?|0(\.\d{1,2})?)'
+        user_settings = await load_pickle_from_redis('user_settings')
         
-        # Search for the attribute command in the given string
-        match = re.search(pattern, prompt)
-        
-        if match:
-            # Extract the floating point number
-            temperature = float(match.group(1))
-
-            if temperature < 0.0 or temperature > 2.0:
-                temperature = 0.5
-                
-            # Remove the attribute command from the string
-            prompt = re.sub(pattern, '', prompt)
-        else:
+        try:
+            chat_model = user_settings[id]['model']
+        except:
+            chat_model = "gpt-3.5-turbo"
+        try:
+            temperature = user_settings[id]['temperature']
+        except:
             temperature = 0.5
-        
-        if "--v4" in prompt:
-            prompt = prompt.replace("--v4", "")
-            chat_model = "gpt-4"
-        elif "—v4" in prompt:
-            prompt = prompt.replace("—v4", "")
-            chat_model = "gpt-4"
-        elif "--v3" in prompt:
-            prompt = prompt.replace("--v3", "")
-            chat_model = "gpt-3.5-turbo"
-        elif "—v3" in prompt:
-            prompt = prompt.replace("—v3", "")
-            chat_model = "gpt-3.5-turbo"
-        else:
-            #set default model
-            chat_model = "gpt-3.5-turbo"
         
         # Get the current timestamp
         timestamp = datetime.datetime.now()
