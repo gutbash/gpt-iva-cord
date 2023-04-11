@@ -760,15 +760,15 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             #human_message=textwrap.dedent(suffix).strip(),
             input_variables=["input", "chat_history", "agent_scratchpad"],
         )
-        """
+
         agent = ConversationalChatAgent(
             llm_chain=llm_chain,
             allowed_tools=tool_names,
             verbose=True,
-            ai_prefix=f"Iva",
-            llm_prefix=f"Iva",
+            #ai_prefix=f"Iva",
+            #llm_prefix=f"Iva",
             )
-        """
+
         agent_chain = AgentExecutor.from_agent_and_tools(
             agent=agent,
             tools=tools,
