@@ -727,8 +727,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             human_message=textwrap.dedent(suffix).strip(),
             #format_instructions=textwrap.dedent(custom_format_instructions).strip(),
             input_variables=["input", "chat_history", "agent_scratchpad", "tools"],
-            ai_prefix = f"Iva",
-            human_prefix = f"{user_name}",
+            #ai_prefix = f"Iva",
+            #human_prefix = f"{user_name}",
         )
         
         if id not in ask_messages:
