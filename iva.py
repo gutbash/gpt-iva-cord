@@ -24,6 +24,7 @@ import random
 import textwrap
 from bs4 import BeautifulSoup
 import chardet
+import aiohttp
 
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import OpenAI
@@ -500,25 +501,25 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         text_splitter = TokenTextSplitter()
         logical_llm = ChatOpenAI(openai_api_key=openai_key, temperature=0)
         
-        def get_important_text(url):
-            response = requests.get(url)
-            soup = BeautifulSoup(response.content, 'html.parser')
+        async def get_important_text(url):
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as response:
+                    content = await response.text()
+                    soup = BeautifulSoup(content, 'html.parser')
 
-            #important_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'article', 'section', 'span', 'figcaption', 'blockquote']
-            #important_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p']
-            important_tags = ['p']
-            important_text = ''
+                    important_tags = ['p']
+                    important_text = ''
 
-            for tag in important_tags:
-                elements = soup.find_all(tag)
-                for element in elements:
-                    important_text += element.get_text(strip=True) + ' '
-                    
-            summary = get_map_reduce(important_text)
-            
-            return summary
+                    for tag in important_tags:
+                        elements = soup.find_all(tag)
+                        for element in elements:
+                            important_text += element.get_text(strip=True) + ' '
+
+                    summary = await get_map_reduce(important_text)
+
+                    return summary
         
-        def get_map_reduce(text):
+        async def get_map_reduce(text):
             #prepare and parse the text
             text_splitter = TokenTextSplitter()
             texts = text_splitter.split_text(text)
