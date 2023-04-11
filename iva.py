@@ -1179,9 +1179,9 @@ async def model(interaction, choices: app_commands.Choice[str]):
     
     user_settings = await load_pickle_from_redis('user_settings')
     
-    print(user_settings)
+    user_settings.setdefault(id, {})['model'] = choices.value
     
-    #user_settings.setdefault(id, {})['model'] = choices.value
+    print(user_settings)
     
     await save_pickle_to_redis('user_settings', user_settings)
     
@@ -1207,7 +1207,7 @@ async def temperature(interaction, temperature: float):
         
         return
     
-    user_settings[id]['temperature'] = temperature
+    user_settings.setdefault(id, {})['temperature'] = temperature
     
     embed = discord.Embed(description=f"<:ivathumbsup:1051918474299056189> **set temperature to `{temperature}` for {mention}.**", color=discord.Color.dark_theme())
     
