@@ -10,7 +10,7 @@ GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
 os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
 SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
 
-async def get_top_search_results(query):
+async def get_top_search_results(query: str) -> str:
     try:
         # Configure the GoogleSearch object with the provided query and API key
         search = {
@@ -50,7 +50,7 @@ async def get_top_search_results(query):
         return None
 
     
-def get_image_from_search(query):
+def get_image_from_search(query: str) -> str:
     # Replace YOUR_API_KEY and YOUR_CSE_ID with your own API key and CSE ID
     url = f"https://www.googleapis.com/customsearch/v1?q={query}&key={GOOGLE_API_KEY}&cx={GOOGLE_CSE_ID}&searchType=image"
     response = requests.get(url)
