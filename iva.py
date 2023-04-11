@@ -1197,7 +1197,7 @@ async def temperature(interaction, temperature: float):
     
     user_settings = await load_pickle_from_redis('user_settings')
     
-    if (temperature >= 0.0 and temperature <= 2.0):
+    if not (temperature >= 0.0 and temperature <= 2.0):
         
         embed = discord.Embed(description=f"<:ivaerror:1051918443840020531> **{mention} `temperature` must be a float value from 0.0-2.0.**", color=discord.Color.dark_theme())
         
