@@ -755,6 +755,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         agent = ConversationalChatAgent.from_llm_and_tools(
             llm=llm,
             tools=tools,
+            verbose=True,
             #system_message=textwrap.dedent(prefix).strip(),
             #human_message=textwrap.dedent(suffix).strip(),
             input_variables=["input", "chat_history", "agent_scratchpad"],
