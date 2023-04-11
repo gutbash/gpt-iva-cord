@@ -653,7 +653,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             description="A wrapper around Google Images. Useful for when you'd like to accompany a response with a revelant image. Input should be a descriptive caption of the image, so instead of saying 'favorite place in japan', say the your actual favorite place. Output will be the image link."
         ))
         
-        tools.extend(load_tools(["google-search", "wolfram-alpha", "wikipedia"], llm=llm, news_api_key=NEWS_API_KEY))
+        tools.extend(load_tools(["google-search"], llm=llm, news_api_key=NEWS_API_KEY))
         
         tools[3].name = "Search"
         tools[3].description = "Answer specific queries and questions. Use this when you need to answer questions about current events. Input should be a descriptive natural language search query."
