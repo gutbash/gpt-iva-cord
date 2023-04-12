@@ -399,6 +399,24 @@ class Menu(discord.ui.View):
         # Step 3
         await self.message.edit(view=self)
 
+    @discord.ui.button(emoji="<:ivadelete:1095559772754952232>", style=discord.ButtonStyle.grey)
+    async def delete(self, interaction: discord.Interaction, button: discord.ui.Button):
+        
+        guild_id = interaction.guild_id
+        id = interaction.user.id
+        
+        ask_mems = await load_pickle_from_redis('ask_mems')
+        
+        memory = ask_mems[id]
+        buffer = memory.buffer
+        buffer = buffer[:-2]
+        print(memory.buffer)
+        
+        await save_pickle_to_redis('ask_mems', ask_mems)
+        
+        button.disabled = True
+        await interaction.delete_original_response()
+
     @discord.ui.button(emoji="<:ivareset:1051691297443950612>", style=discord.ButtonStyle.grey)
     async def reset(self, interaction: discord.Interaction, button: discord.ui.Button):
         
@@ -432,24 +450,6 @@ class Menu(discord.ui.View):
         embeds.append(embed)
         await interaction.message.edit(view=None, embeds=embeds, attachments=attachments)
         #await interaction.channel.send(embed=embed)
-        
-    @discord.ui.button(emoji="<:ivadelete:1095559772754952232>", style=discord.ButtonStyle.grey)
-    async def delete(self, interaction: discord.Interaction, button: discord.ui.Button):
-        
-        guild_id = interaction.guild_id
-        id = interaction.user.id
-        
-        ask_mems = await load_pickle_from_redis('ask_mems')
-        
-        memory = ask_mems[id]
-        buffer = memory.buffer
-        buffer = buffer[:-2]
-        print(memory.buffer)
-        
-        await save_pickle_to_redis('ask_mems', ask_mems)
-        
-        button.disabled = True
-        interaction.message.delete
 
 @tree.command(name = "iva", description="write a prompt")
 @app_commands.describe(prompt = "prompt", file = "file")
