@@ -526,7 +526,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                         pdf_buffer = io.BytesIO(pdf_content)
 
                         # Extract text from the PDF using PyPDF2
-                        reader = PyPDF2.PdfFileReader(pdf_buffer)
+                        reader = PyPDF2.PdfReader(pdf_buffer)
                         important_text = ""
                         for page_num in range(reader.numPages):
                             important_text += reader.getPage(page_num).extractText()
@@ -1093,7 +1093,7 @@ async def reset(interaction):
                 await last_response[id].edit_original_response(content="⠀", view=None)
     except discord.errors.HTTPException as e:
         print(e)
-    
+
     last_response[id] = None
     ask_mems[id] = None
     chat_mems[channel_id] = None
