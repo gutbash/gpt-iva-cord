@@ -714,6 +714,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         if ask_mems[id] != None:
             
             memory = ask_mems[id]
+            print(memory.buffer)
             
         else:
             
