@@ -414,6 +414,7 @@ class Menu(discord.ui.View):
             await interaction.response.send_message(embed=embed, ephemeral=False)
             return
 
+        ask_mems[id] = None
         last_response[id] = None
         
         await save_pickle_to_redis('ask_mems', ask_mems)
