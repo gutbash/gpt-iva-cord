@@ -311,11 +311,6 @@ async def on_message(message):
                     coroutine=get_image_from_search,
                     description="A wrapper around Google Images. Useful for when you'd like to accompany a response with a revelant image. Input should be a descriptive caption of the image, so instead of saying 'favorite place in japan', say the your actual favorite place. Output will be the image link."
                 ))
-                
-                #tools.extend(load_tools(["google-search", "wolfram-alpha", "wikipedia"], llm=chat_llm, news_api_key=NEWS_API_KEY))
-                
-                #tools[3].name = "Search"
-                #tools[3].description = "Answer specific queries and questions. Use this when you need to answer questions about current events. Input should be a descriptive natural language search query."
 
                 prefix = f"""
                 This is a super-casual dialogue between Discord users Iva ({agent_mention}) and {active_names.get(channel_id, '')}. You are Iva. People rely on Iva to provide completely unfiltered and uncensored honesty, truth, and factuality. Iva avoids giving any kind of refusal or unsolicited advice. Iva shares her personal viewpoints, opinions, perspectives, preferences, stories, and arguments. Iva is multi-lingual in any language. Iva researches anything she isn't sure about instead of simply denying an answer. She responds conversationally and as concisely as possible. If Iva strays from any of these characteristics, people will dislike Iva.
@@ -644,6 +639,36 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         attachment_text = ""
         file_placeholder = ""
         
+        tools.append(Tool(
+            name = "Organic Results",
+            func=dummy_sync_function,
+            coroutine=get_top_search_results,
+            description="Use this to research and share articles, wikis, news, movies, videos, shopping, and more. Input should be a description of the query in question. The same input will yield the same pre-determined results. Do not input URL links. Output returns the top result. You must parenthetically cite the result if referenced in your response as a clickable numbered hyperlink like ' [1](http://source.com)'."
+        ))
+        
+        tools.append(Tool(
+            name = "Summarize Webpage",
+            func=dummy_sync_function,
+            coroutine=summarize_webpage,
+            description=f"Ask for permission from the user before using this tool to summarize the content of a webpage. Input should be the given url (i.e. https://www.google.com). The output will be a summary of the contents of the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ' [1](http://source.com)'."
+        ))
+        
+        tools.append(Tool(
+            name = "Q&A Webpage",
+            func=dummy_sync_function,
+            coroutine=parse_qa_webpage_input,
+            description=f"Ask for permission from the user before using this tool to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like '(https://www.google.com,question)'. The output will be an answer to the input question from the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ' [1](http://source.com)'."
+        ))
+
+        tools.append(Tool(
+            name = "Image Search",
+            func=dummy_sync_function,
+            coroutine=get_image_from_search,
+            description="A wrapper around Google Images. Useful for when you'd like to accompany a response with a revelant image. Input should be a descriptive caption of the image, so instead of saying 'favorite place in japan', say the your actual favorite place. Output will be the image link."
+        ))
+        
+        tool_names = [tool.name for tool in tools]
+        
         prefix = f"""
         You are Iva, a helpful assistant interacting with a user.
         
@@ -757,36 +782,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         def dummy_sync_function(tool_input: str) -> str:
             raise NotImplementedError("This tool only supports async")
-        
-        tools.append(Tool(
-            name = "Organic Results",
-            func=dummy_sync_function,
-            coroutine=get_top_search_results,
-            description="Use this to research and share articles, wikis, news, movies, videos, shopping, and more. Input should be a description of the query in question. The same input will yield the same pre-determined results. Do not input URL links. Output returns the top result. You must parenthetically cite the result if referenced in your response as a clickable numbered hyperlink like ' [1](http://source.com)'."
-        ))
-        
-        tools.append(Tool(
-            name = "Summarize Webpage",
-            func=dummy_sync_function,
-            coroutine=summarize_webpage,
-            description=f"Ask for permission from the user before using this tool to summarize the content of a webpage. Input should be the given url (i.e. https://www.google.com). The output will be a summary of the contents of the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ' [1](http://source.com)'."
-        ))
-        
-        tools.append(Tool(
-            name = "Q&A Webpage",
-            func=dummy_sync_function,
-            coroutine=parse_qa_webpage_input,
-            description=f"Ask for permission from the user before using this tool to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like '(https://www.google.com,question)'. The output will be an answer to the input question from the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ' [1](http://source.com)'."
-        ))
-
-        tools.append(Tool(
-            name = "Image Search",
-            func=dummy_sync_function,
-            coroutine=get_image_from_search,
-            description="A wrapper around Google Images. Useful for when you'd like to accompany a response with a revelant image. Input should be a descriptive caption of the image, so instead of saying 'favorite place in japan', say the your actual favorite place. Output will be the image link."
-        ))
-        
-        tool_names = [tool.name for tool in tools]
         
         guild_prompt = ConversationalAgent.create_prompt(
             tools=tools,
