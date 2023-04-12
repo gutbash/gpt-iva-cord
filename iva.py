@@ -559,6 +559,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         text_splitter = TokenTextSplitter()
         logical_llm = ChatOpenAI(openai_api_key=openai_key, temperature=0)
         
+        def dummy_sync_function(tool_input: str) -> str:
+            raise NotImplementedError("This tool only supports async")
+        
         async def get_important_text(url):
             async with aiohttp.ClientSession() as session:
                 async with session.get(url) as response:
@@ -779,9 +782,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             openai_api_key=openai_key,
             request_timeout=300,
             )
-        
-        def dummy_sync_function(tool_input: str) -> str:
-            raise NotImplementedError("This tool only supports async")
         
         guild_prompt = ConversationalAgent.create_prompt(
             tools=tools,
