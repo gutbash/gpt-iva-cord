@@ -515,16 +515,36 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         async def get_important_text(url):
             async with aiohttp.ClientSession() as session:
                 async with session.get(url) as response:
-                    content = await response.text()
-                    soup = BeautifulSoup(content, 'html.parser')
+                    
+                    content_type = response.headers.get("content-type", "").lower()
+                    
+                    # Check if the content type is a PDF
+                    if "application/pdf" in content_type:
+                        
+                        # Read the PDF content into a BytesIO buffer
+                        pdf_content = await response.read()
+                        pdf_buffer = io.BytesIO(pdf_content)
 
-                    important_tags = ['p']
-                    important_text = ''
+                        # Extract text from the PDF using PyPDF2
+                        reader = PyPDF2.PdfFileReader(pdf_buffer)
+                        important_text = ""
+                        for page_num in range(reader.numPages):
+                            important_text += reader.getPage(page_num).extractText()
+                        
+                    elif "text/html" in content_type:
+                        
+                        content = await response.text()
+                        soup = BeautifulSoup(content, 'html.parser')
 
-                    for tag in important_tags:
-                        elements = soup.find_all(tag)
-                        for element in elements:
-                            important_text += element.get_text(strip=True) + ' '
+                        important_tags = ['p']
+                        important_text = ''
+
+                        for tag in important_tags:
+                            elements = soup.find_all(tag)
+                            for element in elements:
+                                important_text += element.get_text(strip=True) + ' '   
+                    else:
+                        print(f"Unknown content type for {url}: {content_type}")
 
                     summary = await get_map_reduce(important_text)
 
