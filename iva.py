@@ -443,7 +443,9 @@ class Menu(discord.ui.View):
         
         memory = ask_mems[id]
         buffer = memory.buffer
-        buffer = buffer[:-2]
+        trimmed_buffer = buffer[:-2]
+        memory.buffer = trimmed_buffer
+        print(trimmed_buffer)
         
         await save_pickle_to_redis('ask_mems', ask_mems)
         
