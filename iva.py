@@ -1016,6 +1016,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             links = url_pattern.findall(reply)
             stripped_links = [link.rstrip(',.:)') for link in links]
             if len(stripped_links) > 0:
+                stripped_links = list(set(stripped_links))
                 formatted_links = "\n".join(stripped_links)
                 await interaction.channel.send(content=formatted_links)
             return
