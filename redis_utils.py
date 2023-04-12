@@ -1,6 +1,6 @@
 import os
 import aioredis
-import cloudpickle as pickle
+import pickle
 
 # Function to create an aioredis client
 async def get_redis_client():

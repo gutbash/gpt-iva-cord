@@ -15,4 +15,3 @@ graphviz
 psycopg2
 aioredis
 chardet
-cloudpickle
