@@ -602,7 +602,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
         try:
             if id in last_response:
-                await last_response[id].edit_original_response(content="⠀", view=None)
+                if last_response[id] != None:
+                    await last_response[id].edit_original_response(content="⠀", view=None)
         except discord.errors.HTTPException as e:
             print(e)
         
@@ -1040,7 +1041,8 @@ async def reset(interaction):
     
     try:
         if id in last_response:
-            await last_response[id].edit_original_response(content="⠀", view=None)
+            if last_response[id] != None:
+                await last_response[id].edit_original_response(content="⠀", view=None)
     except discord.errors.HTTPException as e:
         print(e)
     
