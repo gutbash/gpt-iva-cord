@@ -449,7 +449,7 @@ class Menu(discord.ui.View):
         await save_pickle_to_redis('ask_mems', ask_mems)
         
         button.disabled = True
-        await interaction.message.delete
+        interaction.message.delete
 
 @tree.command(name = "iva", description="write a prompt")
 @app_commands.describe(prompt = "prompt", file = "file")
