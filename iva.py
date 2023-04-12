@@ -404,9 +404,9 @@ class Menu(discord.ui.View):
         
         global last_response
         
-        last_interaction = last_response[id]
         guild_id = interaction.guild_id
         id = interaction.user.id
+        last_interaction = last_response[id]
         
         ask_mems = await load_pickle_from_redis('ask_mems')
         
@@ -417,7 +417,7 @@ class Menu(discord.ui.View):
         
         await save_pickle_to_redis('ask_mems', ask_mems)
         
-        #button.disabled = True
+        await interaction.message.delete()
         return
     
     @discord.ui.button(emoji="<:ivareset:1051691297443950612>", style=discord.ButtonStyle.grey)
