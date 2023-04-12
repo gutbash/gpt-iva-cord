@@ -763,7 +763,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 ask_mems[id] = memory
                 await save_pickle_to_redis(ask_mems)
 
-                tokens_used = cb.total_tokens
+                prompt_tokens = cb.prompt_tokens
+                completion_tokens = cb.completion_tokens
+                total_tokens = cb.total_tokens
                 
         except Exception as e:
             print(e)
@@ -780,7 +782,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}")
         prompt_embed.add_field(name="model", value=f"`{chat_model}`", inline=True)
         prompt_embed.add_field(name="temperature", value=f"`{temperature}`", inline=True)
-        #prompt_embed.add_field(name="tokens", value=f"`{tokens_used}`", inline=True)
+        prompt_embed.add_field(name="prompt", value=f"`{prompt_tokens}T`", inline=True)
+        prompt_embed.add_field(name="completion", value=f"`{completion_tokens}T`", inline=True)
         embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
         
         embeds = []
