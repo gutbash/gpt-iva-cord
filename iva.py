@@ -761,7 +761,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
                 reply = await agent_chain.arun(input=f"{prompt}{attachment_text}")
                 ask_mems[id] = memory
-                await save_pickle_to_redis(ask_mems)
+                await save_pickle_to_redis('ask_mems', ask_mems)
 
                 prompt_tokens = cb.prompt_tokens
                 completion_tokens = cb.completion_tokens
@@ -1006,7 +1006,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightcyan}ASK     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@iva: {colors.reset}{reply}")
             await interaction.followup.send(files=files, embeds=embeds, view=view)
             last_response[id] = interaction
-            await save_pickle_to_redis(last_response)
+            await save_pickle_to_redis('last_response', last_response)
             #print(files, embeds)
             if len(embeds_overflow) > 0:
                 await interaction.channel.send(files = files_overflow, embeds=embeds_overflow)
