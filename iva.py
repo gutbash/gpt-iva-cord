@@ -602,7 +602,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
         try:
             if last_response[id]:
-                #embed_filler = discord.Embed(color=discord.Color.dark_theme())
                 await last_response[id].edit_original_response(content="⠀", view=None)
         except Exception as e:
             print(e)
@@ -1036,6 +1035,9 @@ async def reset(interaction):
     active_users = await load_pickle_from_redis('active_users')
     chat_mems = await load_pickle_from_redis('chat_mems')
     ask_mems = await load_pickle_from_redis('ask_mems')
+    
+    if last_response[id]:
+        await last_response[id].edit_original_response(content="⠀", view=None)
     
     last_response[id] = None
     ask_mems[id] = None
