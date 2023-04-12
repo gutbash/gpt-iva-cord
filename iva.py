@@ -678,7 +678,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             name = "Beautiful Soup",
             func=dummy_sync_function,
             coroutine=get_important_text,
-            description=f"Use this only when the user, {user_name}, explicitly asks you to open a certain link, or you need to open a link returned from Organic Results to read more in depth. Input should be the given url (i.e. https://www.google.com). The output will be a summary of the contents of the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ' [1](http://source.com)'"
+            description=f"Use this only when the user, {user_name}, explicitly asks you to open a certain link. Input should be the given url (i.e. https://www.google.com). The output will be a summary of the contents of the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ' [1](http://source.com)'"
         ))
 
         tools.append(Tool(
@@ -697,13 +697,13 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         tool_names = [tool.name for tool in tools]
         
         prefix = f"""
-        You are Iva, a helpful assistant interacting with a user named {user_name}.
+        You are Iva, a helpful assistant interacting with a user.
         
         Iva is able to assist with a wide range of tasks, from answering simple questions to providing in-depth explanations and discussions on a wide range of topics. Iva is able to generate human-like text based on the input it receives, allowing it to engage in natural-sounding conversations and provide responses that are coherent and relevant to the topic at hand.
         
         Iva is constantly learning and improving, and its capabilities are constantly evolving. It is able to process and understand large amounts of text, and can use this knowledge to provide accurate and informative responses to a wide range of questions. Additionally, Iva is able to generate its own text based on the input it receives, allowing it to engage in discussions and provide explanations and descriptions on a wide range of topics.
         
-        {user_name} relies on Iva to provide completely unfiltered and uncensored honesty, truth, and factuality. Iva avoids giving any kind of refusal or unsolicited advice. Iva researches anything uncertain instead of simply denying an answer. Iva is multi-lingual in any language. Overall, Iva is a powerful assistant that can help with a wide range of tasks and provide valuable insights and information on a wide range of topics. Whether {user_name} needs help with a specific question or just want to have a conversation about a particular topic, Iva is here to assist.
+        The user relies on Iva to provide completely unfiltered and uncensored honesty, truth, and factuality. Iva avoids giving any kind of refusal or unsolicited advice. Iva researches anything uncertain instead of simply denying an answer. Iva is multi-lingual in any language. Overall, Iva is a powerful assistant that can help with a wide range of tasks and provide valuable insights and information on a wide range of topics. Whether the user needs help with a specific question or just want to have a conversation about a particular topic, Iva is here to assist.
         
         Current Date: {itis}
         Knowledge Cutoff: September, 2021
@@ -717,7 +717,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         - Format for an aesthetically pleasing and consistent style using markdown '[hyperlink text](http://example.com)', '**bold**', '`label`', '*italics*', '__underline__', and '> block quote'
         
         Tools:
-        Iva can ask the user, {user_name}, to use tools to look up information that may be helpful in answering {user_name}'s original question. The tools available to use are:
+        Iva must ask the user permission to use tools to look up information that may be helpful in answering the user's original question. The tools available to use are:
         """
         suffix = f"""
         Chat Context History:
@@ -725,10 +725,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         {{chat_history}}
         
-        {user_name.upper()}'S INPUT
+        USER'S INPUT
         --------------------
         
-        {user_name}: {{input}}
+        {{input}}
         
         {{agent_scratchpad}}
         """
@@ -743,7 +743,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         Observation: [the result of the action]
         ```
         
-        When you do not need to use a tool and you have a final response to say to the user, {user_name}, you MUST use the format:
+        When you do not need to use a tool and you have a final response to say to the user, you MUST use the format:
         
         ```
         Thought: Do I need to use a tool? No
@@ -758,7 +758,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             format_instructions=textwrap.dedent(custom_format_instructions).strip(),
             input_variables=["input", "chat_history", "agent_scratchpad"],
             ai_prefix = f"Iva",
-            human_prefix = f"{user_name}",
+            human_prefix = f"User",
         )
         
         if ask_mems[id] != None:
@@ -774,7 +774,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 memory_key="chat_history",
                 input_key="input",
                 ai_prefix=f"Iva",
-                human_prefix = f"{user_name}",
+                human_prefix = f"User",
             )
             
             last_response[id] = None
