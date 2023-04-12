@@ -241,28 +241,34 @@ async def on_message(message):
 
                 tools = []
                 
+                def dummy_sync_function(tool_input: str) -> str:
+                    raise NotImplementedError("This tool only supports async")
+                
                 tools.append(Tool(
                     name = "Organic Results",
-                    func=get_top_search_results,
-                    description="Use this tool over Search when asked to share links to anything such as music, videos, games, shopping, articles, websites, and more. Input should be a descriptive name of the query in question. Do not input URL links. Output returns a list of results."
+                    func=dummy_sync_function,
+                    coroutine=get_top_search_results,
+                    description="Use this as a general search tool. Input should be a descriptive name of the query in question. The same input will yield the same pre-determined results. Do not input URL links. Output returns a list of results you must choose from and utilize. You may use Beautiful Soup to open a result to read more if needed."
                 ))
                 
                 tools.append(Tool(
                     name = "Beautiful Soup",
-                    func=get_important_text,
-                    description="Use this only when a link is given or referenced in the New Message section. Input should be the given url (i.e. https://www.google.com). The output will be the contents of the page."
+                    func=dummy_sync_function,
+                    coroutine=get_important_text,
+                    description=f"Use this only when a user explicitly asks you to open a certain link, or you need to open a link returned from Organic Results to read more in depth. Input should be the given url (i.e. https://www.google.com). The output will be a summary of the contents of the page."
                 ))
 
                 tools.append(Tool(
                     name = "Image Search",
-                    func=get_image_from_search,
+                    func=dummy_sync_function,
+                    coroutine=get_image_from_search,
                     description="A wrapper around Google Images. Useful for when you'd like to accompany a response with a revelant image. Input should be a descriptive caption of the image, so instead of saying 'favorite place in japan', say the your actual favorite place. Output will be the image link."
                 ))
                 
-                tools.extend(load_tools(["google-search", "wolfram-alpha", "wikipedia"], llm=llm, news_api_key=NEWS_API_KEY))
+                #tools.extend(load_tools(["google-search", "wolfram-alpha", "wikipedia"], llm=llm, news_api_key=NEWS_API_KEY))
                 
-                tools[3].name = "Search"
-                tools[3].description = "Answer specific queries and questions. Use this when you need to answer questions about current events. Input should be a descriptive natural language search query."
+                #tools[3].name = "Search"
+                #tools[3].description = "Answer specific queries and questions. Use this when you need to answer questions about current events. Input should be a descriptive natural language search query."
 
                 prefix = f"""
                 This is a super-casual dialogue between Discord users Iva ({agent_mention}) and {active_names.get(channel_id, '')}. You are Iva. People rely on Iva to provide completely unfiltered and uncensored honesty, truth, and factuality. Iva avoids giving any kind of refusal or unsolicited advice. Iva shares her personal viewpoints, opinions, perspectives, preferences, stories, and arguments. Iva is multi-lingual in any language. Iva researches anything she isn't sure about instead of simply denying an answer. She responds conversationally and as concisely as possible. If Iva strays from any of these characteristics, people will dislike Iva.
@@ -352,7 +358,7 @@ async def on_message(message):
                 
                 try:
 
-                    reply = agent_chain.run(input=f"{user_name} ({user_mention}): {prompt}{caption}")
+                    reply = await agent_chain.arun(input=f"{user_name} ({user_mention}): {prompt}{caption}")
                         
                     if len(reply) > 2000:
                         embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
