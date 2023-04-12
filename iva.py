@@ -603,7 +603,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         try:
             if last_response[id]:
                 await last_response[id].edit_original_response(content="⠀", view=None)
-        except Exception as e:
+        except discord.errors.HTTPException as e:
             print(e)
         
         llm = ChatOpenAI(
@@ -1036,8 +1036,11 @@ async def reset(interaction):
     chat_mems = await load_pickle_from_redis('chat_mems')
     ask_mems = await load_pickle_from_redis('ask_mems')
     
-    if last_response[id]:
-        await last_response[id].edit_original_response(content="⠀", view=None)
+    try:
+        if last_response[id]:
+            await last_response[id].edit_original_response(content="⠀", view=None)
+    except discord.errors.HTTPException as e:
+        print(e)
     
     last_response[id] = None
     ask_mems[id] = None
