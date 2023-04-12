@@ -425,7 +425,7 @@ class Menu(discord.ui.View):
     async def reset(self, interaction: discord.Interaction, button: discord.ui.Button):
         
         global last_response
-        discord.Interaction.resp
+        
         guild_id = interaction.guild_id
         id = interaction.user.id
         
