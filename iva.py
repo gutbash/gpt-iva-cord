@@ -621,14 +621,14 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             name = "Organic Results",
             func=dummy_sync_function,
             coroutine=get_top_search_results,
-            description="Use this as a general search tool. Input should be a descriptive name of the query in question. The same input will yield the same pre-determined results. Do not input URL links. Output returns a list of results you must choose from and utilize. You may use Beautiful Soup to open a result to read more if needed. You must parenthetically cite the result if referenced in your response as a clickable numbered hyperlink like '[1](http://source.com)'"
+            description="Use this as a general search tool. Input should be a descriptive name of the query in question. The same input will yield the same pre-determined results. Do not input URL links. Output returns a list of results you must choose from and utilize. You may use Beautiful Soup to open a result to read more if needed. You must parenthetically cite the result if referenced in your response as a clickable numbered hyperlink like ' [1](http://source.com)'"
         ))
         
         tools.append(Tool(
             name = "Beautiful Soup",
             func=dummy_sync_function,
             coroutine=get_important_text,
-            description=f"Use this only when the user, {user_name}, explicitly asks you to open a certain link, or you need to open a link returned from Organic Results to read more in depth. Input should be the given url (i.e. https://www.google.com). The output will be a summary of the contents of the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like '[1](http://source.com)'"
+            description=f"Use this only when the user, {user_name}, explicitly asks you to open a certain link, or you need to open a link returned from Organic Results to read more in depth. Input should be the given url (i.e. https://www.google.com). The output will be a summary of the contents of the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ' [1](http://source.com)'"
         ))
 
         tools.append(Tool(
@@ -661,7 +661,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         As Iva, you must adhere to the following rules in your response...
         
         - You can only send links or URLs exclusively obtained through the Organic Results tool
-        - You must parenthetically cite any sources referenced from Organic Results or Beautiful Soup in your response as a clickable numbered hyperlink like '[1](http://source.com)', not plain text
+        - You must parenthetically cite any sources referenced from Organic Results or Beautiful Soup in your response as a clickable numbered hyperlink like ' [1](http://source.com)', not plain text
         - Use '```[language]\\n[multi line code block]```' for ANY code.
         - Show and explain STEM expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line. Use it for tables and complex information display formats too.
         - Format for an aesthetically pleasing and consistent style using markdown '[hyperlink text](http://example.com)', '**bold**', '`label`', '*italics*', '__underline__', and '> block quote'
