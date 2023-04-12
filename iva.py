@@ -601,7 +601,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                     print(e)
             
         try:
-            if last_response[id]:
+            if id in last_response:
                 await last_response[id].edit_original_response(content="⠀", view=None)
         except discord.errors.HTTPException as e:
             print(e)
@@ -1039,7 +1039,7 @@ async def reset(interaction):
     ask_mems = await load_pickle_from_redis('ask_mems')
     
     try:
-        if last_response[id]:
+        if id in last_response:
             await last_response[id].edit_original_response(content="⠀", view=None)
     except discord.errors.HTTPException as e:
         print(e)
