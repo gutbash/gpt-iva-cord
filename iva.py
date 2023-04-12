@@ -398,7 +398,7 @@ class Menu(discord.ui.View):
 
         # Step 3
         await self.message.edit(view=self)
-    """
+    
     @discord.ui.button(emoji="<:ivadelete:1095559772754952232>", style=discord.ButtonStyle.grey)
     async def delete(self, interaction: discord.Interaction, button: discord.ui.Button):
         
@@ -408,20 +408,18 @@ class Menu(discord.ui.View):
         guild_id = interaction.guild_id
         id = interaction.user.id
         
-        discord.Interaction.message
-        
         ask_mems = await load_pickle_from_redis('ask_mems')
         
         memory = ask_mems[id]
-        buffer = memory.buffer
-        buffer = buffer[:-2]
-        print(memory.buffer)
+        print(memory.chat_memory.messages)
+        memory.chat_memory.messages = memory.chat_memory.messages[:-2]
+        print(memory.chat_memory.messages)
         
         await save_pickle_to_redis('ask_mems', ask_mems)
         
-        button.disabled = True
-        await interaction.delete_original_response()
-    """
+        #button.disabled = True
+        return
+    
     @discord.ui.button(emoji="<:ivareset:1051691297443950612>", style=discord.ButtonStyle.grey)
     async def reset(self, interaction: discord.Interaction, button: discord.ui.Button):
         
