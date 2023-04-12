@@ -659,6 +659,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             temperature=temperature,
             model_name=chat_model,
             openai_api_key=openai_key,
+            request_timeout=300,
             )
 
         tools = []
