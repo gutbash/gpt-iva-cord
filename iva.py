@@ -80,8 +80,6 @@ tree = app_commands.CommandTree(client)
 
 active_users = {} # dict of lists
 active_names = {} # dict of strings
-ask_messages = {} # dict of lists
-last_response = {} # dict of Message objs
 
 @client.event
 async def on_ready():
@@ -397,13 +395,12 @@ class Menu(discord.ui.View):
     @discord.ui.button(emoji="<:ivareset:1051691297443950612>", style=discord.ButtonStyle.grey)
     async def resets(self, interaction: discord.Interaction, button: discord.ui.Button):
         
-        global ask_messages
-        global active_users
-        global active_names
-        global last_response
-        
         guild_id = interaction.guild_id
         id = interaction.user.id
+        
+        ask_mems = await load_pickle_from_redis('ask_mems')
+        last_response = await load_pickle_from_redis('last_response')
+        
         original_interaction = last_response.get(id, None)
 
         if original_interaction == None:
@@ -415,8 +412,10 @@ class Menu(discord.ui.View):
             await interaction.response.send_message(embed=embed, ephemeral=False)
             return
 
-        ask_messages.pop(id, None)
         last_response[id] = None
+        
+        await save_pickle_to_redis('ask_mems', ask_mems)
+        await save_pickle_to_redis('last_response', last_response)
         
         embed = discord.Embed(description="<:ivareset:1051691297443950612>", color=discord.Color.dark_theme())
         button.disabled = True
@@ -429,9 +428,6 @@ class Menu(discord.ui.View):
 @tree.command(name = "iva", description="write a prompt")
 @app_commands.describe(prompt = "prompt", file = "file")
 async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attachment=None):
-    
-    global ask_messages
-    global last_response
     
     try:
         await interaction.response.defer()
@@ -448,6 +444,13 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         openai_key = ""
 
         user_settings = await load_pickle_from_redis('user_settings')
+        ask_mems = await load_pickle_from_redis('ask_mems')
+        last_response = await load_pickle_from_redis('last_response')
+        
+        if id not in ask_mems:
+            ask_mems[id] = None
+        if id not in last_response:
+            last_response[id] = None
         
         try:
             chat_model = user_settings[id]['model']
@@ -706,7 +709,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             human_prefix = f"{user_name}",
         )
         
-        if id not in ask_messages:
+        if ask_mems[id] != None:
+            
+            memory = ask_mems[id]
+            
+        else:
             
             memory = ConversationBufferWindowMemory(
                 k=3,
@@ -718,10 +725,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             )
             
             last_response[id] = None
-            
-        else:
-            
-            memory = ask_messages[id]
         
         llm_chain = LLMChain(
             llm=llm,
@@ -757,7 +760,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             with get_openai_callback() as cb:
         
                 reply = await agent_chain.arun(input=f"{prompt}{attachment_text}")
-                ask_messages[id] = memory
+                ask_mems[id] = memory
+                await save_pickle_to_redis(ask_mems)
 
                 tokens_used = cb.total_tokens
                 
@@ -999,6 +1003,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightcyan}ASK     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@iva: {colors.reset}{reply}")
             await interaction.followup.send(files=files, embeds=embeds, view=view)
             last_response[id] = interaction
+            await save_pickle_to_redis(last_response)
             #print(files, embeds)
             if len(embeds_overflow) > 0:
                 await interaction.channel.send(files = files_overflow, embeds=embeds_overflow)
@@ -1017,24 +1022,22 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
 @tree.command(name = "reset", description="start a new conversation")
 async def reset(interaction):
     
-    global ask_messages
-    global active_users
-    global active_names
-    global last_response
-    
     channel_id = interaction.channel_id
     guild_id = interaction.guild_id
     id = interaction.user.id
     
     active_users = await load_pickle_from_redis('active_users')
     chat_mems = await load_pickle_from_redis('chat_mems')
+    last_response = await load_pickle_from_redis('last_response')
+    ask_mems = await load_pickle_from_redis('ask_mems')
     
-    ask_messages.pop(id, None)
     last_response[id] = None
-    
+    ask_mems[id] = None
     chat_mems[channel_id] = None
     active_users[channel_id] = []
     
+    await save_pickle_to_redis('ask_mems', ask_mems)
+    await save_pickle_to_redis('last_response', last_response)
     await save_pickle_to_redis('active_users', active_users)
     await save_pickle_to_redis('chat_mems', chat_mems)
     
@@ -1045,7 +1048,6 @@ async def reset(interaction):
 @tree.command(name = "help", description="get started")
 async def help(interaction):
     
-    global ask_messages
     global active_users
     global active_names
     
@@ -1070,7 +1072,6 @@ async def help(interaction):
 @tree.command(name = "tutorial", description="how to talk with iva")
 async def tutorial(interaction):
     
-    global ask_messages
     global active_users
     global active_names
     
@@ -1097,7 +1098,6 @@ async def tutorial(interaction):
 @app_commands.describe(key = "key")
 async def setup(interaction, key: str):
     
-    global ask_messages
     global active_users
     global active_names
     
