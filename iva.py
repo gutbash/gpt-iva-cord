@@ -639,6 +639,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         attachment_text = ""
         file_placeholder = ""
         
+        tools = []
+        
         tools.append(Tool(
             name = "Organic Results",
             func=dummy_sync_function,
@@ -777,8 +779,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             openai_api_key=openai_key,
             request_timeout=300,
             )
-
-        tools = []
         
         def dummy_sync_function(tool_input: str) -> str:
             raise NotImplementedError("This tool only supports async")
