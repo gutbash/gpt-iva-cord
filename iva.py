@@ -528,6 +528,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                         # Extract text from the PDF using PyPDF2
                         reader = PyPDF2.PdfReader(pdf_buffer)
                         important_text = ""
+                        
                         for page_num in range(len(reader.pages)):
                             important_text += reader.pages[page_num].extract_text()
                         
@@ -545,7 +546,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                                 important_text += element.get_text(strip=True) + ' '   
                     else:
                         print(f"Unknown content type for {url}: {content_type}")
-
+                    
                     summary = await get_map_reduce(important_text)
 
                     return summary
@@ -678,7 +679,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             name = "Beautiful Soup",
             func=dummy_sync_function,
             coroutine=get_important_text,
-            description=f"Use this only when the user, {user_name}, explicitly asks you to open a certain link. Input should be the given url (i.e. https://www.google.com). The output will be a summary of the contents of the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ' [1](http://source.com)'"
+            description=f"Ask for permission from the user before using this tool to read the content of a webpage. Input should be the given url (i.e. https://www.google.com). The output will be a summary of the contents of the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ' [1](http://source.com)'"
         ))
 
         tools.append(Tool(
@@ -727,7 +728,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         USER'S INPUT
         --------------------
-        
         {{input}}
         
         {{agent_scratchpad}}
