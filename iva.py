@@ -672,7 +672,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             name = "Organic Results",
             func=dummy_sync_function,
             coroutine=get_top_search_results,
-            description="Use this as a general search tool. Input should be a descriptive name of the query in question. The same input will yield the same pre-determined results. Do not input URL links. Output returns a list of results you must choose from and utilize. You may use Beautiful Soup to open a result to read more if needed. You must parenthetically cite the result if referenced in your response as a clickable numbered hyperlink like ' [1](http://source.com)'"
+            description="Use this to research and share articles, wikis, news, movies, videos, shopping, and more. Input should be a description of the query in question. The same input will yield the same pre-determined results. Do not input URL links. Output returns the top result. You must parenthetically cite the result if referenced in your response as a clickable numbered hyperlink like ' [1](http://source.com)'"
         ))
         
         tools.append(Tool(
