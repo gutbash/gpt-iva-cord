@@ -1,6 +1,6 @@
 import os
 import aioredis
-import pickle
+import dill as pickle
 
 # Function to create an aioredis client
 async def get_redis_client():
