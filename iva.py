@@ -528,7 +528,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                         # Extract text from the PDF using PyPDF2
                         reader = PyPDF2.PdfReader(pdf_buffer)
                         important_text = ""
-                        for page_num in range(reader.numPages):
+                        for page_num in range(len(reader.pages)):
                             important_text += reader.getPage(page_num).extractText()
                         
                     elif "text/html" in content_type:
