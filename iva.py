@@ -232,12 +232,12 @@ async def on_message(message):
                 
                 files = []
 
-                llm = ChatOpenAI(
+                chat_llm = ChatOpenAI(
                     temperature=0.5,
                     model_name="gpt-3.5-turbo",
                     #model_name="gpt-4",
                     openai_api_key=openai_key,
-                    request_timeout=300,
+                    #request_timeout=300,
                     )
 
                 tools = []
@@ -266,7 +266,7 @@ async def on_message(message):
                     description="A wrapper around Google Images. Useful for when you'd like to accompany a response with a revelant image. Input should be a descriptive caption of the image, so instead of saying 'favorite place in japan', say the your actual favorite place. Output will be the image link."
                 ))
                 
-                #tools.extend(load_tools(["google-search", "wolfram-alpha", "wikipedia"], llm=llm, news_api_key=NEWS_API_KEY))
+                #tools.extend(load_tools(["google-search", "wolfram-alpha", "wikipedia"], llm=chat_llm, news_api_key=NEWS_API_KEY))
                 
                 #tools[3].name = "Search"
                 #tools[3].description = "Answer specific queries and questions. Use this when you need to answer questions about current events. Input should be a descriptive natural language search query."
@@ -323,7 +323,7 @@ async def on_message(message):
                 else:
 
                     guild_memory = ConversationSummaryBufferMemory(
-                        llm=llm,
+                        llm=chat_llm,
                         max_token_limit=512,
                         memory_key="chat_history",
                         input_key="input",
@@ -332,7 +332,7 @@ async def on_message(message):
                     )
                 
                 llm_chain = LLMChain(
-                    llm=llm,
+                    llm=chat_llm,
                     verbose=True,
                     prompt=guild_prompt,
                 )
@@ -701,11 +701,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         except discord.errors.HTTPException as e:
             print(e)
         
-        llm = ChatOpenAI(
+        ask_llm = ChatOpenAI(
             temperature=temperature,
             model_name=chat_model,
             openai_api_key=openai_key,
-            request_timeout=300,
+            #request_timeout=300,
             )
 
         tools = []
@@ -772,7 +772,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             last_response[id] = None
         
         llm_chain = LLMChain(
-            llm=llm,
+            llm=ask_llm,
             verbose=True,
             prompt=guild_prompt,
         )
