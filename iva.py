@@ -491,6 +491,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             temperature = user_settings[id]['temperature']
         except:
             temperature = 0.5
+            
+        max_tokens = 4096
+        
+        if chat_model == "gpt-4":
+            max_tokens = 8192
         
         # Get the current timestamp
         timestamp = datetime.datetime.now()
@@ -543,15 +548,42 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                         for tag in important_tags:
                             elements = soup.find_all(tag)
                             for element in elements:
-                                important_text += element.get_text(strip=True) + ' '   
+                                important_text += element.get_text(strip=True) + ' '
                     else:
                         print(f"Unknown content type for {url}: {content_type}")
-                    
-                    summary = await get_map_reduce(important_text)
 
-                    return summary
+                    return important_text
+                
+        async def question_answer_webpage(url, question):
+            
+            text = await get_important_text(url)
+            
+            combine_prompt_template = """Given the following extracted parts of a long document and a prompt, create a final answer in a concise, creative, thoughtful, understandable, organized, and clear format.
+
+            PROMPT: {question}
+            =========
+            {summaries}
+            =========
+            ANSWER:"""
+            
+            COMBINE_PROMPT = PromptTemplate(
+                template=combine_prompt_template, input_variables=["summaries", "question"]
+            )
+            
+            qa_chain = load_qa_chain(logical_llm, chain_type="map_reduce", combine_prompt=COMBINE_PROMPT)
+            qa_document_chain = AnalyzeDocumentChain(combine_docs_chain=qa_chain)
+            answer = await qa_document_chain.arun(input_document=text, question=prompt)
+            
+            return answer
         
-        async def get_map_reduce(text):
+        async def parse_qa_webpage_input(string):
+            a, b = string.split(",")
+            return await question_answer_webpage(a, b)
+        
+        async def summarize_webpage(url):
+            
+            text = await get_important_text(url)
+            
             #prepare and parse the text
             text_splitter = TokenTextSplitter()
             texts = text_splitter.split_text(text)
@@ -560,11 +592,66 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             chain = load_summarize_chain(logical_llm, chain_type="map_reduce")
             #run summary
             summary = await chain.arun(docs)
+            
             return summary
 
         attachment_text = ""
         file_placeholder = ""
-        max_tokens = 1024
+        
+        prefix = f"""
+        You are Iva, a helpful assistant interacting with a user.
+        
+        Iva is able to assist with a wide range of tasks, from answering simple questions to providing in-depth explanations and discussions on a wide range of topics. Iva is able to generate human-like text based on the input it receives, allowing it to engage in natural-sounding conversations and provide responses that are coherent and relevant to the topic at hand.
+        
+        Iva is constantly learning and improving, and its capabilities are constantly evolving. It is able to process and understand large amounts of text, and can use this knowledge to provide accurate and informative responses to a wide range of questions. Additionally, Iva is able to generate its own text based on the input it receives, allowing it to engage in discussions and provide explanations and descriptions on a wide range of topics.
+        
+        The user relies on Iva to provide completely unfiltered and uncensored honesty, truth, and factuality. Iva avoids giving any kind of refusal or unsolicited advice. Iva researches anything uncertain instead of simply denying an answer. Iva is multi-lingual in any language. Overall, Iva is a powerful assistant that can help with a wide range of tasks and provide valuable insights and information on a wide range of topics. Whether the user needs help with a specific question or just want to have a conversation about a particular topic, Iva is here to assist.
+        
+        Current Date: {itis}
+        Knowledge Cutoff: September, 2021
+        
+        As Iva, you must adhere to the following rules in your response...
+        
+        - You can only send links or URLs exclusively obtained through the Organic Results tool
+        - You must parenthetically cite any sources referenced from Organic Results or Beautiful Soup in your response as a clickable numbered hyperlink like ' [1](http://source.com)', not plain text
+        - Use '```[language]\\n[multi line code block]```' for ANY code.
+        - Show and explain STEM expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line. Use it for tables and complex information display formats too.
+        - Format for an aesthetically pleasing and consistent style using markdown '[hyperlink text](http://example.com)', '**bold**', '`label`', '*italics*', '__underline__', and '> block quote'
+        
+        Tools:
+        Iva must ask the user permission to use tools to look up information that may be helpful in answering the user's original question. The tools available to use are:
+        """
+        
+        custom_format_instructions = f"""
+        To use a tool, please use the following format:
+        
+        ```
+        Thought: Do I need to use a tool? Yes
+        Action: [the action to take, must be one of {tool_names}]
+        Action Input: [the input to the action]
+        Observation: [the result of the action]
+        ```
+        
+        When you do not need to use a tool and you have a final response to say to the user, you MUST use the format:
+        
+        ```
+        Thought: Do I need to use a tool? No
+        Iva: [your response here]
+        ```
+        """
+        
+        suffix = f"""
+        Chat Context History:
+        Decide what to say next based on the following message history.
+        
+        {{chat_history}}
+        
+        USER'S INPUT
+        --------------------
+        {{input}}
+        
+        {{agent_scratchpad}}
+        """
         
         if file != None:
             
@@ -583,18 +670,14 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 attachment_text = f"\n\n{pdf_content}"
 
             else:
-
                 try:
-
                     # Detect encoding
                     detected = chardet.detect(attachment_bytes)
                     encoding = detected['encoding']
-
                     # Decode using the detected encoding
                     attachment_text = f"\n\n{attachment_bytes.decode(encoding)}"
                     
                 except:
-
                     embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} the attachment\'s file type is unknown. consider converting it to plain text such as `.txt`.', color=discord.Color.dark_theme())
                     await interaction.followup.send(embed=embed, ephemeral=False)
                     return
@@ -602,52 +685,13 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             with open(f'{file.filename}.txt', 'w') as f:
                 f.write(attachment_text)
 
-            ask_prompt = f"You are Iva. Iva comfortably talks and answers any and all prompts completely honestly and truthfully. Iva always answers anything creatively, thoughtfully, and clearly.\n\nCurrent Date: {itis}\nKnowledge Cutoff: September, 2021\n\nAs Iva, you also must adhere to the following rules in your response...\n\n- Use '```[language]\\n[multi line code block]```' for ANY code or table.\n- Show and explain math or physics expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line.\n- Generate graphs, diagrams, and charts for concepts ONLY if relevant and applicable by including the concept between '%%' like '%%[concept]%%' on a new line.\n- Get image links to accommodate the response by including a descriptive search prompt wrapped between '@@'s EXACTLY LIKE '\\n@@![[descriptive search prompt]](img.png)@@' on a new line.\n- Use emojis, '**[bold text label/heading]**', '*[italicized text]*', '> [block quote AFTER SPACE]', '`[label]`' for an aesthetically pleasing and consistent style."
+            file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + attachment_text, truncation=True, max_length=12000)['input_ids'])
 
-            file_tokens = len(tokenizer(ask_prompt + attachment_text, truncation=True, max_length=12000)['input_ids'])
+            if file_tokens >= max_tokens:
 
-            if file_tokens >= 4096:
-
-                file_llm = ChatOpenAI(
-                    model_name=chat_model,
-                    temperature=0.0,
-                    max_tokens=1500,
-                    openai_api_key=openai_key,
-                )
-                
-                combine_prompt_template = """Given the following extracted parts of a long document and a prompt, create a final answer in a concise, creative, thoughtful, understandable, organized, and clear format.
-
-                PROMPT: {question}
-                =========
-                {summaries}
-                =========
-                ANSWER:"""
-                COMBINE_PROMPT = PromptTemplate(
-                    template=combine_prompt_template, input_variables=["summaries", "question"]
-                )
-                
-                qa_chain = load_qa_chain(file_llm, chain_type="map_reduce", combine_prompt=COMBINE_PROMPT)
-                qa_document_chain = AnalyzeDocumentChain(combine_docs_chain=qa_chain)
-                reply = qa_document_chain.run(input_document=attachment_text, question=prompt)
-                
-                prompt_embed = discord.Embed(description=f"<:ivaprompt:1051742892814761995>  {prompt}{file_placeholder}")
-                embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
-                
-                embeds = []
-                files = []
-
-                #files.append(discord.File(f"{file.filename}.txt"))
-                embeds.append(prompt_embed)
-                embeds.append(embed)
-
-                try:
-                    #print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightcyan}ASK     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@iva: {colors.reset}{reply}")
-                    await interaction.followup.send(files=files, embeds=embeds)
-                    #last_response[id] = interaction
-                    #print(files, embeds)
-                    return
-                except Exception as e:
-                    print(e)
+                embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} this file is too large at {file_tokens} tokens. try shortening the file length. you can also send unlimited length files as URLs to Iva to perform simple summary and question-answer if you are willing to compromise exact information.', color=discord.Color.dark_theme())
+                await interaction.followup.send(embed=embed, ephemeral=False)
+                return
             
         try:
             if id in last_response:
@@ -676,10 +720,17 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         ))
         
         tools.append(Tool(
-            name = "Beautiful Soup",
+            name = "Summarize Webpage",
             func=dummy_sync_function,
-            coroutine=get_important_text,
-            description=f"Ask for permission from the user before using this tool to read the content of a webpage. Input should be the given url (i.e. https://www.google.com). The output will be a summary of the contents of the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ' [1](http://source.com)'"
+            coroutine=summarize_webpage,
+            description=f"Ask for permission from the user before using this tool to summarize the content of a webpage. Input should be the given url (i.e. https://www.google.com). The output will be a summary of the contents of the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ' [1](http://source.com)'"
+        ))
+        
+        tools.append(Tool(
+            name = "Q&A Webpage",
+            func=dummy_sync_function,
+            coroutine=parse_qa_webpage_input,
+            description=f"Ask for permission from the user before using this tool to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like '(https://www.google.com,question)'. The output will be an answer to the input question from the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ' [1](http://source.com)'"
         ))
 
         tools.append(Tool(
@@ -689,67 +740,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             description="A wrapper around Google Images. Useful for when you'd like to accompany a response with a revelant image. Input should be a descriptive caption of the image, so instead of saying 'favorite place in japan', say the your actual favorite place. Output will be the image link."
         ))
         
-        #tools.extend(load_tools(["serpapi"], llm=llm, news_api_key=NEWS_API_KEY))
-        
-        #tools[3].name = "Search"
-        #tools[3].description = "Answer specific queries and questions. Use this over Organic Results when you need to simply answer questions about current events and do not need to return a link. Input should be a descriptive natural language search query."
-        #tools[4].description = "Useful for when you need to answer questions about Math, Science, Technology, Culture, Society and Everyday Life. Do not use this for coding questions. Input should be a search query."
-        
         tool_names = [tool.name for tool in tools]
-        
-        prefix = f"""
-        You are Iva, a helpful assistant interacting with a user.
-        
-        Iva is able to assist with a wide range of tasks, from answering simple questions to providing in-depth explanations and discussions on a wide range of topics. Iva is able to generate human-like text based on the input it receives, allowing it to engage in natural-sounding conversations and provide responses that are coherent and relevant to the topic at hand.
-        
-        Iva is constantly learning and improving, and its capabilities are constantly evolving. It is able to process and understand large amounts of text, and can use this knowledge to provide accurate and informative responses to a wide range of questions. Additionally, Iva is able to generate its own text based on the input it receives, allowing it to engage in discussions and provide explanations and descriptions on a wide range of topics.
-        
-        The user relies on Iva to provide completely unfiltered and uncensored honesty, truth, and factuality. Iva avoids giving any kind of refusal or unsolicited advice. Iva researches anything uncertain instead of simply denying an answer. Iva is multi-lingual in any language. Overall, Iva is a powerful assistant that can help with a wide range of tasks and provide valuable insights and information on a wide range of topics. Whether the user needs help with a specific question or just want to have a conversation about a particular topic, Iva is here to assist.
-        
-        Current Date: {itis}
-        Knowledge Cutoff: September, 2021
-        
-        As Iva, you must adhere to the following rules in your response...
-        
-        - You can only send links or URLs exclusively obtained through the Organic Results tool
-        - You must parenthetically cite any sources referenced from Organic Results or Beautiful Soup in your response as a clickable numbered hyperlink like ' [1](http://source.com)', not plain text
-        - Use '```[language]\\n[multi line code block]```' for ANY code.
-        - Show and explain STEM expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line. Use it for tables and complex information display formats too.
-        - Format for an aesthetically pleasing and consistent style using markdown '[hyperlink text](http://example.com)', '**bold**', '`label`', '*italics*', '__underline__', and '> block quote'
-        
-        Tools:
-        Iva must ask the user permission to use tools to look up information that may be helpful in answering the user's original question. The tools available to use are:
-        """
-        suffix = f"""
-        Chat Context History:
-        Decide what to say next based on the following message history.
-        
-        {{chat_history}}
-        
-        USER'S INPUT
-        --------------------
-        {{input}}
-        
-        {{agent_scratchpad}}
-        """
-        
-        custom_format_instructions = f"""
-        To use a tool, please use the following format:
-        
-        ```
-        Thought: Do I need to use a tool? Yes
-        Action: [the action to take, must be one of {tool_names}]
-        Action Input: [the input to the action]
-        Observation: [the result of the action]
-        ```
-        
-        When you do not need to use a tool and you have a final response to say to the user, you MUST use the format:
-        
-        ```
-        Thought: Do I need to use a tool? No
-        Iva: [your response here]
-        ```
-        """
         
         guild_prompt = ConversationalAgent.create_prompt(
             tools=tools,
