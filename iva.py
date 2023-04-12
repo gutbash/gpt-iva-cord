@@ -411,20 +411,21 @@ class Menu(discord.ui.View):
         ask_mems = await load_pickle_from_redis('ask_mems')
         
         memory = ask_mems[id]
-        print(memory.chat_memory.messages)
+        print(f"BEFORE: {memory.chat_memory.messages}")
         memory.chat_memory.messages = memory.chat_memory.messages[:-2]
-        print(memory.chat_memory.messages)
+        print(f"AFTER: {memory.chat_memory.messages}")
         
         await save_pickle_to_redis('ask_mems', ask_mems)
         
-        await interaction.message.delete()
+        embed = discord.Embed(description=f'<:ivadelete:1095559772754952232>', color=discord.Color.dark_theme())
+        await interaction.message.edit(content=None, embed=embed, view=None, delete_after=5)
         return
     
     @discord.ui.button(emoji="<:ivareset:1051691297443950612>", style=discord.ButtonStyle.grey)
     async def reset(self, interaction: discord.Interaction, button: discord.ui.Button):
         
         global last_response
-        
+        discord.Interaction.resp
         guild_id = interaction.guild_id
         id = interaction.user.id
         
