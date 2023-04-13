@@ -563,8 +563,15 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
 
         view = Menu()
         
+        manager = CallbackManager([StdOutCallbackHandler()])
+        
         text_splitter = TokenTextSplitter()
-        logical_llm = ChatOpenAI(openai_api_key=openai_key, temperature=0)
+        logical_llm = ChatOpenAI(
+            openai_api_key=openai_key,
+            temperature=0,
+            verbose=True,
+            callback_manager=manager
+            )
         
         def dummy_sync_function(tool_input: str) -> str:
             raise NotImplementedError("This tool only supports async")
@@ -782,8 +789,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                     await last_response[id].edit_original_response(content="⠀", view=None)
         except discord.errors.HTTPException as e:
             print(e)
-            
-        manager = CallbackManager([StdOutCallbackHandler()])
         
         ask_llm = ChatOpenAI(
             temperature=temperature,
@@ -825,6 +830,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             llm=ask_llm,
             verbose=True,
             prompt=guild_prompt,
+            callback_manager=manager
         )
         
         agent = ConversationalAgent(
@@ -843,29 +849,24 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             ai_prefix=f"Iva",
             llm_prefix=f"Iva",
             max_execution_time=120,
+            callback_manager=manager,
             #max_iterations=3,
             #early_stopping_method="generate",
             #return_intermediate_steps=False
         )
         
-        tokens_used = 0
-        
         try:
             
-            with get_openai_callback() as cb:
-                reply = await agent_chain.arun(input=f"{prompt}{attachment_text}")
-                ask_mems[id] = memory
-                await save_pickle_to_redis('ask_mems', ask_mems)
-
-                prompt_tokens = cb.prompt_tokens
-                completion_tokens = cb.completion_tokens
-                total_tokens = cb.total_tokens
+            reply = await agent_chain.arun(input=f"{prompt}{attachment_text}")
                 
         except Exception as e:
             print(e)
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
             await interaction.followup.send(embed=embed)
             return
+        
+        ask_mems[id] = memory
+        await save_pickle_to_redis('ask_mems', ask_mems)
         
         dash_count = ""
         interaction_count = (len(memory.chat_memory.messages)//2)-1
