@@ -847,6 +847,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             with get_openai_callback() as cb:
         
                 reply = await agent_chain.arun(input=f"{prompt}{attachment_text}")
+                print(reply)
                 ask_mems[id] = memory
                 await save_pickle_to_redis('ask_mems', ask_mems)
 
@@ -888,6 +889,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         embeds.append(prompt_embed)
         file_count += 1
+        
+        reply = reply.replace("```C#", "```csharp")
         
         if '$$' in reply or '%%' in reply or '@@' in reply:
             
