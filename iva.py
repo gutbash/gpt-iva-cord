@@ -1110,8 +1110,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             if len(stripped_links) > 0:
                 stripped_links = list(set(stripped_links))
             for link in stripped_links:
+                
+                link_embed = discord.Embed(description=link, type="link", url=link)
+                
                 if not (len(embeds) >= 9):
-                    link_embed = discord.Embed(type="link", url=link)
                     embeds.append(link_embed)
                 else:
                     embeds_overflow.append(link_embed)
