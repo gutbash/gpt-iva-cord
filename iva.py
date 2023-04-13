@@ -878,6 +878,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         prompt_embed.add_field(name="temperature", value=f"`{temperature}`", inline=True)
         #prompt_embed.add_field(name="prompt", value=f"`{prompt_tokens}T`", inline=True)
         #prompt_embed.add_field(name="completion", value=f"`{completion_tokens}T`", inline=True)
+        
+        reply = reply.replace("```C#", "```csharp")
+        
         embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
         
         embeds = []
@@ -895,8 +898,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         embeds.append(prompt_embed)
         file_count += 1
-        
-        reply = reply.replace("```C#", "```csharp")
         
         if '$$' in reply or '%%' in reply or '@@' in reply:
             
