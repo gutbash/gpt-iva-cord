@@ -483,7 +483,7 @@ class Menu(discord.ui.View):
         
         ask_mems = await load_pickle_from_redis('ask_mems')
         
-        original_interaction = last_response.get(id, None)
+        original_interaction = last_response.get(channel_id, None)
 
         if original_interaction == None:
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> You do not own this context line', color=discord.Color.dark_theme())
