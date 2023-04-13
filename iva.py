@@ -611,10 +611,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             print(texts)
             docs = [Document(page_content=t) for t in texts[:3]]
             
-            embeddings = OpenAIEmbeddings()
+            embeddings = OpenAIEmbeddings(openai_api_key=openai_key)
             docsearch = Chroma.from_documents(texts, embeddings)
             
-            qa = RetrievalQA.from_chain_type(llm=ChatOpenAI(), chain_type="map_reduce", retriever=docsearch.as_retriever())
+            qa = RetrievalQA.from_chain_type(llm=logical_llm, chain_type="map_reduce", retriever=docsearch.as_retriever())
             answer = await qa.arun(question)
             
             return answer
