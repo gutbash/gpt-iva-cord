@@ -35,7 +35,11 @@ from langchain.chains.conversation.memory import ConversationSummaryBufferMemory
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.agents import Tool, AgentExecutor, load_tools, ConversationalAgent
 from langchain import LLMChain
-from doc_utils import AnalyzeDocumentChain
+from langchain.chains import AnalyzeDocumentChain
+from langchain.document_loaders import TextLoader
+from langchain.chains import RetrievalQA
+from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.vectorstores import Chroma
 from langchain.chains.question_answering import load_qa_chain
 from langchain.text_splitter import TokenTextSplitter
 from langchain.chains.mapreduce import MapReduceChain
@@ -603,23 +607,17 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
             text = await get_important_text(url)
             
-            print("BEGIN Q&A")
+            texts = text_splitter.split_documents()
             
-            combine_prompt_template = """Given the following extracted parts of a long document and a prompt, create a final answer in a concise, creative, thoughtful, understandable, organized, and clear format.
-
-            PROMPT: {question}
-            =========
-            {summaries}
-            =========
-            ANSWER:"""
+            texts = text_splitter.split_text(text)
+            print(texts)
+            docs = [Document(page_content=t) for t in texts[:3]]
             
-            COMBINE_PROMPT = PromptTemplate(
-                template=combine_prompt_template, input_variables=["summaries", "question"]
-            )
+            embeddings = OpenAIEmbeddings()
+            docsearch = Chroma.from_documents(texts, embeddings)
             
-            qa_chain = load_qa_chain(logical_llm, chain_type="map_reduce", combine_prompt=COMBINE_PROMPT)
-            qa_document_chain = AnalyzeDocumentChain(combine_docs_chain=qa_chain)
-            answer = await qa_document_chain.arun(input_document=text, question=question)
+            qa = RetrievalQA.from_chain_type(llm=ChatOpenAI(), chain_type="map_reduce", retriever=docsearch.as_retriever())
+            answer = await qa.arun(question)
             
             return answer
         
@@ -634,6 +632,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
             #prepare and parse the text
             texts = text_splitter.split_text(text)
+            print(texts)
             docs = [Document(page_content=t) for t in texts[:3]]
             #prepare chain
             chain = load_summarize_chain(logical_llm, chain_type="map_reduce")
