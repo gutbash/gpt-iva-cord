@@ -49,5 +49,5 @@ class AnalyzeDocumentChain(Chain):
 
         # Assuming combine_docs_chain has an async __call__ method
         combined_docs = await self.combine_docs_chain(other_keys, return_only_outputs=True)
-
+        print("COMBINED DOCS")
         return combined_docs
