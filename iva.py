@@ -849,8 +849,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         try:
             
             with get_openai_callback() as cb:
-        
-                reply = await agent_chain.arun(input=f"{prompt}{attachment_text}")
+                
+                try:
+                    reply = await agent_chain.arun(input=f"{prompt}{attachment_text}")
+                except Exception as e:
+                    print(e)
                 ask_mems[id] = memory
                 await save_pickle_to_redis('ask_mems', ask_mems)
 
