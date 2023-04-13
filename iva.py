@@ -865,7 +865,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 
         except Exception as e:
             print(e)
-            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
+            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} {type(e)} | {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
             await interaction.followup.send(embed=embed)
             return
         
