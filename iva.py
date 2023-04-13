@@ -701,7 +701,16 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         - You must parenthetically cite any sources referenced from tools in your response as a clickable numbered hyperlink like ' [1](http://source.com)', not plain text
         - Use '```[language]\\n[multi line code block]```' for ANY code.
         - Show and explain STEM expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line. Use it for tables and complex information display formats too.
-        - Use markdown '[hyperlink text](http://example.com)', '**bold**', '`label`', '*italics*', '__underline__', and '> block quote' to format your response with an aesthetically pleasing and consistent style
+        
+        Final Response Format:
+        You must use the following markdown options to creatively format your final response with an aesthetically pleasing and consistent style. The following options are useful for highlighting important keywords or phrases, drawing attention to headings, subheadings, or titles, emphasizing action items, deadlines, or key points in a list, and making certain words or phrases stand out in a conversation or discussion.
+        
+        - '[hyperlink text](http://example.com)'
+        - '**bold**'
+        - '`label`'
+        - '*italics*'
+        - '__underline__'
+        - '> block quote' 
         
         Tools:
         Do not use a tool unless you absolutely need it to answer a question. Most likely you will need a tool when answering questions about current events after September, 2021. Otherwise you probably know the answer already. Here are the tools:
@@ -737,7 +746,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         {{input}}
         
         IVA'S RESPONSE
-        It is your turn to start responding below. Make sure to format your response in markdown. Remember to ask yourself, `Thought: Do I need to use a tool?` every time! And remember to prefix with `Iva:` before your response!
+        It is your turn to start responding below. Remember to ask yourself, `Thought: Do I need to use a tool?` every time! And remember to prefix with `Iva:` before your response!
         --------------------
         {{agent_scratchpad}}
         """
