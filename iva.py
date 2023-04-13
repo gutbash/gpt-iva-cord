@@ -652,7 +652,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             coroutine=get_top_search_results,
             description="Use this to research and share articles, wikis, news, movies, videos, shopping, and more. Input should be a description of the query in question. The same input will yield the same pre-determined results. Do not input URL links. Output returns the top result you can utilize. You must parenthetically cite the result if referenced in your response as a clickable numbered hyperlink like ' [1](http://source.com)'."
         ))
-        """
+        
         tools.append(Tool(
             name = "Summarize Webpage",
             func=dummy_sync_function,
@@ -666,7 +666,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             coroutine=parse_qa_webpage_input,
             description=f"Ask for permission from the user before using this tool to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like '[url],[question]'. The output will be an answer to the input question from the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ' [1](http://source.com)'."
         ))
-        """
+        
         tools.append(Tool(
             name = "Image Search",
             func=dummy_sync_function,
