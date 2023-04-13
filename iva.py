@@ -480,18 +480,19 @@ class Menu(discord.ui.View):
         guild_id = interaction.guild_id
         channel_id = interaction.channel.id
         id = interaction.user.id
+        mention = interaction.user.mention
         
         ask_mems = await load_pickle_from_redis('ask_mems')
         
         original_interaction = last_response.get(channel_id, None)
 
         if original_interaction == None:
-            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> You do not own this context line', color=discord.Color.dark_theme())
-            await interaction.response.send_message(embed=embed, ephemeral=False)
+            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} You do not own this context line', color=discord.Color.dark_theme())
+            await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=10)
             return
         elif original_interaction.user.id != id:
-            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> You do not own this context line', color=discord.Color.dark_theme())
-            await interaction.response.send_message(embed=embed, ephemeral=False)
+            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} You do not own this context line', color=discord.Color.dark_theme())
+            await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=10)
             return
 
         ask_mems[channel_id] = None
@@ -695,13 +696,12 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         Current Date: {itis}
         Knowledge Cutoff: September, 2021
         
-        As Iva, you must adhere to the following rules in your response...
-        
+        Rules:
         - You must only send links or URLs exclusively obtained through the Organic Results tool, never fabricate a fake link
         - You must parenthetically cite any sources referenced from tools in your response as a clickable numbered hyperlink like ' [1](http://source.com)', not plain text
         - Use '```[language]\\n[multi line code block]```' for ANY code.
         - Show and explain STEM expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line. Use it for tables and complex information display formats too.
-        - Format for an aesthetically pleasing and consistent style using markdown '[hyperlink text](http://example.com)', '**bold**', '`label`', '*italics*', '__underline__', and '> block quote'
+        - Use markdown '[hyperlink text](http://example.com)', '**bold**', '`label`', '*italics*', '__underline__', and '> block quote' to format your response with an aesthetically pleasing and consistent style
         
         Tools:
         Do not use a tool unless you absolutely need it to answer a question. Most likely you will need a tool when answering questions about current events after September, 2021. Otherwise you probably know the answer already. Here are the tools:
@@ -737,7 +737,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         {{input}}
         
         IVA'S RESPONSE
-        It is your turn to start responding below. Remember to ask yourself, `Thought: Do I need to use a tool?` every time! And remember to prefix with `Iva:` before your response!
+        It is your turn to start responding below. Make sure to format your response in markdown. Remember to ask yourself, `Thought: Do I need to use a tool?` every time! And remember to prefix with `Iva:` before your response!
         --------------------
         {{agent_scratchpad}}
         """
