@@ -533,7 +533,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         if channel_id not in ask_mems:
             ask_mems[channel_id] = None
-        if id not in last_response:
+        if channel_id not in last_response:
             last_response[channel_id] = None
         
         try:
@@ -783,7 +783,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 return
             
         try:
-            if id in last_response:
+            if channel_id in last_response:
                 if last_response[channel_id] != None:
                     await last_response[channel_id].edit_original_response(content="⠀", view=None)
         except discord.errors.HTTPException as e:
@@ -1137,7 +1137,7 @@ async def reset(interaction):
     ask_mems = await load_pickle_from_redis('ask_mems')
     
     try:
-        if id in last_response:
+        if channel_id in last_response:
             if last_response[channel_id] != None:
                 await last_response[channel_id].edit_original_response(content="⠀", view=None)
     except discord.errors.HTTPException as e:
