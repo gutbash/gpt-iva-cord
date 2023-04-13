@@ -693,7 +693,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         - Format for an aesthetically pleasing and consistent style using markdown '[hyperlink text](http://example.com)', '**bold**', '`label`', '*italics*', '__underline__', and '> block quote'
         
         Tools:
-        Iva must ask the user permission to use tools to look up information that may be helpful in answering the user's original question. The tools available to use are:
+        Do not use a tool unless you absolutely need it to answer a question. Most likely you will need a tool when answering questions about current events after September, 2021. Otherwise you probably know the answer already. Here are the tools:
         """
         
         custom_format_instructions = f"""
