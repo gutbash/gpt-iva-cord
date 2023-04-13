@@ -608,14 +608,12 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             text = await get_important_text(url)
             
             texts = text_splitter.split_text(text)
-            print(texts)
+            
             docs = [Document(page_content=t) for t in texts[:3]]
             
-            embeddings = OpenAIEmbeddings(openai_api_key=openai_key)
-            docsearch = Chroma.from_documents(docs, embeddings)
-            
-            qa = RetrievalQA.from_chain_type(llm=logical_llm, chain_type="map_reduce", retriever=docsearch.as_retriever())
-            answer = await qa.arun(question)
+            chain = load_qa_chain(logical_llm, chain_type="map_reduce")
+
+            answer = await chain.arun(input_documents=docs, question=question)
             
             return answer
         
@@ -630,7 +628,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
             #prepare and parse the text
             texts = text_splitter.split_text(text)
-            print(texts)
+            
             docs = [Document(page_content=t) for t in texts[:3]]
             #prepare chain
             chain = load_summarize_chain(logical_llm, chain_type="map_reduce")
@@ -728,7 +726,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         {{input}}
         
         IVA'S RESPONSE
-        It is your turn to start responding below. Remember to ask yourself, `Thought: Do I need to use a tool?` every time!
+        It is your turn to start responding below. Remember to ask yourself, `Thought: Do I need to use a tool?` every time! And remember to prefix with `Iva:` before your response!
         --------------------
         {{agent_scratchpad}}
         """
