@@ -797,7 +797,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             request_timeout=300,
             verbose=True,
             callback_manager=manager,
-            max_tokens=max_tokens,
+            #max_tokens=max_tokens,
             )
         
         guild_prompt = ConversationalAgent.create_prompt(
