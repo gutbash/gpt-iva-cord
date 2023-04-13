@@ -1148,7 +1148,7 @@ async def reset(interaction):
     chat_mems[channel_id] = None
     active_users[channel_id] = []
     
-    await save_pickle_to_redis('ask_mems', {})
+    await save_pickle_to_redis('ask_mems', ask_mems)
     await save_pickle_to_redis('active_users', active_users)
     await save_pickle_to_redis('chat_mems', chat_mems)
     
