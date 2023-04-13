@@ -607,8 +607,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
             text = await get_important_text(url)
             
-            texts = text_splitter.split_documents()
-            
             texts = text_splitter.split_text(text)
             print(texts)
             docs = [Document(page_content=t) for t in texts[:3]]
