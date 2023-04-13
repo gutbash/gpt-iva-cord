@@ -603,6 +603,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
             text = await get_important_text(url)
             
+            print("BEGIN Q&A")
+            
             combine_prompt_template = """Given the following extracted parts of a long document and a prompt, create a final answer in a concise, creative, thoughtful, understandable, organized, and clear format.
 
             PROMPT: {question}
@@ -623,8 +625,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         async def parse_qa_webpage_input(string):
             a, b = string.split(",")
-            #return await question_answer_webpage(a, b)
-            return "Elon Musk and Steve Wozniak were notable signers of the letter"
+            answer = await question_answer_webpage(a, b)
+            return answer
         
         async def summarize_webpage(url):
             
