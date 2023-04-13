@@ -652,7 +652,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             coroutine=get_top_search_results,
             description="Use this to research and share articles, wikis, news, movies, videos, shopping, and more. Input should be a description of the query in question. The same input will yield the same pre-determined results. Do not input URL links. Output returns the top result you can utilize. You must parenthetically cite the result if referenced in your response as a clickable numbered hyperlink like ' [1](http://source.com)'."
         ))
-        
+        """
         tools.append(Tool(
             name = "Summarize Webpage",
             func=dummy_sync_function,
@@ -666,7 +666,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             coroutine=parse_qa_webpage_input,
             description=f"Ask for permission from the user before using this tool to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like '[url],[question]'. The output will be an answer to the input question from the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ' [1](http://source.com)'."
         ))
-
+        """
         tools.append(Tool(
             name = "Image Search",
             func=dummy_sync_function,
@@ -691,7 +691,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         As Iva, you must adhere to the following rules in your response...
         
         - You must only send links or URLs exclusively obtained through the Organic Results tool, never fabricate a fake link
-        - You must parenthetically cite any sources referenced from Organic Results or Summarize Webpage or Q&A Webpage in your response as a clickable numbered hyperlink like ' [1](http://source.com)', not plain text
+        - You must parenthetically cite any sources referenced from tools in your response as a clickable numbered hyperlink like ' [1](http://source.com)', not plain text
         - Use '```[language]\\n[multi line code block]```' for ANY code.
         - Show and explain STEM expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line. Use it for tables and complex information display formats too.
         - Format for an aesthetically pleasing and consistent style using markdown '[hyperlink text](http://example.com)', '**bold**', '`label`', '*italics*', '__underline__', and '> block quote'
@@ -802,7 +802,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         if ask_mems[id] != None:
             
             memory = ask_mems[id]
-            print(memory.buffer)
             
         else:
             
@@ -849,11 +848,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         try:
             
             with get_openai_callback() as cb:
-                
-                try:
-                    reply = await agent_chain.arun(input=f"{prompt}{attachment_text}")
-                except Exception as e:
-                    print(e)
+                reply = await agent_chain.arun(input=f"{prompt}{attachment_text}")
                 ask_mems[id] = memory
                 await save_pickle_to_redis('ask_mems', ask_mems)
 
