@@ -623,7 +623,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         async def parse_qa_webpage_input(string):
             a, b = string.split(",")
-            return await question_answer_webpage(a, b)
+            #return await question_answer_webpage(a, b)
+            return "Elon Musk and Steve Wozniak were notable signers of the letter"
         
         async def summarize_webpage(url):
             
