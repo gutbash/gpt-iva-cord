@@ -222,6 +222,8 @@ async def on_message(message):
                         else:
                             print(f"Unknown content type for {url}: {content_type}")
 
+                        await session.close()
+                        
                         return important_text
             
             async def question_answer_webpage(url, question):
@@ -601,6 +603,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                     else:
                         print(f"Unknown content type for {url}: {content_type}")
 
+                    await session.close()
+                    
                     return important_text
                 
         async def question_answer_webpage(url, question):
@@ -847,7 +851,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             with get_openai_callback() as cb:
         
                 reply = await agent_chain.arun(input=f"{prompt}{attachment_text}")
-                print(reply)
                 ask_mems[id] = memory
                 await save_pickle_to_redis('ask_mems', ask_mems)
 
