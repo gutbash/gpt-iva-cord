@@ -35,7 +35,7 @@ from langchain.chains.conversation.memory import ConversationSummaryBufferMemory
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.agents import Tool, AgentExecutor, load_tools, ConversationalAgent
 from langchain import LLMChain
-from langchain.chains import AnalyzeDocumentChain
+from doc_utils import AnalyzeDocumentChain
 from langchain.chains.question_answering import load_qa_chain
 from langchain.text_splitter import TokenTextSplitter
 from langchain.chains.mapreduce import MapReduceChain
