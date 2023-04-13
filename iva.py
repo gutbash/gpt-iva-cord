@@ -34,6 +34,7 @@ from langchain.callbacks import get_openai_callback
 from langchain.chains.conversation.memory import ConversationSummaryBufferMemory
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.agents import Tool, AgentExecutor, load_tools, ConversationalAgent
+from langchain.callbacks import CallbackManager, StdOutCallbackHandler
 from langchain import LLMChain
 from langchain.chains import AnalyzeDocumentChain
 from langchain.document_loaders import TextLoader
@@ -781,12 +782,16 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                     await last_response[id].edit_original_response(content="⠀", view=None)
         except discord.errors.HTTPException as e:
             print(e)
+            
+        manager = CallbackManager([StdOutCallbackHandler()])
         
         ask_llm = ChatOpenAI(
             temperature=temperature,
             model_name=chat_model,
             openai_api_key=openai_key,
             request_timeout=300,
+            verbose=True,
+            callback_manager=manager
             )
         
         guild_prompt = ConversationalAgent.create_prompt(
