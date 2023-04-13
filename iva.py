@@ -283,7 +283,7 @@ async def on_message(message):
                     model_name="gpt-3.5-turbo",
                     #model_name="gpt-4",
                     openai_api_key=openai_key,
-                    request_timeout=300,
+                    request_timeout=600,
                     )
 
                 tools = []
@@ -400,33 +400,34 @@ async def on_message(message):
                     memory=guild_memory,
                     ai_prefix=f"Iva ({agent_mention})",
                     llm_prefix=f"Iva ({agent_mention})",
-                    max_iterations=3,
-                    early_stopping_method="generate",
-                    return_intermediate_steps=False
+                    max_execution_time=600,
+                    #max_iterations=3,
+                    #early_stopping_method="generate",
+                    #return_intermediate_steps=False,
                 )
                 
                 try:
 
                     reply = await agent_chain.arun(input=f"{user_name} ({user_mention}): {prompt}{caption}")
-                        
-                    if len(reply) > 2000:
-                        embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
-                        await message.channel.send(embed=embed)
-                        return
-                    else:
-                        print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightgreen}CHAT     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@iva: {colors.reset}{reply}")
-                        await message.channel.send(content=f"{reply}", files=files)
-                    
-                    chat_mems[channel_id] = guild_memory
-                    
-                    await save_pickle_to_redis('active_users', active_users)
-                    await save_pickle_to_redis('chat_mems', chat_mems)
 
                 except Exception as e:
                     print(e)
-                    embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {user_mention} {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
+                    embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {user_mention} `{type(e)}` {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
                     await message.channel.send(embed=embed)
                     return
+                
+                if len(reply) > 2000:
+                    embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
+                    await message.channel.send(embed=embed)
+                    return
+                else:
+                    print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightgreen}CHAT     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@iva: {colors.reset}{reply}")
+                    await message.channel.send(content=f"{reply}", files=files)
+                
+                chat_mems[channel_id] = guild_memory
+                
+                await save_pickle_to_redis('active_users', active_users)
+                await save_pickle_to_redis('chat_mems', chat_mems)
                 
             except Exception as e:
                 print(e)
@@ -455,11 +456,12 @@ class Menu(discord.ui.View):
         
         guild_id = interaction.guild_id
         id = interaction.user.id
-        last_interaction = last_response[id]
+        channel_id = interaction.channel.id
+        last_interaction = last_response[channel_id]
         
         ask_mems = await load_pickle_from_redis('ask_mems')
         
-        memory = ask_mems[id]
+        memory = ask_mems[channel_id]
         print(f"BEFORE: {memory.chat_memory.messages}")
         memory.chat_memory.messages = memory.chat_memory.messages[:-2]
         print(f"AFTER: {memory.chat_memory.messages}")
@@ -476,6 +478,7 @@ class Menu(discord.ui.View):
         global last_response
         
         guild_id = interaction.guild_id
+        channel_id = interaction.channel.id
         id = interaction.user.id
         
         ask_mems = await load_pickle_from_redis('ask_mems')
@@ -491,8 +494,8 @@ class Menu(discord.ui.View):
             await interaction.response.send_message(embed=embed, ephemeral=False)
             return
 
-        ask_mems[id] = None
-        last_response[id] = None
+        ask_mems[channel_id] = None
+        last_response[channel_id] = None
         
         await save_pickle_to_redis('ask_mems', ask_mems)
         
@@ -516,6 +519,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         guild_id = interaction.guild_id
         guild_name = interaction.guild
         id = interaction.user.id
+        channel_id = interaction.channel.id
         mention = interaction.user.mention
         bot = client.user.display_name
         user_name = interaction.user.name
@@ -527,10 +531,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         user_settings = await load_pickle_from_redis('user_settings')
         ask_mems = await load_pickle_from_redis('ask_mems')
         
-        if id not in ask_mems:
-            ask_mems[id] = None
+        if channel_id not in ask_mems:
+            ask_mems[channel_id] = None
         if id not in last_response:
-            last_response[id] = None
+            last_response[channel_id] = None
         
         try:
             chat_model = user_settings[id]['model']
@@ -570,7 +574,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             openai_api_key=openai_key,
             temperature=0,
             verbose=True,
-            callback_manager=manager
+            callback_manager=manager,
+            request_timeout=600,
             )
         
         def dummy_sync_function(tool_input: str) -> str:
@@ -618,13 +623,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         async def question_answer_webpage(url, question):
             
             text = await get_important_text(url)
-            
             texts = text_splitter.split_text(text)
-            
             docs = [Document(page_content=t) for t in texts[:3]]
-            
             chain = load_qa_chain(logical_llm, chain_type="map_reduce")
-
             answer = await chain.arun(input_documents=docs, question=question)
             
             return answer
@@ -637,10 +638,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         async def summarize_webpage(url):
             
             text = await get_important_text(url)
-            
             #prepare and parse the text
             texts = text_splitter.split_text(text)
-            
             docs = [Document(page_content=t) for t in texts[:3]]
             #prepare chain
             chain = load_summarize_chain(logical_llm, chain_type="map_reduce")
@@ -785,8 +784,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
         try:
             if id in last_response:
-                if last_response[id] != None:
-                    await last_response[id].edit_original_response(content="⠀", view=None)
+                if last_response[channel_id] != None:
+                    await last_response[channel_id].edit_original_response(content="⠀", view=None)
         except discord.errors.HTTPException as e:
             print(e)
         
@@ -794,7 +793,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             temperature=temperature,
             model_name=chat_model,
             openai_api_key=openai_key,
-            request_timeout=300,
+            request_timeout=600,
             verbose=True,
             callback_manager=manager,
             #max_tokens=max_tokens,
@@ -810,9 +809,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             human_prefix = f"User",
         )
         
-        if ask_mems[id] != None:
+        if ask_mems[channel_id] != None:
             
-            memory = ask_mems[id]
+            memory = ask_mems[channel_id]
             
         else:
             
@@ -825,7 +824,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 human_prefix = f"User",
             )
             
-            last_response[id] = None
+            last_response[channel_id] = None
         
         llm_chain = LLMChain(
             llm=ask_llm,
@@ -849,7 +848,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             memory=memory,
             ai_prefix=f"Iva",
             llm_prefix=f"Iva",
-            max_execution_time=300,
+            max_execution_time=600,
             callback_manager=manager,
             #max_iterations=3,
             #early_stopping_method="generate",
@@ -865,11 +864,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 
         except Exception as e:
             print(e)
-            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} {type(e)} | {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
+            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} `{type(e)}` {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
             await interaction.followup.send(embed=embed)
             return
         
-        ask_mems[id] = memory
+        ask_mems[channel_id] = memory
         await save_pickle_to_redis('ask_mems', ask_mems)
         
         dash_count = ""
@@ -1107,7 +1106,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         try:
             print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightcyan}ASK     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@iva: {colors.reset}{reply}")
             await interaction.followup.send(files=files, embeds=embeds, view=view)
-            last_response[id] = interaction
+            last_response[channel_id] = interaction
             #print(files, embeds)
             if len(embeds_overflow) > 0:
                 await interaction.channel.send(files = files_overflow, embeds=embeds_overflow)
@@ -1139,17 +1138,17 @@ async def reset(interaction):
     
     try:
         if id in last_response:
-            if last_response[id] != None:
-                await last_response[id].edit_original_response(content="⠀", view=None)
+            if last_response[channel_id] != None:
+                await last_response[channel_id].edit_original_response(content="⠀", view=None)
     except discord.errors.HTTPException as e:
         print(e)
 
-    last_response[id] = None
-    ask_mems[id] = None
+    last_response[channel_id] = None
+    ask_mems[channel_id] = None
     chat_mems[channel_id] = None
     active_users[channel_id] = []
     
-    await save_pickle_to_redis('ask_mems', ask_mems)
+    await save_pickle_to_redis('ask_mems', {})
     await save_pickle_to_redis('active_users', active_users)
     await save_pickle_to_redis('chat_mems', chat_mems)
     
