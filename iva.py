@@ -524,7 +524,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         mention = interaction.user.mention
         bot = client.user.display_name
         user_name = interaction.user.name
-        icon_url = interaction.user.display_icon.url
 
         # Use the `SELECT` statement to fetch the row with the given id
         result = await async_fetch_key(id)
@@ -881,7 +880,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         for i in range(interaction_count):
             dash_count += "-"
         
-        prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n`{chat_model}` `{temperature}` `{round(total_cost, 3)}`")
+        prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}` `{temperature}` `{round(total_cost, 3)}`")
         #prompt_embed.add_field(name="model", value=f"`{chat_model}`", inline=True)
         #prompt_embed.add_field(name="temperature", value=f"`{temperature}`", inline=True)
         #prompt_embed.set_footer(text=f"")
