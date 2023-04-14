@@ -1110,20 +1110,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                     await interaction.followup.send(embed=embed, ephemeral=False)
             else:
                 embeds.append(embed)
-                
-            url_pattern = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
-            links = url_pattern.findall(reply)
-            stripped_links = [link.rstrip(',.:)') for link in links]
-            if len(stripped_links) > 0:
-                stripped_links = list(set(stripped_links))
-            for link in stripped_links:
-                
-                link_embed = discord.Embed(description=link, type="rich", url=link)
-                
-                if not (len(embeds) >= 9):
-                    embeds.append(link_embed)
-                else:
-                    embeds_overflow.append(link_embed)
             
         try:
             print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightcyan}ASK     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@iva: {colors.reset}{reply}")
@@ -1132,6 +1118,13 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             #print(files, embeds)
             if len(embeds_overflow) > 0:
                 await interaction.channel.send(files = files_overflow, embeds=embeds_overflow)
+            url_pattern = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+            links = url_pattern.findall(reply)
+            stripped_links = [link.rstrip(',.:)') for link in links]
+            if len(stripped_links) > 0:
+                stripped_links = list(set(stripped_links))
+                formatted_links = "\n".join(stripped_links)
+                await interaction.channel.send(content=formatted_links)
             return
         except Exception as e:
             print(e)
