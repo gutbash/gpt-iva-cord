@@ -864,7 +864,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             with get_openai_callback() as cb:
             
                 reply = await agent_chain.arun(input=f"{prompt}{attachment_text}")
-                print(f"Total Cost: {cb.total_cost}")
+                total_cost = cb.total_cost
                 
         except Exception as e:
             print(e)
@@ -884,7 +884,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}")
         prompt_embed.add_field(name="model", value=f"`{chat_model}`", inline=True)
         prompt_embed.add_field(name="temperature", value=f"`{temperature}`", inline=True)
-        prompt_embed.set_author(name=user_name, icon_url=icon_url)
+        prompt_embed.set_footer(text=total_cost)
+        #prompt_embed.set_author(name=user_name, icon_url=icon_url)
         #prompt_embed.add_field(name="prompt", value=f"`{prompt_tokens}T`", inline=True)
         #prompt_embed.add_field(name="completion", value=f"`{completion_tokens}T`", inline=True)
         
