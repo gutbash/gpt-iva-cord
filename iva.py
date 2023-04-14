@@ -632,6 +632,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             text = await get_important_text(url)
             texts = text_splitter.split_text(text)
             docs = [Document(page_content=t) for t in texts[:3]]
+            print(docs)
             chain = load_qa_chain(logical_llm, chain_type="map_reduce")
             answer = await chain.arun(input_documents=docs, question=question)
             
@@ -648,6 +649,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             #prepare and parse the text
             texts = text_splitter.split_text(text)
             docs = [Document(page_content=t) for t in texts[:3]]
+            print(docs)
             #prepare chain
             chain = load_summarize_chain(logical_llm, chain_type="map_reduce")
             #run summary
