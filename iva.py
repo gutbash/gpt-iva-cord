@@ -875,11 +875,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         await save_pickle_to_redis('ask_mems', ask_mems)
         
         dash_count = ""
-        #interaction_count = (len(memory.chat_memory.messages)//2)-1
-        """
+        interaction_count = (len(memory.buffer))-1
+        
         for i in range(interaction_count):
             dash_count += "-"
-        """
+        
         prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}` `{temperature}` `{round(total_cost, 3)}`")
         #prompt_embed.add_field(name="model", value=f"`{chat_model}`", inline=True)
         #prompt_embed.add_field(name="temperature", value=f"`{temperature}`", inline=True)
