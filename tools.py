@@ -25,7 +25,7 @@ async def get_top_search_results(query: str) -> str:
         # Extract the URLs and short descriptions of the top 10 search results
         top_results = []
         if organic_results and len(organic_results) > 0:
-            for i in range(5):
+            for i in range(3):
                 if i < len(organic_results):
                     result = {}
                     result["title"] = organic_results[i]["title"]
@@ -38,7 +38,7 @@ async def get_top_search_results(query: str) -> str:
         # Format the results as a plain text unordered list
         results = ""
         for result_index in range(len(top_results)):
-            results += f"\n\n[Result {result_index}]\nTitle: {top_results[result_index]['title']}\nURL: {top_results[result_index]['link']}\nDescription: {top_results[result_index]['description']}"
+            results += f"\n\n[Result {result_index + 1}]\nTitle: {top_results[result_index]['title']}\nURL: {top_results[result_index]['link']}\nDescription: {top_results[result_index]['description']}"
 
         return results
 
