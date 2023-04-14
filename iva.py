@@ -466,16 +466,26 @@ class Menu(discord.ui.View):
         
         ask_mems = await load_pickle_from_redis('ask_mems')
         
-        try:
-            if channel_id in ask_mems and user_id in ask_mems[channel_id] and ask_mems[channel_id][user_id] is not None:
-                
-                memory = ask_mems[channel_id][user_id]
-                memory.chat_memory.messages = memory.chat_memory.messages[:-2]
-                await save_pickle_to_redis('ask_mems', ask_mems)
-                
-        except Exception as e:
-            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} `{type(e)}` {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
-            await interaction.channel.send(content=None, embed=embed)
+        if channel_id in last_response and user_id in last_response[channel_id] and last_response[channel_id][user_id] is not None:
+            original_interaction = last_response[channel_id][user_id]
+        else:
+            original_interaction = None
+
+        if original_interaction == None or original_interaction.user.id != user_id:
+            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} You do not own this context line', color=discord.Color.dark_theme())
+            await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=10)
+            return
+        else:
+            try:
+                if channel_id in ask_mems and user_id in ask_mems[channel_id] and ask_mems[channel_id][user_id] is not None:
+                    
+                    memory = ask_mems[channel_id][user_id]
+                    memory.chat_memory.messages = memory.chat_memory.messages[:-2]
+                    await save_pickle_to_redis('ask_mems', ask_mems)
+                    
+            except Exception as e:
+                embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} `{type(e)}` {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
+                await interaction.channel.send(content=None, embed=embed)
         
         embed = discord.Embed(description=f'<:ivadelete:1095559772754952232>', color=discord.Color.dark_theme())
         await interaction.message.edit(content=None, embed=embed, view=None, delete_after=5)
