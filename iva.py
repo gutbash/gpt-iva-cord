@@ -1058,21 +1058,23 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         try:
             print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightcyan}ASK     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@iva: {colors.reset}{reply}")
             
-            await interaction.followup.send(files=files, embeds=embeds, view=view)
+            url_pattern = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+            links = url_pattern.findall(reply)
+            stripped_links = [link.rstrip(',.:)]') for link in links]
+            
+            content = None
+            
+            if len(stripped_links) > 0:
+                stripped_links = list(set(stripped_links))
+                formatted_links = "\n".join(stripped_links)
+                content = formatted_links
+            
+            await interaction.followup.send(content=content, files=files, embeds=embeds, view=view)
             
             last_response[channel_id][user_id] = interaction
             
             if len(embeds_overflow) > 0:
                 await interaction.channel.send(files = files_overflow, embeds=embeds_overflow)
-                
-            url_pattern = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
-            links = url_pattern.findall(reply)
-            stripped_links = [link.rstrip(',.:)') for link in links]
-            
-            if len(stripped_links) > 0:
-                stripped_links = list(set(stripped_links))
-                formatted_links = "\n".join(stripped_links)
-                await interaction.channel.send(content=formatted_links)
                 
             ask_mems[channel_id][user_id] = memory
             await save_pickle_to_redis('ask_mems', ask_mems)
