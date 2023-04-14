@@ -820,7 +820,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
             memory = ConversationBufferWindowMemory(
                 k=1,
-                return_messages=True,
+                #return_messages=True,
                 memory_key="chat_history",
                 input_key="input",
                 ai_prefix=f"Iva",
