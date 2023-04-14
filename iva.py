@@ -672,21 +672,21 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             name = "Organic Results",
             func=dummy_sync_function,
             coroutine=get_top_search_results,
-            description="Use this to research and share articles, wikis, news, movies, videos, shopping, and more. Input should be a description of the query in question. The same input will yield the same pre-determined results. Do not input URL links. Output returns the top result you can utilize. You must parenthetically cite the result if referenced in your response as a clickable numbered hyperlink like ` [[1](http://source.com)]`."
+            description="Use this to research and share articles, wikis, news, movies, videos, shopping, and more. Input should be a description of the query in question. The same input will yield the same pre-determined results. Do not input URL links. Output returns the top result you can utilize. You must parenthetically cite the result if referenced in your response as a clickable numbered hyperlink like ` [1](http://source.com)`."
         ))
         
         tools.append(Tool(
             name = "Summarize Webpage",
             func=dummy_sync_function,
             coroutine=summarize_webpage,
-            description=f"Use this tool sparingly to to summarize the content of a webpage for articles and other long form written content. Input should be the given url. The output will be a summary of the contents of the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ` [[1](http://source.com)]`."
+            description=f"Use this tool sparingly to to summarize the content of a webpage for articles and other long form written content. Input should be the given url. The output will be a summary of the contents of the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ` [1](http://source.com)`."
         ))
         
         tools.append(Tool(
             name = "Q&A Webpage",
             func=dummy_sync_function,
             coroutine=parse_qa_webpage_input,
-            description=f"Use this tool sparingly to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like `[url],[question]`. The output will be an answer to the input question from the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ` [[1](http://source.com)]`."
+            description=f"Use this tool sparingly to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like `[url],[question]`. The output will be an answer to the input question from the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ` [1](http://source.com)`."
         ))
         
         tools.append(Tool(
@@ -708,7 +708,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         Rules:
         - You must only send links or URLs exclusively obtained through the Organic Results tool, never fabricate a fake link
-        - You must parenthetically cite any sources referenced from tools in your response as a clickable numbered hyperlink like ` [(1)](http://source.com)`, not plain text
+        - You must parenthetically cite any sources referenced from tools in your response as a clickable numbered hyperlink like ` [1](http://source.com)`, not plain text
         - Use ````[language]\\n[multi line code block]```` for ANY code.
         - Show and explain STEM expressions as LaTeX wrapped in `$$` like `\\n$$[latex]$$` (DO NOT USE SINGLE `$`) on a new line. Use it for tables and complex information display formats too.
         
