@@ -1111,7 +1111,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 stripped_links = list(set(stripped_links))
             for link in stripped_links:
                 
-                link_embed = discord.Embed(description=link, type="link", url=link)
+                link_embed = discord.Embed(description=link, type="rich", url=link)
                 
                 if not (len(embeds) >= 9):
                     embeds.append(link_embed)
