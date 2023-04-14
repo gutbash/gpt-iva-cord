@@ -778,7 +778,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                     await interaction.followup.send(embed=embed, ephemeral=False)
                     return
             
-            with open(f'{file.filename}.txt', 'w') as f:
+            with open(f'{file.filename}', 'w') as f:
                 f.write(attachment_text)
 
             file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + attachment_text, truncation=True, max_length=12000)['input_ids'])
