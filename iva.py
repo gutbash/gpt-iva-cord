@@ -812,6 +812,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             human_prefix = f"User",
         )
         
+        k_limit = 6
+        
         if ask_mems[channel_id] != None:
             
             memory = ask_mems[channel_id]
@@ -819,7 +821,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         else:
             
             memory = ConversationBufferWindowMemory(
-                k=1,
+                k=k_limit,
                 #return_messages=True,
                 memory_key="chat_history",
                 input_key="input",
@@ -876,6 +878,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         dash_count = ""
         interaction_count = (len(memory.buffer)//2)-1
+        
+        if interaction_count > k_limit:
+            interaction_count = k_limit
         
         for i in range(interaction_count):
             dash_count += "-"
