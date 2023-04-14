@@ -906,7 +906,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         for i in range(interaction_count):
             dash_count += "-"
         
-        prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n<:ivamodel:1096498759040520223> `{chat_model}` <:ivatemp:1096498936824475760> `{temperature}` <:ivacoin:1096498926976237800> `{round(total_cost, 3)}`")
+        prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}` `{temperature}` `{round(total_cost, 3)}`")
         
         reply = reply.replace("```C#", "```csharp")
         
