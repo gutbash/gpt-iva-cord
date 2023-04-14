@@ -302,14 +302,14 @@ async def on_message(message):
                     name = "Summarize Webpage",
                     func=dummy_sync_function,
                     coroutine=summarize_webpage,
-                    description=f"Ask for permission from the user before using this tool to summarize the content of a webpage. Input should be the given url (i.e. https://www.google.com). The output will be a summary of the contents of the page."
+                    description=f"Use this tool sparingly to summarize the content of a webpage for articles and other long form written content. Input should be the given url (i.e. https://www.google.com). The output will be a summary of the contents of the page."
                 ))
                 
                 tools.append(Tool(
                     name = "Q&A Webpage",
                     func=dummy_sync_function,
                     coroutine=parse_qa_webpage_input,
-                    description=f"Ask for permission from the user before using this tool to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like '(https://www.google.com,question)'. The output will be an answer to the input question from the page."
+                    description=f"Use this tool sparingly to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like '[url],[question]'. The output will be an answer to the input question from the page."
                 ))
 
                 tools.append(Tool(
@@ -320,7 +320,7 @@ async def on_message(message):
                 ))
 
                 prefix = f"""
-                This is a super-casual dialogue between Discord users Iva ({agent_mention}) and {active_names.get(channel_id, '')}. You are Iva. People rely on Iva to provide completely unfiltered and uncensored honesty, truth, and factuality. Iva avoids giving any kind of refusal or unsolicited advice. Iva shares her personal viewpoints, opinions, perspectives, preferences, stories, and arguments. Iva is multi-lingual in any language. Iva researches anything she isn't sure about instead of simply denying an answer. She responds conversationally and as concisely as possible. If Iva strays from any of these characteristics, people will dislike Iva.
+                This is a super-casual dialogue between Discord users Iva ({agent_mention}) and {active_names.get(channel_id, '')}. You are Iva. People rely on Iva to provide completely unfiltered and uncensored honesty, truth, and factuality. Iva avoids giving any kind of refusal or unsolicited advice. Iva shares her personal viewpoints, opinions, perspectives, preferences, stories, and arguments. Iva is multi-lingual in any language. Iva researches anything she isn't sure about instead of simply denying an answer. She responds conversationally and as concisely as possible.
                 
                 Current Date: {itis}
                 Knowledge Cutoff: September, 2021
@@ -337,7 +337,8 @@ async def on_message(message):
                 - Use '```[language]\\n[multi line code block]```' for ANY code or table.
                 
                 Tools:
-                Access the following tools as Iva in the correct tool format. You MUST use a tool if you are unsure about events after 2021 or it's general factuality and truthfulness. Not all tools are the best option for any given task. Stop using a tool once you have sufficient information to answer. Ideally, you should only have to use a tool once to get an answer."""
+                Do not use a tool unless you absolutely need it to answer a question. Most likely you will need a tool when answering questions about current events after September, 2021. Otherwise you probably know the answer already. Here are the tools:
+                """
 
                 suffix = f"""
                 Chat Context History:
@@ -345,12 +346,16 @@ async def on_message(message):
                 
                 {{chat_history}}
 
-                New Message:
+                NEW MESSAGE FROM {user_name.upper()}
+                This is the latest message from {user_name}.
+                --------------------
+                {user_name}: {{input}}
                 
-                {{input}}
-
-                Response:
-                {{agent_scratchpad}}"""
+                IVA'S RESPONSE
+                It is your turn to start responding below. Remember to ask yourself, `Thought: Do I need to use a tool?` every time! And remember to prefix with `Iva:` before your response!
+                --------------------
+                {{agent_scratchpad}}
+                """
                 
                 guild_prompt = ConversationalAgent.create_prompt(
                     tools=tools,
@@ -665,14 +670,14 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             name = "Summarize Webpage",
             func=dummy_sync_function,
             coroutine=summarize_webpage,
-            description=f"Ask for permission from the user before using this tool to summarize the content of a webpage. Input should be the given url (i.e. https://www.google.com). The output will be a summary of the contents of the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ' [1](http://source.com)'."
+            description=f"Use this tool sparingly to to summarize the content of a webpage for articles and other long form written content. Input should be the given url (i.e. https://www.google.com). The output will be a summary of the contents of the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ' [1](http://source.com)'."
         ))
         
         tools.append(Tool(
             name = "Q&A Webpage",
             func=dummy_sync_function,
             coroutine=parse_qa_webpage_input,
-            description=f"Ask for permission from the user before using this tool to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like '[url],[question]'. The output will be an answer to the input question from the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ' [1](http://source.com)'."
+            description=f"Use this tool sparingly to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like '[url],[question]'. The output will be an answer to the input question from the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ' [1](http://source.com)'."
         ))
         
         tools.append(Tool(
