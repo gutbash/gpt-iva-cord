@@ -875,7 +875,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         await save_pickle_to_redis('ask_mems', ask_mems)
         
         dash_count = ""
-        interaction_count = (len(memory.buffer))-1
+        interaction_count = (len(memory.buffer)//2)-1
         
         for i in range(interaction_count):
             dash_count += "-"
