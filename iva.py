@@ -460,18 +460,22 @@ class Menu(discord.ui.View):
         global last_response
         
         guild_id = interaction.guild_id
-        id = interaction.user.id
+        user_id = interaction.user.id
         channel_id = interaction.channel.id
-        last_interaction = last_response[channel_id]
+        mention = interaction.user.mention
         
         ask_mems = await load_pickle_from_redis('ask_mems')
         
-        memory = ask_mems[channel_id]
-        print(f"BEFORE: {memory.chat_memory.messages}")
-        memory.chat_memory.messages = memory.chat_memory.messages[:-2]
-        print(f"AFTER: {memory.chat_memory.messages}")
-        
-        await save_pickle_to_redis('ask_mems', ask_mems)
+        try:
+            if channel_id in ask_mems and user_id in ask_mems[channel_id] and ask_mems[channel_id][user_id] is not None:
+                
+                memory = ask_mems[channel_id][user_id]
+                memory.chat_memory.messages = memory.chat_memory.messages[:-2]
+                await save_pickle_to_redis('ask_mems', ask_mems)
+                
+        except Exception as e:
+            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} `{type(e)}` {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
+            await interaction.channel.send(content=None, embed=embed)
         
         embed = discord.Embed(description=f'<:ivadelete:1095559772754952232>', color=discord.Color.dark_theme())
         await interaction.message.edit(content=None, embed=embed, view=None, delete_after=5)
@@ -484,26 +488,25 @@ class Menu(discord.ui.View):
         
         guild_id = interaction.guild_id
         channel_id = interaction.channel.id
-        id = interaction.user.id
+        user_id = interaction.user.id
         mention = interaction.user.mention
         
         ask_mems = await load_pickle_from_redis('ask_mems')
         
-        original_interaction = last_response.get(channel_id, None)
+        if channel_id in last_response and user_id in last_response[channel_id] and last_response[channel_id][user_id] is not None:
+            original_interaction = last_response[channel_id][user_id]
+        else:
+            original_interaction = None
 
-        if original_interaction == None:
+        if original_interaction == None or original_interaction.user.id != user_id:
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} You do not own this context line', color=discord.Color.dark_theme())
             await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=10)
             return
-        elif original_interaction.user.id != id:
-            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} You do not own this context line', color=discord.Color.dark_theme())
-            await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=10)
-            return
-
-        ask_mems[channel_id] = None
-        last_response[channel_id] = None
-        
-        await save_pickle_to_redis('ask_mems', ask_mems)
+        else:
+            if channel_id in ask_mems and user_id in ask_mems[channel_id] and ask_mems[channel_id][user_id] is not None:
+                ask_mems[channel_id][user_id] = None
+            last_response[channel_id][user_id] = None
+            await save_pickle_to_redis('ask_mems', ask_mems)
         
         embed = discord.Embed(description="<:ivareset:1051691297443950612>", color=discord.Color.dark_theme())
         button.disabled = True
@@ -524,30 +527,28 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         guild_id = interaction.guild_id
         guild_name = interaction.guild
-        id = interaction.user.id
+        user_id = interaction.user.id
         channel_id = interaction.channel.id
         mention = interaction.user.mention
         bot = client.user.display_name
         user_name = interaction.user.name
 
         # Use the `SELECT` statement to fetch the row with the given id
-        result = await async_fetch_key(id)
+        result = await async_fetch_key(user_id)
         openai_key = ""
 
         user_settings = await load_pickle_from_redis('user_settings')
         ask_mems = await load_pickle_from_redis('ask_mems')
         
-        if channel_id not in ask_mems:
-            ask_mems[channel_id] = None
-        if channel_id not in last_response:
-            last_response[channel_id] = None
+        ask_mems.setdefault(channel_id, {}).setdefault(user_id, None)
+        last_response.setdefault(channel_id, {}).setdefault(user_id, None)
         
         try:
-            chat_model = user_settings[id]['model']
+            chat_model = user_settings[user_id]['model']
         except:
             chat_model = "gpt-3.5-turbo"
         try:
-            temperature = user_settings[id]['temperature']
+            temperature = user_settings[user_id]['temperature']
         except:
             temperature = 0.5
             
@@ -742,7 +743,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         USER'S PROMPT
         This is the user's latest message.
         --------------------
-        User: {{input}}
+        {{input}}
         
         IVA'S RESPONSE
         It is your turn to start responding below. Remember to ask yourself, `Thought: Do I need to use a tool?` every time! And remember to prefix with `Iva:` before your response!
@@ -791,9 +792,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 return
             
         try:
-            if channel_id in last_response:
-                if last_response[channel_id] != None:
-                    await last_response[channel_id].edit_original_response(content="⠀", view=None)
+            if channel_id in last_response and user_id in last_response[channel_id] and last_response[channel_id][user_id] is not None:
+                await last_response[channel_id][user_id].edit_original_response(content="⠀", view=None)
         except discord.errors.HTTPException as e:
             print(e)
         
@@ -819,9 +819,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         k_limit = 6
         
-        if ask_mems[channel_id] != None:
+        if channel_id in ask_mems and user_id in ask_mems[channel_id] and ask_mems[channel_id][user_id] is not None:
             
-            memory = ask_mems[channel_id]
+            memory = ask_mems[channel_id][user_id]
             
         else:
             
@@ -834,7 +834,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 human_prefix = f"User",
             )
             
-            last_response[channel_id] = None
+            last_response[channel_id][user_id] = None
         
         llm_chain = LLMChain(
             llm=ask_llm,
@@ -878,7 +878,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             await interaction.followup.send(embed=embed)
             return
         
-        ask_mems[channel_id] = memory
+        ask_mems[channel_id][user_id] = memory
         await save_pickle_to_redis('ask_mems', ask_mems)
         
         dash_count = ""
@@ -891,12 +891,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             dash_count += "-"
         
         prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}` `{temperature}` `{round(total_cost, 3)}`")
-        #prompt_embed.add_field(name="model", value=f"`{chat_model}`", inline=True)
-        #prompt_embed.add_field(name="temperature", value=f"`{temperature}`", inline=True)
-        #prompt_embed.set_footer(text=f"")
-        #prompt_embed.set_author(name=user_name, icon_url=icon_url)
-        #prompt_embed.add_field(name="prompt", value=f"`{prompt_tokens}T`", inline=True)
-        #prompt_embed.add_field(name="completion", value=f"`{completion_tokens}T`", inline=True)
         
         reply = reply.replace("```C#", "```csharp")
         
@@ -918,9 +912,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         embeds.append(prompt_embed)
         file_count += 1
         
-        if '$$' in reply or '%%' in reply or '@@' in reply:
-            
-            #await interaction.channel.send(embed=prompt_embed)
+        if '$$' in reply or '%%' in reply:
 
             # Use the findall() method of the re module to find all occurrences of content between $$
             dpi = "{200}"
@@ -928,24 +920,20 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
             tex_pattern = re.compile(r"\$\$(.*?)\$\$", re.DOTALL)
             dot_pattern = re.compile(r"\%\%(.*?)\%\%", re.DOTALL)
-            img_pattern = re.compile(r"\@\@(.*?)\@\@", re.DOTALL)
-            #mermaid_pattern = re.compile(r"```mermaid(.|\n)*?```", re.DOTALL)
-            #pattern = re.compile(r"(?<=\$)(.+?)(?=\$)", re.DOTALL)
             
             tex_matches = tex_pattern.findall(reply)
             dot_matches = dot_pattern.findall(reply)
-            img_matches = img_pattern.findall(reply)
+            
             non_matches = re.sub(r"(\$\$|\%\%|\@\@).*?(\@\@|\%\%|\$\$)", "~~", reply, flags=re.DOTALL)
             reply_trim = re.sub(r"(\$\$|\%\%|\@\@).*?(\@\@|\%\%|\$\$)", "", reply, flags=re.DOTALL)
-            #print(f"TRIMMED REPLY:{reply_trim}")
+
             non_matches = non_matches.split("~~")
             
-            #await interaction.channel.send(embed=prompt_embed)
-            print(dot_matches, tex_matches, img_matches)
+            print(dot_matches, tex_matches)
             
             try:
                 
-                for (tex_match, dot_match, non_match, img_match) in itertools.zip_longest(tex_matches, dot_matches, non_matches, img_matches):
+                for (tex_match, dot_match, non_match) in itertools.zip_longest(tex_matches, dot_matches, non_matches):
                     
                     if non_match != None and non_match != "" and non_match != "\n" and non_match != "." and non_match != "\n\n" and non_match != " " and non_match != "\n> " and non_match.isspace() != True and non_match.startswith("![") != True:
                         
@@ -953,7 +941,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                         non_match = non_match.replace("$", "`")
                         non_match_embed = discord.Embed(description=non_match, color=discord.Color.dark_theme())
                         
-                        #await interaction.channel.send(embed=non_match_embed)
                         if len(embeds) >= 9:
                             embeds_overflow.append(non_match_embed)
                         else:
@@ -964,7 +951,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                         print(f"$$${tex_match}$$$")
                         tex_match = tex_match.strip()
                         tex_match = tex_match.replace("\n", "")
-                        #tex_match = tex_match.replace(" ", "")
                         tex_match = tex_match.strip("$")
                         tex_match = tex_match.split()
                         tex_match = "%20".join(tex_match)
@@ -983,52 +969,12 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
 
                         file_count += 1
                         
-                        #await interaction.channel.send(file = tex_file, embed=match_embed)
                         if len(embeds) >= 9:
                             embeds_overflow.append(match_embed)
                             files_overflow.append(tex_file)
                         else:
                             embeds.append(match_embed)
                             files.append(tex_file)
-                        
-                    if img_match != None and img_match != "" and img_match.isspace() != True:
-                        
-                        try:
-                            
-                            # Find the indices of the '[', ']' characters
-                            start_index = img_match.find('[')
-                            end_index = img_match.find(']')
-
-                            # Extract the substring between the indices
-                            img_match = img_match[start_index+1:end_index]
-                            
-                            print("IMAGE SEARCH: " + img_match)
-
-                            # Replace YOUR_API_KEY and YOUR_CSE_ID with your own API key and CSE ID
-                            url = f"https://www.googleapis.com/customsearch/v1?q={img_match}&key={GOOGLE_API_KEY}&cx={GOOGLE_CSE_ID}&searchType=image"
-                            response = requests.get(url)
-                            results = response.json()
-                            
-                            #print(results)
-                            
-                            # Extract the image URL for the first result (best/most relevant image)
-                            image_url = results['items'][0]['link']
-                            
-                            #print(image_url)
-                            
-                            match_embed = discord.Embed(color=discord.Color.dark_theme())
-                            match_embed.set_image(url=image_url)
-                            print(image_url)
-                            
-                            #await interaction.channel.send(embed=match_embed)
-                            
-                            if len(embeds) >= 9:
-                                embeds_overflow.append(match_embed)
-                            else:
-                                embeds.append(match_embed)
-
-                        except Exception as e:
-                            print(e)
                         
                     if dot_match != None and dot_match != "" and dot_match != "\n" and dot_match.isspace() != True:
                         
@@ -1053,20 +999,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                                 )
                             
                             dot_match = dot_match['choices'][0]['message']['content']
-                        
-                            #dot_match = re.sub(r'//.*|/\*(.|\n)*?\*/', '', dot_match)
-                            
-                            #dot_match = dot_match.strip()
-                            #dot_match = dot_match.replace("}", "\n}")
-                            #dot_match = dot_match.replace("\\n", "")
-                            #dot_match = dot_match.replace("\t", "\n")
-                            #dot_match = dot_match.replace(",", "")
-                            #dot_match = dot_match.replace(" ", "")
-                            #dot_match = dot_match.strip("%")
-                            
-                            #if dot_match[-1] != "}":
-                                #dot_match += "}"
-                                
+
                             print(f"%%%{dot_match}%%%")
                             
                             graphs = pydot.graph_from_dot_data(dot_match)
@@ -1084,9 +1017,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                             match_embed.set_image(url=f"attachment://{subfolder}/graphviz{file_count}.png")
                             
                             file_count += 1
-                        
-                            #await interaction.channel.send(file = dot_file, embed=match_embed)
-                            
+
                             if len(embeds) >= 9:
                                 embeds_overflow.append(match_embed)
                                 files_overflow.append(dot_file)
@@ -1122,8 +1053,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         try:
             print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightcyan}ASK     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@iva: {colors.reset}{reply}")
             await interaction.followup.send(files=files, embeds=embeds, view=view)
-            last_response[channel_id] = interaction
-            #print(files, embeds)
+            last_response[channel_id][user_id] = interaction
             if len(embeds_overflow) > 0:
                 await interaction.channel.send(files = files_overflow, embeds=embeds_overflow)
             url_pattern = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
@@ -1146,21 +1076,23 @@ async def reset(interaction):
     
     channel_id = interaction.channel_id
     guild_id = interaction.guild_id
-    id = interaction.user.id
+    user_id = interaction.user.id
     
     active_users = await load_pickle_from_redis('active_users')
     chat_mems = await load_pickle_from_redis('chat_mems')
     ask_mems = await load_pickle_from_redis('ask_mems')
     
     try:
-        if channel_id in last_response:
-            if last_response[channel_id] != None:
-                await last_response[channel_id].edit_original_response(content="⠀", view=None)
+        if channel_id in last_response and user_id in last_response[channel_id] and last_response[channel_id][user_id] is not None:
+            await last_response[channel_id][user_id].edit_original_response(content="⠀", view=None)
     except discord.errors.HTTPException as e:
         print(e)
 
-    last_response[channel_id] = None
-    ask_mems[channel_id] = None
+    if channel_id in last_response and user_id in last_response[channel_id] and last_response[channel_id][user_id] is not None:
+        last_response[channel_id][user_id] = None
+    if channel_id in ask_mems and user_id in ask_mems[channel_id] and ask_mems[channel_id][user_id] is not None:
+        ask_mems[channel_id][user_id] = None
+        
     chat_mems[channel_id] = None
     active_users[channel_id] = []
     
@@ -1249,18 +1181,12 @@ async def setup(interaction, key: str):
             await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=30)
             
             conn.commit()
-
-            # Print the values of the columns
-            #print(f'id: {id}, key: {key}')
-        
+            
         elif key == result[0]:
             
             embed = discord.Embed(description=f"<:ivaerror:1051918443840020531> **Key already registered for {mention}.**", color=discord.Color.dark_theme())
             await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=30)
-            
-            # Print the values of the columns
-            #print(f'id: {id}, key: {key}')
-        
+
     else:
         
         with psycopg2.connect(DATABASE_URL) as conn:
