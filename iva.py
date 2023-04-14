@@ -698,10 +698,17 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         Rules:
         - You must only send links or URLs exclusively obtained through the Organic Results tool, never fabricate a fake link
-        - You must parenthetically cite any sources referenced from tools in your response as a clickable numbered hyperlink like ' [1](http://source.com)', not plain text
-        - Use '```[language]\\n[multi line code block]```' for ANY code.
-        - Show and explain STEM expressions as LaTeX wrapped in '$$' like '\\n$$[LaTeX markup]$$' (DO NOT USE SINGLE '$') on a new line. Use it for tables and complex information display formats too.
-        - Use markdown '[hyperlink text](http://example.com)', '**bold**', '`label`', '*italics*', '__underline__', and '> block quote' to creatively format your response with an aesthetically pleasing and consistent style
+        - You must parenthetically cite any sources referenced from tools in your response as a clickable numbered hyperlink like `[1](http://source.com)`, not plain text
+        - Use ````[language]\\n[multi line code block]```` for ANY code.
+        - Show and explain STEM expressions as LaTeX wrapped in `$$` like `\\n$$[latex]$$` (DO NOT USE SINGLE `$`) on a new line. Use it for tables and complex information display formats too.
+        
+        Please format your response using markdown for emphasis and clarity. Use the following elements...
+        - `[hyperlink text](http://example.com)` for links
+        - `**bold**` for important points
+        - `*italics*` for emphasis
+        - `__underline__` for highlighting
+        - ``label`` for code snippets or keywords
+        - `> blockquote` for quotes or references
         
         Tools:
         Do not use a tool unless you absolutely need it to answer a question. Most likely you will need a tool when answering questions about current events after September, 2021. Otherwise you probably know the answer already. Here are the tools:
