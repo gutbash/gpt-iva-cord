@@ -25,7 +25,6 @@ import textwrap
 from bs4 import BeautifulSoup
 import chardet
 import aiohttp
-import msgpack
 
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import OpenAI
@@ -562,11 +561,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
 
         user_settings = await load_pickle_from_redis('user_settings')
         ask_mems = await load_pickle_from_redis('ask_mems')
-        serialized_last_response = await load_pickle_from_redis('last_response')
-        try:
-            last_response = msgpack.unpackb(serialized_last_response)
-        except Exception as e:
-            print(e)
         
         ask_mems.setdefault(channel_id, {}).setdefault(user_id, None)
         last_response.setdefault(channel_id, {}).setdefault(user_id, None)
@@ -1082,9 +1076,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 
             ask_mems[channel_id][user_id] = memory
             await save_pickle_to_redis('ask_mems', ask_mems)
-            
-            serialized_last_response = msgpack.packb(last_response)
-            await save_pickle_to_redis('last_response', serialized_last_response)
                 
             return
         except Exception as e:
