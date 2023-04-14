@@ -417,7 +417,7 @@ async def on_message(message):
 
                 except Exception as e:
                     print(e)
-                    embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {user_mention} `{type(e)}` {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
+                    embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {user_mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
                     await message.channel.send(embed=embed)
                     return
                 
@@ -486,7 +486,7 @@ class Menu(discord.ui.View):
                     await save_pickle_to_redis('ask_mems', ask_mems)
                     
             except Exception as e:
-                embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} `{type(e)}` {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
+                embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
                 await interaction.channel.send(content=None, embed=embed)
         
         embed = discord.Embed(description=f'<:ivadelete:1095559772754952232>', color=discord.Color.dark_theme())
@@ -882,7 +882,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 
         except Exception as e:
             print(e)
-            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} `{type(e)}` {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
+            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
             await interaction.followup.send(embed=embed)
             return
         
