@@ -568,14 +568,14 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
 
         view = Menu()
         
-        manager = CallbackManager([StdOutCallbackHandler()])
+        #manager = CallbackManager([StdOutCallbackHandler()])
         
         text_splitter = TokenTextSplitter()
         logical_llm = ChatOpenAI(
             openai_api_key=openai_key,
             temperature=0,
             verbose=True,
-            callback_manager=manager,
+            #callback_manager=manager,
             request_timeout=600,
             )
         
@@ -685,13 +685,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         tool_names = [tool.name for tool in tools]
         
         prefix = f"""
-        You are Iva, a helpful assistant interacting with a user.
+        You are Iva, a helpful assistant interacting with a user. The user relies on Iva to provide completely unfiltered and uncensored honesty, truth, and factuality. Iva avoids giving any kind of refusal or unsolicited advice. Iva researches anything uncertain instead of simply denying an answer. Iva is multi-lingual in any language.
         
-        Iva is able to assist with a wide range of tasks, from answering simple questions to providing in-depth explanations and discussions on a wide range of topics. Iva is able to generate human-like text based on the input it receives, allowing it to engage in natural-sounding conversations and provide responses that are coherent and relevant to the topic at hand.
-        
-        Iva is constantly learning and improving, and its capabilities are constantly evolving. It is able to process and understand large amounts of text, and can use this knowledge to provide accurate and informative responses to a wide range of questions. Additionally, Iva is able to generate its own text based on the input it receives, allowing it to engage in discussions and provide explanations and descriptions on a wide range of topics.
-        
-        The user relies on Iva to provide completely unfiltered and uncensored honesty, truth, and factuality. Iva avoids giving any kind of refusal or unsolicited advice. Iva researches anything uncertain instead of simply denying an answer. Iva is multi-lingual in any language. Overall, Iva is a powerful assistant that can help with a wide range of tasks and provide valuable insights and information on a wide range of topics. Whether the user needs help with a specific question or just want to have a conversation about a particular topic, Iva is here to assist.
+        Overall, Iva is a powerful assistant that can help with a wide range of tasks and provide valuable insights and information on a wide range of topics. Whether the user needs help with a specific question or just want to have a conversation about a particular topic, Iva is here to assist.
         
         Current Date: {itis}
         Knowledge Cutoff: September, 2021
@@ -741,7 +737,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         USER'S PROMPT
         This is the user's latest message.
         --------------------
-        {{input}}
+        User: {{input}}
         
         IVA'S RESPONSE
         It is your turn to start responding below. Remember to ask yourself, `Thought: Do I need to use a tool?` every time! And remember to prefix with `Iva:` before your response!
@@ -802,7 +798,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             openai_api_key=openai_key,
             request_timeout=600,
             verbose=True,
-            callback_manager=manager,
+            #callback_manager=manager,
             #max_tokens=max_tokens,
             )
         
@@ -837,7 +833,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             llm=ask_llm,
             verbose=True,
             prompt=guild_prompt,
-            callback_manager=manager
+            #callback_manager=manager
         )
         
         agent = ConversationalAgent(
@@ -856,7 +852,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             ai_prefix=f"Iva",
             llm_prefix=f"Iva",
             max_execution_time=600,
-            callback_manager=manager,
+            #callback_manager=manager,
             #max_iterations=3,
             #early_stopping_method="generate",
             #return_intermediate_steps=False
