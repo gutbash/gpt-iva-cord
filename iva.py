@@ -563,7 +563,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         user_settings = await load_pickle_from_redis('user_settings')
         ask_mems = await load_pickle_from_redis('ask_mems')
         serialized_last_response = await load_pickle_from_redis('last_response')
-        last_response = msgpack.unpackb(serialized_last_response)
+        try:
+            last_response = msgpack.unpackb(serialized_last_response)
+        except Exception as e:
+            print(e)
         
         ask_mems.setdefault(channel_id, {}).setdefault(user_id, None)
         last_response.setdefault(channel_id, {}).setdefault(user_id, None)
