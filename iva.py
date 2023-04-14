@@ -469,9 +469,11 @@ class Menu(discord.ui.View):
         if channel_id in last_response and user_id in last_response[channel_id] and last_response[channel_id][user_id] is not None:
             original_interaction = last_response[channel_id][user_id]
         else:
-            original_interaction = None
-
-        if original_interaction == None or original_interaction.user.id != user_id:
+            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} You do not own this context line', color=discord.Color.dark_theme())
+            await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=10)
+            return
+        
+        if original_interaction.user.id != user_id:
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} You do not own this context line', color=discord.Color.dark_theme())
             await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=10)
             return
@@ -506,9 +508,11 @@ class Menu(discord.ui.View):
         if channel_id in last_response and user_id in last_response[channel_id] and last_response[channel_id][user_id] is not None:
             original_interaction = last_response[channel_id][user_id]
         else:
-            original_interaction = None
+            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} You do not own this context line', color=discord.Color.dark_theme())
+            await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=10)
+            return
 
-        if original_interaction == None or original_interaction.user.id != user_id:
+        if original_interaction.user.id != user_id:
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} You do not own this context line', color=discord.Color.dark_theme())
             await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=10)
             return
