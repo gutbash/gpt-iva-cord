@@ -898,7 +898,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         file_count=0
         
         if file != None:
-            files.append(discord.File(f"{file.filename}.txt"))
+            files.append(discord.File(f"{file.filename}"))
             print(file.description)
             file_count += 1
         
