@@ -547,9 +547,17 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         bot = client.user.display_name
         user_name = interaction.user.name
 
-        # Use the `SELECT` statement to fetch the row with the given id
+        # fetch the row with the given id
         result = await async_fetch_key(user_id)
         openai_key = ""
+        
+        if result != None:
+            openai.api_key=result[0]
+            openai_key=result[0]
+        else:
+            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} Use `/setup` to register API key first or `/help` for more info. You can find your API key at https://beta.openai.com.', color=discord.Color.dark_theme())
+            await interaction.followup.send(embed=embed, ephemeral=False)
+            return
 
         user_settings = await load_pickle_from_redis('user_settings')
         ask_mems = await load_pickle_from_redis('ask_mems')
@@ -557,14 +565,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         ask_mems.setdefault(channel_id, {}).setdefault(user_id, None)
         last_response.setdefault(channel_id, {}).setdefault(user_id, None)
         
-        try:
-            chat_model = user_settings[user_id]['model']
-        except:
-            chat_model = "gpt-3.5-turbo"
-        try:
-            temperature = user_settings[user_id]['temperature']
-        except:
-            temperature = 0.5
+        chat_model = user_settings.get(user_id, {}).get('model', 'gpt-3.5-turbo')
+        temperature = user_settings.get(user_id, {}).get('temperature', 0.5)
             
         max_tokens = 4096
         
@@ -577,18 +579,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         itis = timestamp.strftime(r"%B %d, %Y")
         
         print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightcyan}ASK     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@{str(user_name).lower()}: {colors.reset}{prompt}")
-        
-        if result != None:
-            openai.api_key=result[0]
-            openai_key=result[0]
-        else:
-            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} Use `/setup` to register API key first or `/help` for more info. You can find your API key at https://beta.openai.com.', color=discord.Color.dark_theme())
-            await interaction.followup.send(embed=embed, ephemeral=False)
-            return
 
         view = Menu()
-        
-        #manager = CallbackManager([StdOutCallbackHandler()])
         
         text_splitter = TokenTextSplitter()
         logical_llm = ChatOpenAI(
@@ -894,9 +886,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             await interaction.followup.send(embed=embed)
             return
         
-        ask_mems[channel_id][user_id] = memory
-        await save_pickle_to_redis('ask_mems', ask_mems)
-        
         dash_count = ""
         interaction_count = (len(memory.buffer)//2)-1
         
@@ -1068,17 +1057,26 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
         try:
             print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightcyan}ASK     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@iva: {colors.reset}{reply}")
+            
             await interaction.followup.send(files=files, embeds=embeds, view=view)
+            
             last_response[channel_id][user_id] = interaction
+            
             if len(embeds_overflow) > 0:
                 await interaction.channel.send(files = files_overflow, embeds=embeds_overflow)
+                
             url_pattern = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
             links = url_pattern.findall(reply)
             stripped_links = [link.rstrip(',.:)') for link in links]
+            
             if len(stripped_links) > 0:
                 stripped_links = list(set(stripped_links))
                 formatted_links = "\n".join(stripped_links)
                 await interaction.channel.send(content=formatted_links)
+                
+            ask_mems[channel_id][user_id] = memory
+            await save_pickle_to_redis('ask_mems', ask_mems)
+                
             return
         except Exception as e:
             print(e)
