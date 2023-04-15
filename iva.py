@@ -647,7 +647,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         async def parse_qa_webpage_input(string):
             a, b = string.split(",")
             answer = await question_answer_webpage(a, b)
-            return answer
+            return f"{answer}\n"
         
         async def summarize_webpage(url):
             
@@ -661,7 +661,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             #run summary
             summary = await chain.arun(docs)
             
-            return summary
+            return f"{summary}\n"
 
         attachment_text = ""
         file_placeholder = ""
@@ -753,7 +753,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         User: {{input}}
         
         IVA'S RESPONSE:
-        You must ask yourself, `Thought: Do I need to use a tool? [Yes/No]` every time! When you are done using tools, You must prefix the cited final response you will send to the user with `Iva: `! You must cite any sources utilized! Do not forget these things! Now, start responding below.
+        You must ask yourself, `Thought: Do I need to use a tool? [Yes/No]` every time! When you are done using tools, You must prefix the cited final response you will send to the user with `Iva: `! You must parenthetically cite any sources utilized as a clickable numbered hyperlink like ` [**1**](http://source.com)` (include space)! Do not forget these things! Now, start responding below...
         --------------------
         {{agent_scratchpad}}
         """
