@@ -672,7 +672,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             name = "Organic Results",
             func=dummy_sync_function,
             coroutine=get_organic_results,
-            description="Use this to research and share articles, wikis, news, movies, videos, shopping, and more. Input should be a description of the query in question. The same input will yield the same pre-determined results. Do not search for things unrelated to the user's original query. Do not input URL links. Output returns the top result you can utilize. You must parenthetically cite the result if referenced in your response as a clickable numbered hyperlink like ` [**1**](http://source.com)` (include space)."
+            description="Use this to research and share articles, wikis, news, movies, videos, shopping, and more. Input should be a description of the query in question. Do not input the same query twice. Do not search for things unrelated to the user's original query. Do not input URL links. Output returns the top result you can utilize. You must parenthetically cite the result if referenced in your response as a clickable numbered hyperlink like ` [**1**](http://source.com)` (include space)."
         ))
         
         tools.append(Tool(
