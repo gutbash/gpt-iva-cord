@@ -112,7 +112,7 @@ async def get_organic_results(query: str) -> str:
         knowledge_graph = await get_formatted_key_values(knowledge_graph_keys, knowledge_graph_raw)
         knowledge_graph = f"\n\n{knowledge_graph}"
         
-    final_results = f"\n\n{organic_results}{knowledge_graph}"
+    final_results = f"\n\n{organic_results}{knowledge_graph}\n"
     
     return final_results
     

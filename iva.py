@@ -743,10 +743,12 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         """
         
         suffix = f"""
-        Chat Context History:
-        Decide what to say next based on the following message history.
+        CHAT HISTORY:
+        Decide what to say next in context based on the following message history.
         
         {{chat_history}}
+        
+        NEW MESSAGE:
         --------------------
         User: {{input}}
         
