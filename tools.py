@@ -13,7 +13,10 @@ async def get_top_search_results(query: str) -> str:
         # Configure the GoogleSearch object with the provided query and API key
         search = {
             "q": query,
-            "api_key": SERPAPI_API_KEY
+            "api_key": SERPAPI_API_KEY,
+            "gl": "us",
+            "hl": "en",
+            "safe": "active",
         }
 
         async with aiohttp.ClientSession() as session:
@@ -66,7 +69,10 @@ async def get_organic_results(query: str) -> str:
     search = {
         "engine": "google",
         "q": query,
-        "api_key": SERPAPI_API_KEY
+        "api_key": SERPAPI_API_KEY,
+        "gl": "us",
+        "hl": "en",
+        "safe": "active",
     }
 
     async with aiohttp.ClientSession() as session:
@@ -117,7 +123,10 @@ async def get_news_results(query: str) -> str:
     search = {
         "engine": "google",
         "q": query,
-        "api_key": SERPAPI_API_KEY
+        "api_key": SERPAPI_API_KEY,
+        "gl": "us",
+        "hl": "en",
+        "safe": "active",
     }
 
     async with aiohttp.ClientSession() as session:
@@ -136,7 +145,10 @@ async def get_shopping_results(query: str) -> str:
     search = {
         "engine": "google",
         "q": query,
-        "api_key": SERPAPI_API_KEY
+        "api_key": SERPAPI_API_KEY,
+        "gl": "us",
+        "hl": "en",
+        "safe": "active",
     }
 
     async with aiohttp.ClientSession() as session:
