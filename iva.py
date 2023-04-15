@@ -186,7 +186,13 @@ async def on_message(message):
                 return
             
             text_splitter = TokenTextSplitter()
-            logical_llm = ChatOpenAI(openai_api_key=openai_key, temperature=0)
+            logical_llm = ChatOpenAI(
+                openai_api_key=openai_key,
+                temperature=0,
+                verbose=True,
+                #callback_manager=manager,
+                request_timeout=600,
+                )
             
             async def get_important_text(url):
                 async with aiohttp.ClientSession() as session:
@@ -229,43 +235,36 @@ async def on_message(message):
             
             async def question_answer_webpage(url, question):
                 
+                url = url.strip("[").strip("]")
+                str.rs
                 text = await get_important_text(url)
-                
-                combine_prompt_template = """Given the following extracted parts of a long document and a prompt, create a final answer in a concise, creative, thoughtful, understandable, organized, and clear format.
-
-                PROMPT: {question}
-                =========
-                {summaries}
-                =========
-                ANSWER:"""
-                
-                COMBINE_PROMPT = PromptTemplate(
-                    template=combine_prompt_template, input_variables=["summaries", "question"]
-                )
-                
-                qa_chain = load_qa_chain(logical_llm, chain_type="map_reduce", combine_prompt=COMBINE_PROMPT)
-                qa_document_chain = AnalyzeDocumentChain(combine_docs_chain=qa_chain)
-                answer = await qa_document_chain.arun(input_document=text, question=question)
+                texts = text_splitter.split_text(text)
+                docs = [Document(page_content=t) for t in texts[:3]]
+                print(docs)
+                chain = load_qa_chain(logical_llm, chain_type="map_reduce")
+                answer = await chain.arun(input_documents=docs, question=question)
                 
                 return answer
             
             async def parse_qa_webpage_input(string):
                 a, b = string.split(",")
-                return await question_answer_webpage(a, b)
+                answer = await question_answer_webpage(a, b)
+                return f"{answer}\n"
             
             async def summarize_webpage(url):
                 
+                url = url.strip("[").strip("]")
                 text = await get_important_text(url)
-                
                 #prepare and parse the text
                 texts = text_splitter.split_text(text)
                 docs = [Document(page_content=t) for t in texts[:3]]
+                print(docs)
                 #prepare chain
                 chain = load_summarize_chain(logical_llm, chain_type="map_reduce")
                 #run summary
                 summary = await chain.arun(docs)
                 
-                return summary
+                return f"{summary}\n"
             
             # STRINGIFY ACTIVE USERS
                 
