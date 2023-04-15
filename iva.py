@@ -752,7 +752,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         
         IVA'S RESPONSE:
-        You must parenthetically cite any sources utilized as a clickable numbered hyperlink like ` [**1**](http://source.com)` (include space)! When you are done using tools, You must prefix the cited final response you will send to the user with `Iva: ` or else the user won't see it! Do not forget these things! Now, start responding below...
+        You must parenthetically cite any sources from Organic Results utilized as a clickable numbered hyperlink like ` [**1**](http://source.com)` (include space)! When you are done using tools, You must prefix the cited final response you will send to the user with `Iva: ` or else the user won't see it! Do not forget these things! Now, start responding below...
         --------------------
         {{agent_scratchpad}}
         """
