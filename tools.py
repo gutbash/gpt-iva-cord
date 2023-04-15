@@ -165,12 +165,12 @@ async def get_formatted_key_values(keys: list, dictionary: dict, prefix="") -> s
             if isinstance(dictionary[key], dict):
                 # Handle nested dictionaries recursively
                 nested_prefix = f"{prefix}{key}."
-                formatted_str += get_formatted_key_values(dictionary[key].keys(), dictionary[key], nested_prefix)
+                formatted_str += await get_formatted_key_values(dictionary[key].keys(), dictionary[key], nested_prefix)
             elif isinstance(dictionary[key], list) and all(isinstance(item, dict) for item in dictionary[key]):
                 # Handle lists of dictionaries
                 for idx, nested_dict in enumerate(dictionary[key], start=1):
                     nested_prefix = f"{prefix}{key}[{idx}]."
-                    formatted_str += get_formatted_key_values(nested_dict.keys(), nested_dict, nested_prefix)
+                    formatted_str += await get_formatted_key_values(nested_dict.keys(), nested_dict, nested_prefix)
             else:
                 formatted_str += f"{prefix}{key}: {dictionary[key]}\n"
 
