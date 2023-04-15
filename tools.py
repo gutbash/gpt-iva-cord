@@ -184,6 +184,7 @@ async def get_formatted_key_values(keys: list, dictionary: dict, prefix="") -> s
                     nested_prefix = f"{prefix}{key}[{idx}]."
                     formatted_str += await get_formatted_key_values(nested_dict.keys(), nested_dict, nested_prefix) + "\n"
             else:
-                formatted_str += f"{prefix}{key} - {dictionary[key]}\n"
+                #formatted_str += f"{prefix}{key} - {dictionary[key]}\n"
+                formatted_str += f"{dictionary[key]}\n"
 
     return formatted_str.strip()
