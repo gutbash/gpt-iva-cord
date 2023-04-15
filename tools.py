@@ -151,7 +151,7 @@ async def get_shopping_results(query: str) -> str:
 async def get_formatted_key_values_from_list(keys: list, list_of_dictionaries: list) -> list:
     all_results = []
 
-    for dictionary_index in range(5):
+    for dictionary_index in range(3):
         formatted_str = await get_formatted_key_values(keys, list_of_dictionaries[dictionary_index])
         all_results.append(formatted_str)
 
@@ -172,6 +172,6 @@ async def get_formatted_key_values(keys: list, dictionary: dict, prefix="") -> s
                     nested_prefix = f"{prefix}{key}[{idx}]."
                     formatted_str += await get_formatted_key_values(nested_dict.keys(), nested_dict, nested_prefix) + "\n"
             else:
-                formatted_str += f"{prefix}{key}: {dictionary[key]}\n"
+                formatted_str += f"{prefix}{key} - {dictionary[key]}\n"
 
     return formatted_str.strip()
