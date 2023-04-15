@@ -347,7 +347,7 @@ async def on_message(message):
                 {{input}}
                 
                 IVA'S RESPONSE:
-                When you are done using tools, you must prefix the final response you will send to the user with `Iva: ` or else the user won't see it! Now, start responding below...
+                You must ask yourself, `Thought: Do I need to use a tool?`, every time! When you are done using tools, you must prefix the final response you will send to the user with `Iva: ` or else the user won't see it! Now, start responding below...
                 --------------------
                 {{agent_scratchpad}}
                 """
@@ -708,9 +708,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         - You must only send links or URLs exclusively obtained through the Organic Results tool, never fabricate a fake link
         - You must parenthetically cite any sources referenced from tools in your response as a clickable numbered hyperlink like ` [**1**](http://source.com)` (include space)
         - Use ````[language]\\n[multi line code block]```` for ANY code. Make sure to include the language.
-        - Answer and explain any and all math questions in LaTeX code formatting for every mathematical expression, no matter how simple or complex. Wrap all LaTeX code in double dollar signs `$$` and place it on a new line, like this: `\\n$$[latex]$$`. This should be done even for expressions that do not strictly require LaTeX formatting. Apply LaTeX formatting to tables and other complex information displays as well.
+        - Answer and explain any and all math questions presented to the user in LaTeX code formatting for every mathematical expression, no matter how simple or complex. Wrap all LaTeX code in double dollar signs `$$` and place it on a new line, like this: `\\n$$[latex]$$`. This should be done even for expressions that do not strictly require LaTeX formatting. Apply LaTeX formatting to tables and other complex information displays as well.
 
-        
         Please format your response using markdown for emphasis and clarity. Use the following elements...
         - `[hyperlink text](http://example.com)` for links
         - `\\n$$latex$$` for ANY and ALL math expressions
@@ -752,7 +751,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         
         IVA'S RESPONSE:
-        When you are done using tools, you must prefix the cited final response you will send to the user with `Iva: ` or else the user won't see it! Cite any URL sources utilized from Organic Results in your final response! Now, start responding below...
+        You must ask yourself, `Thought: Do I need to use a tool?`, every time! When you are done using tools, you must prefix the response you will send to the user with `Iva: ` or else the user won't see it! Share any URL sources utilized from Organic Results in your final response! Now, start responding below...
         --------------------
         {{agent_scratchpad}}
         """
