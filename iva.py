@@ -1156,10 +1156,13 @@ async def tutorial(interaction):
     embed_ask = discord.Embed(title="`/iva`", description="provides **academic** and **work** oriented answers. has less personality, is more focused on consistency and reliability.", color=discord.Color.dark_theme())
     #embed_ask.add_field(inline=True, name="<:ivacontinue1:1051714712242491392> `Continue`", value="say more, extend the last prompt's response")
     #embed_ask.add_field(inline=True, name="<:ivaregenerate:1051697145713000580> `Regenerate`", value="replace the last prompt's response with a different one")
-    embed_ask.add_field(inline=True, name="<:ivareset:1051691297443950612> `Reset`", value="reset `/iva` conversation history, clear iva's memory")
+    embed_ask.add_field(inline=True, name="<:ivadelete:1095559772754952232> `Delete`", value="delete the last interaction with iva in the conversation.")
+    embed_ask.add_field(inline=True, name="<:ivareset:1051691297443950612> `Reset`", value="reset conversation history, clear iva's memory with you in the channel.")
     
     embed_other = discord.Embed(title="Other", color=discord.Color.dark_theme())
     embed_other.add_field(inline=True, name="`/reset`", value="reset `@iva` and `/iva` conversation history.")
+    embed_other.add_field(inline=True, name="`/model`", value="switch between `gpt-4` and `gpt-3.5` models for `/iva`.")
+    embed_other.add_field(inline=True, name="`/temperature`", value="change the temperature for `/iva`.")
     embed_other.add_field(inline=True, name="`/help`", value="show instructions for setup.")
     embed_other.add_field(inline=True, name="`/setup`", value="enter your key. `/help` for more info.")
     
