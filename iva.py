@@ -747,13 +747,12 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         Decide what to say next in context based on the following message history.
         
         {{chat_history}}
-        
-        NEW MESSAGE:
-        --------------------
         User: {{input}}
         
+        
+        
         IVA'S RESPONSE:
-        You must ask yourself, `Thought: Do I need to use a tool? [Yes/No]` every time! When you are done using tools, You must prefix the cited final response you will send to the user with `Iva: `! You must parenthetically cite any sources utilized as a clickable numbered hyperlink like ` [**1**](http://source.com)` (include space)! Do not forget these things! Now, start responding below...
+        When you are done using tools, You must prefix the cited final response you will send to the user with `Iva: `! You must parenthetically cite any sources utilized as a clickable numbered hyperlink like ` [**1**](http://source.com)` (include space)! Do not forget these things! Now, start responding below...
         --------------------
         {{agent_scratchpad}}
         """
