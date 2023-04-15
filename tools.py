@@ -76,26 +76,37 @@ async def get_organic_results(query: str) -> str:
     organic_results_raw = results.get("organic_results", None)
     knowledge_graph_raw = results.get("knowledge_graph", None)
     
-    organic_results_keys = [
-        "position",
-        "title",
-        "link",
-        "snippet",
-        "sitelinks",
-    ]
-    knowledge_graph_keys = [
-        "title",
-        "type",
-        "website",
-        "description",
-        "source",
-    ]
+    organic_results = ""
+    knowledge_graph = ""
     
-    organic_results = await get_formatted_key_values_from_list(organic_results_keys, organic_results_raw)
-    knowledge_graph = await get_formatted_key_values(knowledge_graph_keys, knowledge_graph_raw)
-    
-    organic_results = "\n".join(organic_results)
-    final_results = "\n\n".join([organic_results, knowledge_graph])
+    if organic_results_raw is not None:
+        
+        organic_results_keys = [
+            "position",
+            "title",
+            "link",
+            "snippet",
+            "sitelinks",
+        ]
+        
+        organic_results = await get_formatted_key_values_from_list(organic_results_keys, organic_results_raw)
+        
+        organic_results = "\n".join(organic_results)
+        
+    if knowledge_graph_raw is not None:
+        
+        knowledge_graph_keys = [
+            "title",
+            "type",
+            "website",
+            "description",
+            "source",
+        ]
+        
+        knowledge_graph = await get_formatted_key_values(knowledge_graph_keys, knowledge_graph_raw)
+        knowledge_graph = f"\n\n{knowledge_graph}"
+        
+    final_results = f"{organic_results}{knowledge_graph}"
     
     return final_results
     
