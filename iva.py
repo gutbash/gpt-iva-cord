@@ -752,7 +752,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         
         IVA'S RESPONSE:
-        When you are done using tools, you must prefix the cited final response you will send to the user with `Iva: ` or else the user won't see it! Cite any URL sources utilized from Organic Results! Now, start responding below...
+        When you are done using tools, you must prefix the cited final response you will send to the user with `Iva: ` or else the user won't see it! Cite any URL sources utilized from Organic Results in your final response! Now, start responding below...
         --------------------
         {{agent_scratchpad}}
         """
