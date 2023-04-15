@@ -59,3 +59,103 @@ async def get_image_from_search(query: str) -> str:
     image_urls = [item['link'] for item in results['items'][:10]]
     chosen_image_url = random.choice(image_urls)
     return chosen_image_url
+
+async def get_organic_results(query: str) -> str:
+    
+    # Configure the GoogleSearch object with the provided query and API key
+    search = {
+        "engine": "google",
+        "q": query,
+        "api_key": SERPAPI_API_KEY
+    }
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get("https://serpapi.com/search", params=search) as response:
+            results = await response.json()
+    
+    organic_results_raw = results.get("organic_results", None)
+    knowledge_graph_raw = results.get("knowledge_graph", None)
+    
+    organic_results_keys = [
+        "position",
+        "title",
+        "link",
+        "snippet",
+        "sitelinks",
+    ]
+    knowledge_graph_keys = [
+        "title",
+        "type",
+        "website",
+        "description",
+        "source",
+    ]
+    
+    organic_results = await get_formatted_key_values_from_list(organic_results_keys, organic_results_raw)
+    knowledge_graph = await get_formatted_key_values(knowledge_graph_keys, knowledge_graph_raw)
+    
+    organic_results = "\n".join(organic_results)
+    final_results = "\n\n".join([organic_results, knowledge_graph])
+    
+    return final_results
+    
+    
+async def get_news_results(query: str) -> str:
+    
+    # Configure the GoogleSearch object with the provided query and API key
+    search = {
+        "engine": "google",
+        "q": query,
+        "api_key": SERPAPI_API_KEY
+    }
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get("https://serpapi.com/search", params=search) as response:
+            results = await response.json()
+    
+    news_results = results.get("news_results", None)
+    top_stories = results.get("top_stories", None)
+    
+    news_results_keys = []
+    top_stories_keys = []
+    
+async def get_shopping_results(query: str) -> str:
+    
+    # Configure the GoogleSearch object with the provided query and API key
+    search = {
+        "engine": "google",
+        "q": query,
+        "api_key": SERPAPI_API_KEY
+    }
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get("https://serpapi.com/search", params=search) as response:
+            results = await response.json()
+    
+    immersive_products = results.get("immersive_products", None)
+    inline_products = results.get("inline_products", None)
+    shopping_results = results.get("shopping_results", None)
+    product_result = results.get("product_result", None)
+    
+async def get_formatted_key_values_from_list(keys: list, list_of_dictionaries: list) -> list:
+    all_results = []
+
+    for dictionary_index in range(5):
+        formatted_str = await get_formatted_key_values(keys, list_of_dictionaries[dictionary_index])
+        all_results.append(formatted_str)
+
+    return all_results
+    
+async def get_formatted_key_values(keys: list, dictionary: dict, prefix="") -> str:
+    formatted_str = ""
+
+    for key in keys:
+        if key in dictionary and dictionary[key]:
+            if isinstance(dictionary[key], dict):
+                # Handle nested dictionaries recursively
+                nested_prefix = f"{prefix}{key}."
+                formatted_str += await get_formatted_key_values(dictionary[key].keys(), dictionary[key], nested_prefix)
+            else:
+                formatted_str += f"{prefix}{key}: {dictionary[key]}\n"
+
+    return formatted_str.strip()

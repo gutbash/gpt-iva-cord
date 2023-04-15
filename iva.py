@@ -6,7 +6,7 @@ import discord.ext.tasks
 from log_utils import colors
 from redis_utils import save_pickle_to_redis, load_pickle_from_redis
 from postgres_utils import async_fetch_key
-from tools import get_top_search_results, get_image_from_search
+from tools import get_top_search_results, get_image_from_search, get_organic_results
 
 import os
 import openai
@@ -671,7 +671,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         tools.append(Tool(
             name = "Organic Results",
             func=dummy_sync_function,
-            coroutine=get_top_search_results,
+            coroutine=get_organic_results,
             description="Use this to research and share articles, wikis, news, movies, videos, shopping, and more. Input should be a description of the query in question. The same input will yield the same pre-determined results. Do not input URL links. Output returns the top result you can utilize. You must parenthetically cite the result if referenced in your response as a clickable numbered hyperlink like ` [**1**](http://source.com)` (include space)."
         ))
         
