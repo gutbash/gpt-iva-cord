@@ -635,6 +635,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 
         async def question_answer_webpage(url, question):
             
+            url = url.strip("[").strip("]")
+            str.rs
             text = await get_important_text(url)
             texts = text_splitter.split_text(text)
             docs = [Document(page_content=t) for t in texts[:3]]
@@ -651,6 +653,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         async def summarize_webpage(url):
             
+            url = url.strip("[").strip("]")
             text = await get_important_text(url)
             #prepare and parse the text
             texts = text_splitter.split_text(text)
@@ -731,7 +734,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         Thought: Do I need to use a tool? Yes
         Action: the action to take, must be one of {tool_names}
         Action Input: [the input to the action]
-        Observation: [the result of the action]
+        Observation: the result of the action
         ```
         
         When you do not need to use a tool and you have a final response to say to the user, you MUST use the format:
