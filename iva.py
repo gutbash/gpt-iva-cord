@@ -349,7 +349,7 @@ async def on_message(message):
                 NEW MESSAGE FROM {user_name.upper()}
                 This is the latest message from {user_name}.
                 --------------------
-                {user_name}: {{input}}
+                {{input}}
                 
                 IVA'S RESPONSE
                 It is your turn to start responding below. Remember to ask yourself, `Thought: Do I need to use a tool?` every time! And remember to prefix with `Iva:` before your response!
@@ -706,7 +706,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         Current Date - {itis}
         Knowledge Cutoff - September, 2021
         
-        Rules:
+        RULES:
         - You must only send links or URLs exclusively obtained through the Organic Results tool, never fabricate a fake link
         - You must parenthetically cite any sources referenced from tools in your response as a clickable numbered hyperlink like ` [**1**](http://source.com)` (include space)
         - Use ````[language]\\n[multi line code block]```` for ANY code.
@@ -720,7 +720,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         - ``label`` for code snippets or keywords
         - `> blockquote` for quotes or references
         
-        Tools:
+        TOOLS:
         Do not use a tool unless you absolutely need it to answer a question. Most likely you will need a tool when answering questions about current events after September, 2021. Otherwise you probably know the answer already. Here are the tools:
         """
         
@@ -749,12 +749,12 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         {{chat_history}}
         
         USER'S PROMPT:
-        This is the user's latest message.
+        This is the user's latest message to respond to.
         --------------------
-        {{input}}
+        User: {{input}}
         
         IVA'S RESPONSE:
-        It is your turn to start responding below. Remember to ask yourself, `Thought: Do I need to use a tool?` every time! And remember to prefix with `Iva:` before your response!
+        Remember to ask yourself, `Thought: Do I need to use a tool?` every time! Remember to prefix with `Iva:` before your response! Start responding below.
         --------------------
         {{agent_scratchpad}}
         """
@@ -895,7 +895,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         for i in range(interaction_count):
             dash_count += "-"
         
-        prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}` `{temperature}` `{round(total_cost, 3)}`")
+        prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}`  `{temperature}`  `{round(total_cost, 3)}`")
         
         reply = reply.replace("```C#", "```csharp")
         
