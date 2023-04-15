@@ -748,12 +748,12 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         {{chat_history}}
         
-        USER'S PROMPT
+        USER'S PROMPT:
         This is the user's latest message.
         --------------------
         {{input}}
         
-        IVA'S RESPONSE
+        IVA'S RESPONSE:
         It is your turn to start responding below. Remember to ask yourself, `Thought: Do I need to use a tool?` every time! And remember to prefix with `Iva:` before your response!
         --------------------
         {{agent_scratchpad}}
