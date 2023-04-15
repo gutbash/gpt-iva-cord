@@ -708,7 +708,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         - You must only send links or URLs exclusively obtained through the Organic Results tool, never fabricate a fake link
         - You must parenthetically cite any sources referenced from tools in your response as a clickable numbered hyperlink like ` [**1**](http://source.com)` (include space)
         - Use ````[language]\\n[multi line code block]```` for ANY code.
-        - Format any and all math expressions as LaTeX wrapped in `$$` like `\\n$$[latex]$$` (DO NOT USE SINGLE `$`) on a new line. Use it for tables and complex information display formats too.
+        - Format any and all math expressions as LaTeX wrapped in `$$` like `\\n$$[latex]$$` (DO NOT USE SINGLE `$`) on a new line even if it is not required. Use it for tables and complex information display formats too.
         
         Please format your response using markdown for emphasis and clarity. Use the following elements...
         - `[hyperlink text](http://example.com)` for links
@@ -750,7 +750,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         
         IVA'S RESPONSE:
-        When you are done using tools, you must prefix the cited final response you will send to the user with `Iva: ` or else the user won't see it! Cite any URL sources utilized from Organic Results in your final response! Format math as LaTeX! Now, start responding below...
+        When you are done using tools, you must prefix the cited final response you will send to the user with `Iva: ` or else the user won't see it! Cite any URL sources utilized from Organic Results in your final response! Now, start responding below...
         --------------------
         {{agent_scratchpad}}
         """
