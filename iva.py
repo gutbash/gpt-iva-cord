@@ -747,14 +747,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         Decide what to say next based on the following message history.
         
         {{chat_history}}
-        
-        USER'S PROMPT:
-        This is the user's latest message to respond to.
         --------------------
         User: {{input}}
         
         IVA'S RESPONSE:
-        You must ask yourself, `Thought: Do I need to use a tool? [Yes/No]` every time! When you are done using tools, You must prefix the cited final response you will send to the user with `Iva: `! Cite your sources! Now, start responding below.
+        You must ask yourself, `Thought: Do I need to use a tool? [Yes/No]` every time! When you are done using tools, You must prefix the cited final response you will send to the user with `Iva: `! You must cite any sources utilized! Do not forget these things! Now, start responding below.
         --------------------
         {{agent_scratchpad}}
         """
