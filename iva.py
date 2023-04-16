@@ -909,10 +909,13 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 total_cost = cb.total_cost
                 
         except Exception as e:
-            print(e)
-            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
-            await interaction.followup.send(embed=embed)
-            return
+            if str(e).startswith("Could not parse LLM output:"):
+                reply = reply.replace("Thought: Do I need to use a tool? No", "")
+            else:
+                print(e)
+                embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
+                await interaction.followup.send(embed=embed)
+                return
         
         dash_count = ""
         interaction_count = (len(memory.buffer)//2)-1
