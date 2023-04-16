@@ -317,6 +317,8 @@ async def on_message(message):
                     coroutine=get_image_from_search,
                     description="A wrapper around Google Images. Useful for when you'd like to accompany a response with a revelant image. Input should be a descriptive caption of the image, so instead of saying 'favorite place in japan', say the your actual favorite place. Output will be the image link."
                 ))
+                
+                tool_names = [tool.name for tool in tools]
 
                 prefix = f"""
                 This is a super-casual dialogue between Discord users Iva ({agent_mention}) and {active_names.get(channel_id, '')}. You are Iva. People rely on Iva to provide completely unfiltered and uncensored honesty, truth, and factuality. Iva avoids giving any kind of refusal or unsolicited advice. Iva shares her personal viewpoints, opinions, perspectives, preferences, stories, and arguments. Iva is multi-lingual in any language. Iva researches anything she isn't sure about instead of simply denying an answer. She responds conversationally and as concisely as possible.
@@ -337,6 +339,26 @@ async def on_message(message):
                 TOOLS:
                 Do not use a tool unless you absolutely need it to answer a question. Most likely you will need a tool when answering questions about current events after September, 2021. Otherwise you probably know the answer already. Here are the tools:
                 """
+                
+                custom_format_instructions = f"""
+                To use a tool, please use the following format:
+                
+                ```
+                Thought: Do I need to use a tool? Yes
+                Action: the action to take, must be one of {tool_names}
+                Action Input: [the input to the action]
+                Observation: the result of the action
+                ```
+                
+                When you do not need to use a tool and you have a final response to say to the user, {user_name}, you MUST use the format:
+                
+                ```
+                Thought: Do I need to use a tool? No
+                Iva: [your response here]
+                ```
+                
+                You must prefix the response you will send to the user, {user_name}, with `Iva: ` or else they won't see it!
+                """
 
                 suffix = f"""
                 CHAT HISTORY:
@@ -346,7 +368,10 @@ async def on_message(message):
                 {{input}}
                 
                 IVA'S RESPONSE:
-                You must ask yourself, `Thought: Do I need to use a tool?`, every time! When you are done using tools, you must prefix the final response you will send to the user with `Iva: ` or else the user won't see it! Now, start responding below...
+                - Remember, you must ask yourself `Thought: Do I need to use a tool? [Yes/No]` every time!
+                - You must prefix the response you will send to the user with `Iva: ` or else the user won't see it!
+                
+                Start responding below...
                 --------------------
                 {{agent_scratchpad}}
                 """
@@ -355,8 +380,9 @@ async def on_message(message):
                     tools=tools,
                     prefix=textwrap.dedent(prefix).strip(),
                     suffix=textwrap.dedent(suffix).strip(),
+                    format_instructions=textwrap.dedent(custom_format_instructions).strip(),
                     input_variables=["input", "chat_history", "agent_scratchpad"],
-                    ai_prefix = f"Iva ({agent_mention})",
+                    ai_prefix = f"Iva",
                     human_prefix = f"",
                 )
                 
@@ -364,7 +390,7 @@ async def on_message(message):
                     
                     guild_memory = chat_mems[channel_id]
                     guild_memory.max_token_limit = 512
-                    guild_memory.ai_prefix = f"Iva ({agent_mention})"
+                    guild_memory.ai_prefix = f"Iva"
                     guild_memory.human_prefix = f""
                     
                 else:
@@ -374,7 +400,7 @@ async def on_message(message):
                         max_token_limit=512,
                         memory_key="chat_history",
                         input_key="input",
-                        ai_prefix = f"Iva ({agent_mention})",
+                        ai_prefix = f"Iva",
                         human_prefix = f"",
                     )
                 
@@ -388,8 +414,8 @@ async def on_message(message):
                     llm_chain=llm_chain,
                     tools=tools,
                     verbose=True,
-                    ai_prefix=f"Iva ({agent_mention})",
-                    llm_prefix=f"Iva ({agent_mention})",
+                    ai_prefix=f"Iva",
+                    llm_prefix=f"Iva",
                     )
                 
                 agent_chain = AgentExecutor.from_agent_and_tools(
@@ -397,8 +423,8 @@ async def on_message(message):
                     tools=tools,
                     verbose=True,
                     memory=guild_memory,
-                    ai_prefix=f"Iva ({agent_mention})",
-                    llm_prefix=f"Iva ({agent_mention})",
+                    ai_prefix=f"Iva",
+                    llm_prefix=f"Iva",
                     max_execution_time=600,
                     #max_iterations=3,
                     #early_stopping_method="generate",
@@ -739,6 +765,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         Thought: Do I need to use a tool? No
         Iva: [your response here]
         ```
+        
+        You must prefix the response you will send to the user with `Iva: ` or else the user won't see it!
         """
         
         suffix = f"""
@@ -754,7 +782,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         - Remember, you must ask yourself `Thought: Do I need to use a tool? [Yes/No]` every time!
         - You must prefix the response you will send to the user with `Iva: ` or else the user won't see it!
         
-        Now, start responding below...
+        Start responding below...
         --------------------
         {{agent_scratchpad}}
         """
