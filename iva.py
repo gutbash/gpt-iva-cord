@@ -231,7 +231,6 @@ async def on_message(message):
             async def question_answer_webpage(url, question):
                 
                 url = url.strip("[").strip("]")
-                str.rs
                 text = await get_important_text(url)
                 texts = text_splitter.split_text(text)
                 docs = [Document(page_content=t) for t in texts[:3]]
