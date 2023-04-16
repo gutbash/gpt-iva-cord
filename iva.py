@@ -859,6 +859,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         )
         
         k_limit = 6
+        total_cost = None
         
         if channel_id in ask_mems and user_id in ask_mems[channel_id] and ask_mems[channel_id][user_id] is not None:
             
@@ -943,7 +944,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         for i in range(interaction_count):
             dash_count += "-"
             
-        if total_cost:
+        if total_cost is not None:
             prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}`  `{temperature}`  `{round(total_cost, 3)}`")
         else:
             prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}`  `{temperature}`")
