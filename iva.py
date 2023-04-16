@@ -780,13 +780,14 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         Decide what to say next in context based on the following message history.
         
         {{chat_history}}
+        
+        
         User: {{input}}
         
         
-        
         IVA'S RESPONSE:
-        Remember, if you are done using tools, you must say `Thought: Do I need to use a tool? No` immediately followed by your prefix `Iva: ` or else the user won't see it!
-    
+        You must send everything you want the user to see in your response after putting `Thought: Do I need to use a tool? No` followed by your prefix `Iva: ` or else the user won't see it!
+        
         Start responding below...
         --------------------
         {{agent_scratchpad}}
