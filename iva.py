@@ -169,7 +169,7 @@ async def on_message(message):
             
             chat_model = user_settings.get(id, {}).get('model', 'gpt-3.5-turbo')
             #temperature = user_settings.get(id, {}).get('temperature', 0.5)
-            termperature = 0.5
+            temperature = 0.5
             
             if result != None:
                 openai.api_key=result[0]
