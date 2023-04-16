@@ -1034,7 +1034,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             except Exception as e:
                 print(e)
         else:
-            if len(reply) > 4096:
+            if len(reply) > 4000:
                 try:
                     embeds = []
                     embeds.append(prompt_embed)
