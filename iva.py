@@ -779,9 +779,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         
         IVA'S RESPONSE:
-        - Remember, you must ask yourself `Thought: Do I need to use a tool? [Yes/No]` every time!
-        - You must prefix the response you will send to the user with `Iva: ` or else the user won't see it!
-        
+        Remember, if you are done using tools, you must say `Thought: Do I need to use a tool? No` immediately followed by your prefix `Iva: ` or else the user won't see it!
+    
         Start responding below...
         --------------------
         {{agent_scratchpad}}
