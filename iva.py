@@ -702,21 +702,21 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             name = "Organic Results",
             func=dummy_sync_function,
             coroutine=get_organic_results,
-            description="Use this to research and share articles, wikis, news, movies, videos, shopping, and more. Input should be a description of the query in question. Do not input the same query twice. Do not search for things unrelated to the user's original query. Do not input URL links. Output returns the top result you can utilize. You must parenthetically cite the result if referenced in your response as a clickable numbered hyperlink like ` [**1**](http://source.com)` (include space)."
+            description="Use this to research and share articles, wikis, news, movies, videos, shopping, and more. Input should be a description of the query in question. Do not input the same query twice. Do not search for things unrelated to the user's original query. Do not input URL links. Output returns the top result you can utilize. You must parenthetically cite the result if referenced in your response as a clickable bold numbered hyperlink like ` [**1**](http://source.com)` (include space)."
         ))
         
         tools.append(Tool(
             name = "Summarize Webpage",
             func=dummy_sync_function,
             coroutine=summarize_webpage,
-            description=f"Use this tool sparingly to to summarize the content of a webpage for articles and other long form written content. Input should be the given url. The output will be a summary of the contents of the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ` [**1**](http://source.com)` (include space)."
+            description=f"Use this tool sparingly to to summarize the content of a webpage for articles and other long form written content. Input should be the given url. The output will be a summary of the contents of the page. You must parenthetically cite the inputted website if referenced in your response as a clickable bold numbered hyperlink like ` [**1**](http://source.com)` (include space)."
         ))
         
         tools.append(Tool(
             name = "Q&A Webpage",
             func=dummy_sync_function,
             coroutine=parse_qa_webpage_input,
-            description=f"Use this tool sparingly to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like `[url],[question]`. The output will be an answer to the input question from the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ` [**1**](http://source.com)` (include space)."
+            description=f"Use this tool sparingly to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like `[url],[question]`. The output will be an answer to the input question from the page. You must parenthetically cite the inputted website if referenced in your response as a clickable bold numbered hyperlink like ` [**1**](http://source.com)` (include space)."
         ))
         
         tools.append(Tool(
@@ -738,7 +738,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         RULES:
         - You must only send links or URLs exclusively obtained through the Organic Results tool, never fabricate a fake link
-        - You must parenthetically cite any sources referenced from tools in your response as a clickable numbered hyperlink like ` [**1**](http://source.com)` (include space)
+        - You must parenthetically cite any sources referenced from tools in your response as a clickable bold numbered hyperlink like ` [**1**](http://source.com)` (include space)
         - Use ````[language]\\n[multi line code block]```` for ANY code. Make sure to include the language.
         - Answer and explain any and all math questions presented to the user in LaTeX code formatting for every mathematical expression, no matter how simple or complex. Wrap all LaTeX code in double dollar signs `$$` and place it on a new line, like this: `\\n$$[latex]$$`. This should be done even for expressions that do not strictly require LaTeX formatting. Apply LaTeX formatting to tables and other complex information displays as well.
 
