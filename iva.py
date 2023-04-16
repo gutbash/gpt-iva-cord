@@ -241,6 +241,8 @@ async def on_message(message):
                 texts = text_splitter.split_text(text)
                 docs = [Document(page_content=t) for t in texts[:3]]
                 print(docs)
+                if len(docs) > 2:
+                    docs = docs[:2]
                 chain = load_qa_chain(logical_llm, chain_type="map_reduce")
                 answer = await chain.arun(input_documents=docs, question=question)
                 
@@ -259,6 +261,8 @@ async def on_message(message):
                 texts = text_splitter.split_text(text)
                 docs = [Document(page_content=t) for t in texts[:3]]
                 print(docs)
+                if len(docs) > 2:
+                    docs = docs[:2]
                 #prepare chain
                 chain = load_summarize_chain(logical_llm, chain_type="map_reduce")
                 #run summary
@@ -660,7 +664,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             texts = text_splitter.split_text(text)
             docs = [Document(page_content=t) for t in texts[:3]]
             print(docs)
-            docs = docs[:2]
+            if len(docs) > 2:
+                docs = docs[:2]
             chain = load_qa_chain(logical_llm, chain_type="map_reduce")
             answer = await chain.arun(input_documents=docs, question=question)
             
@@ -679,7 +684,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             texts = text_splitter.split_text(text)
             docs = [Document(page_content=t) for t in texts[:3]]
             print(docs)
-            docs = docs[:2]
+            if len(docs) > 2:
+                docs = docs[:2]
             #prepare chain
             chain = load_summarize_chain(logical_llm, chain_type="map_reduce")
             #run summary
