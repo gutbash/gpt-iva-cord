@@ -751,7 +751,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         
         IVA'S RESPONSE:
-        Remember, you must ask yourself `Thought: Do I need to use a tool? [Yes/No]` every time! When you are done using tools, you must prefix the response you will send to the user with `Iva: ` or else the user won't see it! Share any URL sources utilized from Organic Results in your final response! Now, start responding below...
+        - Remember, you must ask yourself `Thought: Do I need to use a tool? [Yes/No]` every time!
+        - You must prefix the response you will send to the user with `Iva: ` or else the user won't see it!
+        
+        Now, start responding below...
         --------------------
         {{agent_scratchpad}}
         """
