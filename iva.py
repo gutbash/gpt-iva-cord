@@ -20,7 +20,6 @@ import itertools
 import pydot
 import PyPDF2
 import io
-import random
 import textwrap
 from bs4 import BeautifulSoup
 import chardet
@@ -34,16 +33,9 @@ from langchain.callbacks import get_openai_callback
 from langchain.chains.conversation.memory import ConversationSummaryBufferMemory
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.agents import Tool, AgentExecutor, load_tools, ConversationalAgent
-from langchain.callbacks import CallbackManager, StdOutCallbackHandler
 from langchain import LLMChain
-from langchain.chains import AnalyzeDocumentChain
-from langchain.document_loaders import TextLoader
-from langchain.chains import RetrievalQA
-from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.vectorstores import Chroma
 from langchain.chains.question_answering import load_qa_chain
 from langchain.text_splitter import TokenTextSplitter
-from langchain.chains.mapreduce import MapReduceChain
 from langchain.docstore.document import Document
 from langchain.chains.summarize import load_summarize_chain
 
@@ -60,8 +52,6 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 model_blip = replicate.models.get("salesforce/blip-2")
 version_blip = model_blip.versions.get("4b32258c42e9efd4288bb9910bc532a69727f9acd26aa08e175713a0a857a608")
-model_sd = replicate.models.get("stability-ai/stable-diffusion")
-version_sd = model_sd.versions.get("f178fa7a1ae43a9a9af01b833b9d2ecf97b1bcb0acfd2dc5dd04895e042863f1")
 
 replicate.Client(api_token=REPLICATE_API_TOKEN)
 
@@ -175,6 +165,10 @@ async def on_message(message):
         async with message.channel.typing():
             
             result = await async_fetch_key(id)
+            user_settings = await load_pickle_from_redis('user_settings')
+            
+            chat_model = user_settings.get(id, {}).get('model', 'gpt-3.5-turbo')
+            temperature = user_settings.get(id, {}).get('temperature', 0.5)
             
             if result != None:
                 openai.api_key=result[0]
@@ -282,8 +276,8 @@ async def on_message(message):
                 files = []
 
                 chat_llm = ChatOpenAI(
-                    temperature=0.5,
-                    model_name="gpt-3.5-turbo",
+                    temperature=temperature,
+                    model_name=chat_model,
                     #model_name="gpt-4",
                     openai_api_key=openai_key,
                     request_timeout=600,
@@ -1197,8 +1191,8 @@ async def tutorial(interaction):
     
     embed_other = discord.Embed(title="Other", color=discord.Color.dark_theme())
     embed_other.add_field(inline=True, name="`/reset`", value="reset `@iva` and `/iva` conversation history.")
-    embed_other.add_field(inline=True, name="`/model`", value="switch between `gpt-4` and `gpt-3.5` models for `/iva`.")
-    embed_other.add_field(inline=True, name="`/temperature`", value="change the temperature for `/iva`.")
+    embed_other.add_field(inline=True, name="`/model`", value="switch between `gpt-4` and `gpt-3.5` models.")
+    embed_other.add_field(inline=True, name="`/temperature`", value="change the temperature.")
     embed_other.add_field(inline=True, name="`/help`", value="show instructions for setup.")
     embed_other.add_field(inline=True, name="`/setup`", value="enter your key. `/help` for more info.")
     
