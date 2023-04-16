@@ -1223,14 +1223,14 @@ async def setup(interaction, key: str):
                     cursor.execute("UPDATE keys SET key = %s WHERE id = %s", (key, str(id)))
             
             embed = discord.Embed(description=f"<:ivathumbsup:1051918474299056189> **Key updated for {mention}.**", color=discord.Color.dark_theme())
-            await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=30)
+            await interaction.response.send_message(embed=embed, ephemeral=True, delete_after=10)
             
             conn.commit()
             
         elif key == result[0]:
             
             embed = discord.Embed(description=f"<:ivaerror:1051918443840020531> **Key already registered for {mention}.**", color=discord.Color.dark_theme())
-            await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=30)
+            await interaction.response.send_message(embed=embed, ephemeral=True, delete_after=10)
 
     else:
         
@@ -1240,7 +1240,7 @@ async def setup(interaction, key: str):
                 cursor.execute("INSERT INTO keys (id, key) VALUES (%s, %s)", (str(id), key))
 
         embed = discord.Embed(description=f"<:ivathumbsup:1051918474299056189> **Key registered for {mention}.**", color=discord.Color.dark_theme())
-        await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=30)
+        await interaction.response.send_message(embed=embed, ephemeral=True, delete_after=10)
         
 @tree.command(name = "model", description="choose a completion model")
 @app_commands.choices(choices=[
