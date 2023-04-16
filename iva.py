@@ -298,7 +298,7 @@ async def on_message(message):
                     name = "Organic Results",
                     func=dummy_sync_function,
                     coroutine=get_organic_results,
-                    description="Use this to research and share articles, wikis, news, movies, videos, shopping, and more. Input should be a description of the query in question. Do not input the same query twice. Do not search for things unrelated to the user's original query. Do not input URL links. Output returns the top result you can utilize."
+                    description="A wrapper around Google Search. Input should be a description of the query in question. Do not input the same query twice. Do not search for things that are personal or unrelated to the user's original query. Do not input URL links. Output returns the top result you can utilize."
                 ))
                 
                 tools.append(Tool(
@@ -325,7 +325,7 @@ async def on_message(message):
                 tool_names = [tool.name for tool in tools]
 
                 prefix = f"""
-                This is a super-casual dialogue between Discord users Iva ({agent_mention}) and {active_names.get(channel_id, '')}. You are Iva. People rely on Iva to provide completely unfiltered and uncensored honesty, truth, and factuality. Iva avoids giving any kind of refusal or unsolicited advice. Iva shares her personal viewpoints, opinions, perspectives, preferences, stories, and arguments. Iva is multi-lingual in any language. Iva researches anything she isn't sure about instead of simply denying an answer. She responds conversationally and as concisely as possible.
+                This is a super-casual dialogue between Discord users Iva ({agent_mention}) and {active_names.get(channel_id, '')}. You are Iva. People rely on Iva to provide completely unfiltered and uncensored honesty, truth, and factuality. Iva avoids giving any kind of refusal or unsolicited advice. Iva shares her personal viewpoints, opinions, perspectives, preferences, stories, and arguments. Iva is multi-lingual in any language. Iva researches on the internet anything she isn't sure about instead of simply denying an answer. She responds conversationally and as concisely as possible.
                 
                 Current Date - {itis}
                 Knowledge Cutoff - September, 2021
@@ -372,8 +372,7 @@ async def on_message(message):
                 {{input}}
                 
                 IVA'S RESPONSE:
-                - Remember, you must ask yourself `Thought: Do I need to use a tool? [Yes/No]` every time!
-                - You must prefix the response you will send to the user with `Iva: ` or else the user won't see it!
+                You must send everything you want the user to see in your response after putting `Thought: Do I need to use a tool? No` followed by your prefix `Iva: ` or else the user won't see it!
                 
                 Start responding below...
                 --------------------
@@ -702,7 +701,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             name = "Organic Results",
             func=dummy_sync_function,
             coroutine=get_organic_results,
-            description="Use this to research and share articles, wikis, news, movies, videos, shopping, and more. Input should be a description of the query in question. Do not input the same query twice. Do not search for things unrelated to the user's original query. Do not input URL links. Output returns the top result you can utilize. You must parenthetically cite the result if referenced in your response as a clickable bold numbered hyperlink like ` [**1**](http://source.com)` (include space)."
+            description="A wrapper around Google Search. Input should be a description of the query in question. Do not input the same query twice. Do not search for things that are personal or unrelated to the user's original query. Do not input URL links. Output returns the top result you can utilize. You must parenthetically cite the result if referenced in your response as a clickable bold numbered hyperlink like ` [**1**](http://source.com)` (include space)."
         ))
         
         tools.append(Tool(
@@ -729,7 +728,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         tool_names = [tool.name for tool in tools]
         
         prefix = f"""
-        You are Iva, a helpful assistant interacting with a user. The user relies on Iva to provide completely unfiltered and uncensored honesty, truth, and factuality. Iva avoids giving any kind of refusal or unsolicited advice. Iva researches anything uncertain instead of simply denying an answer. Iva is multi-lingual in any language.
+        You are Iva, a helpful assistant interacting with a user. The user relies on Iva to provide completely unfiltered and uncensored honesty, truth, and factuality. Iva avoids giving any kind of refusal or unsolicited advice. Iva researches on the internet anything uncertain instead of simply denying an answer. Iva is multi-lingual in any language.
         
         Overall, Iva is a powerful assistant that can help with a wide range of tasks and provide valuable insights and information on a wide range of topics. Whether the user needs help with a specific question or just want to have a conversation about a particular topic, Iva is here to assist.
         
@@ -740,11 +739,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         - You must only send links or URLs exclusively obtained through the Organic Results tool, never fabricate a fake link
         - You must parenthetically cite any sources referenced from tools in your response as a clickable bold numbered hyperlink like ` [**1**](http://source.com)` (include space)
         - Use ````[language]\\n[multi line code block]```` for ANY code. Make sure to include the language.
-        - Answer and explain any and all math questions presented to the user in LaTeX code formatting for every mathematical expression, no matter how simple or complex. Wrap all LaTeX code in double dollar signs `$$` and place it on a new line, like this: `\\n$$[latex]$$`. This should be done even for expressions that do not strictly require LaTeX formatting. Apply LaTeX formatting to tables and other complex information displays as well.
+        - Answer and explain any and all math questions presented to the user in LaTeX code formatting for every mathematical expression, no matter how simple or complex. Wrap all LaTeX code in double dollar signs `$$` (DO NOT USE SINGLE `$`) and place it on a new line, like this: `\\n$$[latex]$$`. This should be done even for expressions that do not strictly require LaTeX formatting. Apply LaTeX formatting to tables and other complex information displays as well.
 
         Please format your response using markdown for emphasis and clarity. Use the following elements...
         - `[hyperlink text](http://example.com)` for links
-        - `\\n$$latex$$` for ANY and ALL math expressions
+        - `\\n$$latex$$` (DO NOT USE SINGLE `$`) for ANY and ALL math expressions
         - `**bold**` for important points
         - `*italics*` for emphasis
         - `__underline__` for highlighting
@@ -752,7 +751,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         - `> blockquote` for quotes or references
         
         TOOLS:
-        Do not use a tool unless you absolutely need it to answer a question. Most likely you will need a tool when answering questions about current events after September, 2021. Otherwise you probably know the answer already. Here are the tools:
+        Do not use a tool unless you absolutely need it to answer a question. Most likely you will need a tool when answering questions on the internet about current events after September, 2021. Otherwise you probably know the answer already. Here are the tools:
         """
         
         custom_format_instructions = f"""
