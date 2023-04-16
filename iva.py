@@ -39,6 +39,12 @@ from langchain.text_splitter import TokenTextSplitter
 from langchain.docstore.document import Document
 from langchain.chains.summarize import load_summarize_chain
 
+from langchain.schema import (
+    AIMessage,
+    HumanMessage,
+    SystemMessage
+)
+
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_TOKEN")
 GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
 os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
@@ -911,7 +917,17 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             if str(e).startswith("Could not parse LLM output:"):
                 reply = str(e).replace("Could not parse LLM output: `", "")
                 reply = reply.strip("`")
-                print(memory.chat_memory.messages)
+                mem_list = memory.chat_memory.messages
+                extend_mems_list = [
+                    HumanMessage(
+                        content=prompt,
+                        additional_kwargs={},
+                    ),
+                    AIMessage(
+                        content=reply,
+                        additional_kwargs={},
+                    )]
+                mem_list.extend(extend_mems_list)
             else:
                 print(e)
                 embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
@@ -926,8 +942,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         for i in range(interaction_count):
             dash_count += "-"
-        
-        prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}`  `{temperature}`  `{round(total_cost, 3)}`")
+            
+        if total_cost:
+            prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}`  `{temperature}`  `{round(total_cost, 3)}`")
+        else:
+            prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}`  `{temperature}`")
         
         reply = reply.replace("```C#", "```csharp")
         
