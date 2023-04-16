@@ -909,7 +909,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 
         except Exception as e:
             if str(e).startswith("Could not parse LLM output:"):
-                reply = reply.replace("Thought: Do I need to use a tool? No", "")
+                reply = str(e).replace("Could not parse LLM output: `", "")
+                reply = reply.strip("`")
+                print(memory.chat_memory.messages)
             else:
                 print(e)
                 embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
