@@ -369,7 +369,10 @@ async def on_message(message):
                 Decide what to say next in context based on the following message history.
                 
                 {{chat_history}}
+                
+                
                 {{input}}
+                
                 
                 IVA'S RESPONSE:
                 You must send everything you want the user to see in your response after putting `Thought: Do I need to use a tool? No` followed by your prefix `Iva: ` or else the user won't see it!
