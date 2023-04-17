@@ -8,48 +8,6 @@ GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
 os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
 SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
 
-async def get_top_search_results(query: str) -> str:
-    try:
-        # Configure the GoogleSearch object with the provided query and API key
-        search = {
-            "q": query,
-            "api_key": SERPAPI_API_KEY,
-            "gl": "us",
-            "hl": "en",
-            "safe": "active",
-        }
-
-        async with aiohttp.ClientSession() as session:
-            async with session.get("https://serpapi.com/search", params=search) as response:
-                results = await response.json()
-
-        organic_results = results.get("organic_results")
-
-        # Extract the URLs and short descriptions of the top 10 search results
-        top_results = []
-        if organic_results and len(organic_results) > 0:
-            for i in range(3):
-                if i < len(organic_results):
-                    result = {}
-                    result["title"] = organic_results[i]["title"]
-                    result["link"] = organic_results[i]["link"]
-                    result["description"] = organic_results[i].get("snippet", "No snippet available.")
-                    top_results.append(result)
-                else:
-                    break
-
-        # Format the results as a plain text unordered list
-        results = ""
-        for result_index in range(len(top_results)):
-            results += f"\n\n[Result {result_index + 1}]\nTitle: {top_results[result_index]['title']}\nURL: {top_results[result_index]['link']}\nDescription: {top_results[result_index]['description']}"
-
-        return results
-
-    except Exception as e:
-        print(f"Error: {e}")
-        return None
-
-    
 async def get_image_from_search(query: str) -> str:
     # Replace YOUR_API_KEY and YOUR_CSE_ID with your own API key and CSE ID
     url = f"https://www.googleapis.com/customsearch/v1?q={query}&key={GOOGLE_API_KEY}&cx={GOOGLE_CSE_ID}&searchType=image"
@@ -82,8 +40,7 @@ async def get_organic_results(query: str) -> str:
     organic_results_raw = results.get("organic_results", None)
     knowledge_graph_raw = results.get("knowledge_graph", None)
     
-    organic_results = ""
-    knowledge_graph = ""
+    organic_results, knowledge_graph = ""
     
     if organic_results_raw is not None:
         
@@ -115,7 +72,90 @@ async def get_organic_results(query: str) -> str:
     final_results = f"\n\n{organic_results}{knowledge_graph}\n"
     
     return final_results
+
+async def get_shopping_results(query: str) -> str:
     
+    # Configure the GoogleSearch object with the provided query and API key
+    search = {
+        "engine": "google",
+        "q": query,
+        "api_key": SERPAPI_API_KEY,
+        "gl": "us",
+        "hl": "en",
+        "safe": "active",
+    }
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get("https://serpapi.com/search", params=search) as response:
+            results = await response.json()
+    
+    immersive_products_raw = results.get("immersive_products", None)
+    inline_products_raw = results.get("inline_products", None)
+    shopping_results_raw = results.get("shopping_results", None)
+    product_result_raw = results.get("product_result", None)
+    
+    immersive_products, inline_products, shopping_results, product_result = ""
+    
+    if immersive_products_raw is not None:
+        
+        immersive_products_keys = [
+            "source",
+            "title",
+            "snippets",
+            "rating",
+            "price",
+            "original_price",
+        ]
+        
+        immersive_products = await get_formatted_key_values_from_list(immersive_products_keys, immersive_products_raw)
+        immersive_products = "\n".join(immersive_products)
+        
+    if inline_products_raw is not None:
+        
+        inline_products_keys = [
+            "title",
+            "source",
+            "price",
+            "original_price",
+            "rating",
+            "specifications",
+        ]
+        
+        inline_products = await get_formatted_key_values_from_list(inline_products_keys, inline_products_raw)
+        inline_products = "\n".join(inline_products)
+        
+    if shopping_results_raw is not None:
+        
+        shopping_results_keys = [
+            "title",
+            "price",
+            "link",
+            "source",
+            "rating",
+        ]
+        
+        shopping_results = await get_formatted_key_values_from_list(shopping_results_keys, shopping_results_raw)
+        shopping_results = "\n".join(shopping_results)
+        
+    if product_result is not None:
+        
+        product_result_keys = [
+            "title",
+            "rating",
+            "pricing",
+            "manufacturer",
+            "description",
+            "features",
+            "review_results",
+            "videos",
+        ]
+        
+        product_result = await get_formatted_key_values(product_result_keys, product_result_raw)
+        product_result = "\n".join(product_result)
+        
+    final_results = f"\n\n{immersive_products}{inline_products}{shopping_results}{product_result}\n"
+    
+    return final_results
     
 async def get_news_results(query: str) -> str:
     
@@ -138,27 +178,6 @@ async def get_news_results(query: str) -> str:
     
     news_results_keys = []
     top_stories_keys = []
-    
-async def get_shopping_results(query: str) -> str:
-    
-    # Configure the GoogleSearch object with the provided query and API key
-    search = {
-        "engine": "google",
-        "q": query,
-        "api_key": SERPAPI_API_KEY,
-        "gl": "us",
-        "hl": "en",
-        "safe": "active",
-    }
-
-    async with aiohttp.ClientSession() as session:
-        async with session.get("https://serpapi.com/search", params=search) as response:
-            results = await response.json()
-    
-    immersive_products = results.get("immersive_products", None)
-    inline_products = results.get("inline_products", None)
-    shopping_results = results.get("shopping_results", None)
-    product_result = results.get("product_result", None)
     
 async def get_formatted_key_values_from_list(keys: list, list_of_dictionaries: list) -> list:
     all_results = []

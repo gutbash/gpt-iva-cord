@@ -6,7 +6,7 @@ import discord.ext.tasks
 from log_utils import colors
 from redis_utils import save_pickle_to_redis, load_pickle_from_redis
 from postgres_utils import async_fetch_key
-from tools import get_top_search_results, get_image_from_search, get_organic_results
+from tools import get_top_search_results, get_image_from_search, get_organic_results, get_shopping_results
 
 import os
 import openai
@@ -704,21 +704,28 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             name = "Organic Results",
             func=dummy_sync_function,
             coroutine=get_organic_results,
-            description="A wrapper around Google Search. Input should be a description of the query in question. Do not input the same query twice. Do not search for things that are personal or unrelated to the user's original query. Do not input URL links. Output returns the top result you can utilize. You must parenthetically cite the result if referenced in your response as a clickable numbered hyperlink like ` [1](http://source.com)` (include space)."
+            description="A wrapper around Google Search. Input should be a description of the query in question. Do not input the same query twice. Do not search for things that are personal or unrelated to the user's original query. Do not input URL links. Output returns the top result you can read or simply share with the user. You must parenthetically cite the result as a clickable numbered hyperlink like ` [1](http://source.com)` (include space) if it is referenced in your response."
+        ))
+        
+        tools.append(Tool(
+            name = "Shopping Results",
+            func=dummy_sync_function,
+            coroutine=get_shopping_results,
+            description="Use this to research shopping products. Input should be a description of the query in question. Do not input the same query twice. Output returns products you can share with the user."
         ))
         
         tools.append(Tool(
             name = "Summarize Webpage",
             func=dummy_sync_function,
             coroutine=summarize_webpage,
-            description=f"Use this tool sparingly to to summarize the content of a webpage for articles and other long form written content. Input should be the given url. The output will be a summary of the contents of the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ` [1](http://source.com)` (include space)."
+            description=f"Use this sparingly to to summarize the content of a webpage for articles and other long form written content. Input should be the given url. The output will be a summary of the contents of the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ` [1](http://source.com)` (include space)."
         ))
         
         tools.append(Tool(
             name = "Q&A Webpage",
             func=dummy_sync_function,
             coroutine=parse_qa_webpage_input,
-            description=f"Use this tool sparingly to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like `[url],[question]`. The output will be an answer to the input question from the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ` [1](http://source.com)` (include space)."
+            description=f"Use this sparingly to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like `[url],[question]`. The output will be an answer to the input question from the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ` [1](http://source.com)` (include space)."
         ))
         
         tools.append(Tool(
