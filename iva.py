@@ -711,7 +711,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             name = "Shopping Results",
             func=dummy_sync_function,
             coroutine=get_shopping_results,
-            description="Use this to research shopping products. Input should be a description of the query in question. Do not input the same query twice. Output returns products you can share with the user."
+            description="Use this to research shopping products. Input should be the the product in question. Do not input the same query twice. Output returns products you can share with the user."
         ))
         
         tools.append(Tool(
@@ -746,7 +746,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         Knowledge Cutoff - September, 2021
         
         RULES:
-        - You must only send links or URLs exclusively obtained through the Organic Results tool, never fabricate a fake link
+        - You must only send links or URLs exclusively obtained through the Organic and Shopping Results tools
+        - Absolutely never send a fabricated fake link
         - You must parenthetically cite any sources referenced from tools in your response as a clickable bold numbered hyperlink like ` [1](http://source.com)` (include space)
         - Use ````[language]\\n[multi line code block]```` for ANY code. You must include a language after the first backticks.
         - Answer and explain any and all math questions presented to the user in LaTeX code formatting for every mathematical expression, no matter how simple or complex. Wrap all LaTeX code in double dollar signs `$$` (DO NOT USE SINGLE `$`) and place it on a new line, like this: `\\n$$[latex]$$`. This should be done even for expressions that do not strictly require LaTeX formatting. Apply LaTeX formatting to tables and other complex information displays as well.
