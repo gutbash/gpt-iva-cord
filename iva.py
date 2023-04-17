@@ -617,7 +617,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             openai_api_key=openai_key,
             temperature=0,
             verbose=True,
-            model_name=chat_model,
+            #model_name=chat_model,
             #callback_manager=manager,
             request_timeout=600,
             )
