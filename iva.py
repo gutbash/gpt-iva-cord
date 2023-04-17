@@ -668,6 +668,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             url = url.strip("[").strip("]")
             text = await get_important_text(url)
             texts = text_splitter.split_text(text)
+
+            if not texts:
+                return "No text found to summarize!"
+
             docs = [Document(page_content=t) for t in texts[:3]]
             print(docs)
             """
@@ -690,6 +694,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             text = await get_important_text(url)
             #prepare and parse the text
             texts = text_splitter.split_text(text)
+
+            if not texts:
+                return "No text found to summarize!"
+
             docs = [Document(page_content=t) for t in texts[:3]]
             print(docs)
             """
