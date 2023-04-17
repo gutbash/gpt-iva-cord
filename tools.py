@@ -96,7 +96,7 @@ async def get_shopping_results(query: str) -> str:
     
     immersive_products, inline_products, shopping_results, product_result = "", "", "", ""
     
-    if immersive_products_raw is not None:
+    if immersive_products_raw[0] is not None:
         
         immersive_products_keys = [
             "source",
@@ -107,10 +107,10 @@ async def get_shopping_results(query: str) -> str:
             "original_price",
         ]
         
-        immersive_products = await get_formatted_key_values_from_list(immersive_products_keys, immersive_products_raw)
-        immersive_products = "\n".join(immersive_products)
+        immersive_products = await get_formatted_key_values(immersive_products_keys, immersive_products_raw)
+        immersive_products = f"\n\n{immersive_products}"
         
-    if inline_products_raw is not None:
+    if inline_products_raw[0] is not None:
         
         inline_products_keys = [
             "title",
@@ -121,10 +121,10 @@ async def get_shopping_results(query: str) -> str:
             "specifications",
         ]
         
-        inline_products = await get_formatted_key_values_from_list(inline_products_keys, inline_products_raw)
-        inline_products = "\n".join(inline_products)
+        inline_products = await get_formatted_key_values(inline_products_keys, inline_products_raw)
+        inline_products = f"\n\n{inline_products}"
         
-    if shopping_results_raw is not None:
+    if shopping_results_raw[0] is not None:
         
         shopping_results_keys = [
             "title",
@@ -134,8 +134,8 @@ async def get_shopping_results(query: str) -> str:
             "rating",
         ]
         
-        shopping_results = await get_formatted_key_values_from_list(shopping_results_keys, shopping_results_raw)
-        shopping_results = "\n".join(shopping_results)
+        shopping_results = await get_formatted_key_values(shopping_results_keys, shopping_results_raw)
+        shopping_results = f"\n\n{shopping_results}"
         
     if product_result_raw is not None:
         
@@ -151,7 +151,7 @@ async def get_shopping_results(query: str) -> str:
         ]
         
         product_result = await get_formatted_key_values(product_result_keys, product_result_raw)
-        product_result = "\n".join(product_result)
+        product_result = f"\n\n{product_result}"
         
     final_results = f"\n\n{immersive_products}{inline_products}{shopping_results}{product_result}\n"
     
