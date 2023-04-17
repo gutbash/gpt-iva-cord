@@ -6,7 +6,7 @@ import discord.ext.tasks
 from log_utils import colors
 from redis_utils import save_pickle_to_redis, load_pickle_from_redis
 from postgres_utils import async_fetch_key
-from tools import get_top_search_results, get_image_from_search, get_organic_results, get_shopping_results
+from tools import get_image_from_search, get_organic_results, get_shopping_results
 
 import os
 import openai
