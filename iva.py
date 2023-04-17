@@ -59,6 +59,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 model_blip = replicate.models.get("salesforce/blip-2")
 version_blip = model_blip.versions.get("4b32258c42e9efd4288bb9910bc532a69727f9acd26aa08e175713a0a857a608")
 
+
 replicate.Client(api_token=REPLICATE_API_TOKEN)
 
 tokenizer = GPT2TokenizerFast.from_pretrained("gpt2") # initialize tokenizer
