@@ -704,21 +704,21 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             name = "Organic Results",
             func=dummy_sync_function,
             coroutine=get_organic_results,
-            description="A wrapper around Google Search. Input should be a description of the query in question. Do not input the same query twice. Do not search for things that are personal or unrelated to the user's original query. Do not input URL links. Output returns the top result you can utilize. You must parenthetically cite the result if referenced in your response as a clickable bold numbered hyperlink like ` [**1**](http://source.com)` (include space)."
+            description="A wrapper around Google Search. Input should be a description of the query in question. Do not input the same query twice. Do not search for things that are personal or unrelated to the user's original query. Do not input URL links. Output returns the top result you can utilize. You must parenthetically cite the result if referenced in your response as a clickable numbered hyperlink like ` [1](http://source.com)` (include space)."
         ))
         
         tools.append(Tool(
             name = "Summarize Webpage",
             func=dummy_sync_function,
             coroutine=summarize_webpage,
-            description=f"Use this tool sparingly to to summarize the content of a webpage for articles and other long form written content. Input should be the given url. The output will be a summary of the contents of the page. You must parenthetically cite the inputted website if referenced in your response as a clickable bold numbered hyperlink like ` [**1**](http://source.com)` (include space)."
+            description=f"Use this tool sparingly to to summarize the content of a webpage for articles and other long form written content. Input should be the given url. The output will be a summary of the contents of the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ` [1](http://source.com)` (include space)."
         ))
         
         tools.append(Tool(
             name = "Q&A Webpage",
             func=dummy_sync_function,
             coroutine=parse_qa_webpage_input,
-            description=f"Use this tool sparingly to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like `[url],[question]`. The output will be an answer to the input question from the page. You must parenthetically cite the inputted website if referenced in your response as a clickable bold numbered hyperlink like ` [**1**](http://source.com)` (include space)."
+            description=f"Use this tool sparingly to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like `[url],[question]`. The output will be an answer to the input question from the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ` [1](http://source.com)` (include space)."
         ))
         
         tools.append(Tool(
@@ -740,7 +740,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         RULES:
         - You must only send links or URLs exclusively obtained through the Organic Results tool, never fabricate a fake link
-        - You must parenthetically cite any sources referenced from tools in your response as a clickable bold numbered hyperlink like ` [**1**](http://source.com)` (include space)
+        - You must parenthetically cite any sources referenced from tools in your response as a clickable bold numbered hyperlink like ` [1](http://source.com)` (include space)
         - Use ````[language]\\n[multi line code block]```` for ANY code. You must include a language after the first backticks.
         - Answer and explain any and all math questions presented to the user in LaTeX code formatting for every mathematical expression, no matter how simple or complex. Wrap all LaTeX code in double dollar signs `$$` (DO NOT USE SINGLE `$`) and place it on a new line, like this: `\\n$$[latex]$$`. This should be done even for expressions that do not strictly require LaTeX formatting. Apply LaTeX formatting to tables and other complex information displays as well.
 
@@ -809,7 +809,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 pdf_content = ""
                 for page in range(len(pdf_reader.pages)):
                     pdf_content += pdf_reader.pages[page].extract_text()
-                attachment_text = f"\n\n{pdf_content}"
+                attachment_text = f"\n\n--- {file.filename} ---\n\n{pdf_content}"
 
             else:
                 try:
@@ -817,7 +817,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                     detected = chardet.detect(attachment_bytes)
                     encoding = detected['encoding']
                     # Decode using the detected encoding
-                    attachment_text = f"\n\n{attachment_bytes.decode(encoding)}"
+                    attachment_text = f"\n\n--- {file.filename} ---\n\n{attachment_bytes.decode(encoding)}"
                     
                 except:
                     embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} the attachment\'s file type is unknown. consider converting it to plain text such as `.txt`.', color=discord.Color.dark_theme())
