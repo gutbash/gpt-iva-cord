@@ -558,7 +558,7 @@ class Menu(discord.ui.View):
 
 @tree.command(name = "iva", description="write a prompt")
 @app_commands.describe(prompt = "prompt", file = "file")
-async def iva(interaction: discord.Interaction, prompt: str, file: discord.ext.commands.Greedy[discord.Attachment] = None):
+async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attachment = None):
     
     global last_response
     
