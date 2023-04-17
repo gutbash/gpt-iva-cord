@@ -137,7 +137,7 @@ async def get_shopping_results(query: str) -> str:
         shopping_results = await get_formatted_key_values_from_list(shopping_results_keys, shopping_results_raw)
         shopping_results = "\n".join(shopping_results)
         
-    if product_result is not None:
+    if product_result_raw is not None:
         
         product_result_keys = [
             "title",
