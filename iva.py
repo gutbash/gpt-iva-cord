@@ -706,14 +706,14 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             coroutine=get_organic_results,
             description="A wrapper around Google Search. Input should be a description of the query in question. Do not input the same query twice. Do not search for things that are personal or unrelated to the user's original query. Do not input URL links. Output returns the top result you can read or simply share with the user. You must parenthetically cite the result as a clickable numbered hyperlink like ` [1](http://source.com)` (include space) if it is referenced in your response."
         ))
-        
+        """
         tools.append(Tool(
             name = "Shopping Results",
             func=dummy_sync_function,
             coroutine=get_shopping_results,
             description="Use this to research shopping products. Input should be the the product in question. Do not input the same query twice. Output returns products you can share with the user."
         ))
-        
+        """
         tools.append(Tool(
             name = "Summarize Webpage",
             func=dummy_sync_function,
@@ -746,7 +746,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         Knowledge Cutoff - September, 2021
         
         RULES:
-        - You must only send links or URLs exclusively obtained through the Organic and Shopping Results tools
+        - You must only send links or URLs exclusively obtained through tools
         - Absolutely never send a fabricated fake link
         - You must parenthetically cite any sources referenced from tools in your response as a clickable bold numbered hyperlink like ` [1](http://source.com)` (include space)
         - Use ````[language]\\n[multi line code block]```` for ANY code. You must include a language after the first backticks.
