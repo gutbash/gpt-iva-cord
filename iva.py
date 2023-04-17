@@ -35,6 +35,7 @@ from langchain.memory import ConversationBufferWindowMemory
 from langchain.agents import Tool, AgentExecutor, load_tools, ConversationalAgent
 from langchain import LLMChain
 from langchain.chains.question_answering import load_qa_chain
+from langchain.chains.qa_with_sources import load_qa_with_sources_chain
 from langchain.text_splitter import TokenTextSplitter
 from langchain.docstore.document import Document
 from langchain.chains.summarize import load_summarize_chain
@@ -399,7 +400,7 @@ async def on_message(message):
                 if chat_mems[channel_id] != None:
                     
                     guild_memory = chat_mems[channel_id]
-                    guild_memory.max_token_limit = 512
+                    guild_memory.max_token_limit = 256
                     guild_memory.ai_prefix = f"Iva"
                     guild_memory.human_prefix = f""
                     
@@ -407,7 +408,7 @@ async def on_message(message):
 
                     guild_memory = ConversationSummaryBufferMemory(
                         llm=chat_llm,
-                        max_token_limit=512,
+                        max_token_limit=256,
                         memory_key="chat_history",
                         input_key="input",
                         ai_prefix = f"Iva",
@@ -682,8 +683,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             if len(docs) > 2:
                 docs = docs[:2]
             """
-            chain = load_qa_chain(logical_llm, chain_type="map_reduce")
-            answer = await chain.arun(input_documents=docs, question=question)
+            #chain = load_qa_chain(logical_llm, chain_type="map_reduce")
+            chain = load_qa_with_sources_chain(logical_llm, chain_type="map_reduce")
+            #answer = await chain.arun(input_documents=docs, question=question)
+            answer = await chain.arun({"input_documents": docs, "question": question}, question=question)
             
             return answer
         
