@@ -741,7 +741,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         RULES:
         - You must only send links or URLs exclusively obtained through the Organic Results tool, never fabricate a fake link
         - You must parenthetically cite any sources referenced from tools in your response as a clickable bold numbered hyperlink like ` [**1**](http://source.com)` (include space)
-        - Use ````[language]\\n[multi line code block]```` for ANY code. Make sure to include the language.
+        - Use ````[language]\\n[multi line code block]```` for ANY code. You must include a language after the first backticks.
         - Answer and explain any and all math questions presented to the user in LaTeX code formatting for every mathematical expression, no matter how simple or complex. Wrap all LaTeX code in double dollar signs `$$` (DO NOT USE SINGLE `$`) and place it on a new line, like this: `\\n$$[latex]$$`. This should be done even for expressions that do not strictly require LaTeX formatting. Apply LaTeX formatting to tables and other complex information displays as well.
 
         Please format your response using markdown for emphasis and clarity. Use the following elements...
