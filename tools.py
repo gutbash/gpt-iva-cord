@@ -40,7 +40,7 @@ async def get_organic_results(query: str) -> str:
     organic_results_raw = results.get("organic_results", None)
     knowledge_graph_raw = results.get("knowledge_graph", None)
     
-    organic_results, knowledge_graph = ""
+    organic_results, knowledge_graph = "", ""
     
     if organic_results_raw is not None:
         
@@ -94,7 +94,7 @@ async def get_shopping_results(query: str) -> str:
     shopping_results_raw = results.get("shopping_results", None)
     product_result_raw = results.get("product_result", None)
     
-    immersive_products, inline_products, shopping_results, product_result = ""
+    immersive_products, inline_products, shopping_results, product_result = "", "", "", ""
     
     if immersive_products_raw is not None:
         
