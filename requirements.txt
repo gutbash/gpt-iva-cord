@@ -17,3 +17,4 @@ aioredis
 chardet
 lxml
 jinja2
+brotlipy
