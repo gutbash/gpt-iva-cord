@@ -939,7 +939,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                         else:
                             embeds.append(match_embed)
                             files.append(dot_file)
-                        
+                    
             except Exception as e:
                 print(e)
         else:
