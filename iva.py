@@ -7,6 +7,7 @@ from log_utils import colors
 from redis_utils import save_pickle_to_redis, load_pickle_from_redis
 from postgres_utils import async_fetch_key
 from tools import get_image_from_search, get_organic_results, get_shopping_results
+from chains import QAWithSourcesChain
 
 import os
 import openai
@@ -684,10 +685,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 docs = docs[:2]
             """
             #chain = load_qa_chain(logical_llm, chain_type="map_reduce")
-            chain = load_qa_with_sources_chain(logical_llm, chain_type="map_reduce", verbose=True)
+            chain = QAWithSourcesChain.from_llm(logical_llm)
+            #chain = load_qa_with_sources_chain(logical_llm, chain_type="map_reduce", verbose=True)
             #answer = await chain.arun(input_documents=docs, question=question)
             answer = await chain.arun(
-                {"docs": docs, "question": question},
+                {"input_documents": docs, "question": question},
                 #return_only_outputs=True
                 )
             
