@@ -684,7 +684,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 docs = docs[:2]
             """
             #chain = load_qa_chain(logical_llm, chain_type="map_reduce")
-            chain = load_qa_with_sources_chain(logical_llm, chain_type="map_reduce")
+            chain = load_qa_with_sources_chain(logical_llm, chain_type="map_reduce", verbose=True)
             #answer = await chain.arun(input_documents=docs, question=question)
             answer = await chain.arun({"input_documents": docs, "question": question})
             
