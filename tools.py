@@ -27,7 +27,7 @@ async def question_answer_webpage(url, question, llm):
     texts = text_splitter.split_text(text)
 
     if not texts:
-        return "No text found to summarize!"
+        return "No text found!"
 
     docs = [Document(page_content=t) for t in texts[:3]]
 
@@ -53,7 +53,7 @@ async def summarize_webpage(url, llm):
     texts = text_splitter.split_text(text)
 
     if not texts:
-        return "No text found to summarize!"
+        return "No text found!"
 
     docs = [Document(page_content=t) for t in texts[:3]]
 

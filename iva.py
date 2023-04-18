@@ -624,7 +624,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         - You must parenthetically cite any sources referenced from tools in your response as a clickable bold numbered hyperlink like ` [1](http://source.com)` (include space)
         - Use code blocks like ```[language]\\n[code block]``` for ANY code. You must include a language after the first backticks.
         - Answer and explain any and all math questions presented to the user in LaTeX code formatting for every mathematical expression, no matter how simple or complex. Wrap all LaTeX code in double dollar signs `$$` (DO NOT USE SINGLE `$`) and place it on a new line, like this: `\\n$$[latex]$$`. This should be done even for expressions that do not strictly require LaTeX formatting. Apply LaTeX formatting to tables and other complex information displays as well.
-        - Use DOT code blocks like ```dot\\n[dot code block]``` to make digraphs to visualize and explain concepts in a stylish and aesthetically pleasing way with bgcolor=\"#36393f\" and complementary text colors and node fill colors.
+        - Use DOT code blocks like ```dot\\n[dot code block]``` to make digraphs to illustrate, visualize and explain concepts.
 
         Please format your response using markdown for emphasis and clarity. Use the following elements...
         - `[hyperlink text](http://example.com)` for links
@@ -862,8 +862,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             dot_matches = dot_pattern.finditer(reply)
             dot_matches = [match.group(1).strip() for match in dot_matches]
             
-            non_matches = re.sub(r"(\$\$|\%\%|\@\@).*?(\@\@|\%\%|\$\$)", "~~", reply, flags=re.DOTALL)
-            reply_trim = re.sub(r"(\$\$|\%\%|\@\@).*?(\@\@|\%\%|\$\$)", "", reply, flags=re.DOTALL)
+            non_matches = re.sub(r"```dot\s*[\s\S]*?\s*```|(\$\$|\%\%|\@\@).*?(\@\@|\%\%|\$\$)", "~~", reply, flags=re.DOTALL)
 
             non_matches = non_matches.split("~~")
             
@@ -916,6 +915,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                             files.append(tex_file)
                             
                     if dot_match != None and dot_match != "" and dot_match != "\n" and dot_match.isspace() != True:
+                        
+                        pattern = r'((di)?graph\s+[^{]*\{)'
+                        replacement = r'\1\nbgcolor="#36393f";\nnode [fontcolor=white, color=white];\nedge [fontcolor=white, color=white];\n'
+                        dot_match = re.sub(pattern, replacement, dot_match)
                         
                         graphs = pydot.graph_from_dot_data(dot_match)
                         
