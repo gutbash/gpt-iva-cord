@@ -7,7 +7,6 @@ from log_utils import colors
 from redis_utils import save_pickle_to_redis, load_pickle_from_redis
 from postgres_utils import async_fetch_key
 from tools import get_image_from_search, get_organic_results, get_shopping_results
-from chains import QAWithSourcesChain
 
 import os
 import openai
@@ -36,10 +35,13 @@ from langchain.memory import ConversationBufferWindowMemory
 from langchain.agents import Tool, AgentExecutor, load_tools, ConversationalAgent
 from langchain import LLMChain
 from langchain.chains.question_answering import load_qa_chain
-from langchain.chains.qa_with_sources import load_qa_with_sources_chain
 from langchain.text_splitter import TokenTextSplitter
 from langchain.docstore.document import Document
 from langchain.chains.summarize import load_summarize_chain
+
+from langchain.document_loaders import TextLoader
+from langchain.indexes import GraphIndexCreator
+from langchain.chains import GraphQAChain
 
 from langchain.schema import (
     AIMessage,
@@ -684,14 +686,26 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             if len(docs) > 2:
                 docs = docs[:2]
             """
-            #chain = load_qa_chain(logical_llm, chain_type="map_reduce")
-            chain = QAWithSourcesChain.from_llm(logical_llm)
+            chain = load_qa_chain(logical_llm, chain_type="map_reduce", verbose=True)
             #chain = load_qa_with_sources_chain(logical_llm, chain_type="map_reduce", verbose=True)
-            #answer = await chain.arun(input_documents=docs, question=question)
-            answer = await chain.arun(
-                {"input_documents": docs, "question": question},
-                #return_only_outputs=True
-                )
+            answer = await chain.arun(input_documents=docs, question=question)
+            #answer = await chain.arun({"input_documents": docs, "question": question}, return_only_outputs=True)
+            
+            return answer
+        
+        async def graph_qa_webpage(url, question):
+            
+            url = url.strip("[").strip("]")
+            text = await get_important_text(url)
+            
+            index_creator = GraphIndexCreator(llm=logical_llm)
+
+            graph = index_creator.from_text(text)
+            graph.get_triples()
+            
+            chain = GraphQAChain.from_llm(logical_llm, graph=graph, verbose=True)
+            
+            answer = chain.arun(question)
             
             return answer
         
@@ -755,7 +769,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         tools.append(Tool(
             name = "Q&A Webpage",
             func=dummy_sync_function,
-            coroutine=parse_qa_webpage_input,
+            coroutine=graph_qa_webpage,
             description=f"Use this sparingly to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like `[url],[question]`. The output will be an answer to the input question from the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ` [1](http://source.com)` (include space)."
         ))
         
