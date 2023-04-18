@@ -693,25 +693,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
             return answer
         
-        async def graph_qa_webpage(url, question):
-            
-            url = url.strip("[").strip("]")
-            text = await get_important_text(url)
-            
-            index_creator = GraphIndexCreator(llm=logical_llm)
-
-            graph = index_creator.from_text(text)
-            graph.get_triples()
-            
-            chain = GraphQAChain.from_llm(logical_llm, graph=graph, verbose=True)
-            
-            answer = chain.arun(question)
-            
-            return answer
-        
         async def parse_qa_webpage_input(string):
             a, b = string.split(",")
-            answer = await graph_qa_webpage(a, b)
+            answer = await question_answer_webpage(a, b)
             return f"{answer}\n"
         
         async def summarize_webpage(url):
