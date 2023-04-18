@@ -3,10 +3,70 @@ import random
 import aiohttp
 import os
 
+from tool_utils import get_formatted_key_values, get_formatted_key_values_from_list, get_important_text
+
+from langchain.docstore.document import Document
+from langchain.chains.summarize import load_summarize_chain
+from langchain.chains.question_answering import load_qa_chain
+from langchain.text_splitter import TokenTextSplitter
+
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_TOKEN")
 GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
 os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
 SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
+
+text_splitter = TokenTextSplitter()
+        
+async def question_answer_webpage(url, question, llm):
+    
+    url = url.strip("[").strip("]")
+    text = await get_important_text(url)
+
+    print(text)
+
+    texts = text_splitter.split_text(text)
+
+    if not texts:
+        return "No text found to summarize!"
+
+    docs = [Document(page_content=t) for t in texts[:3]]
+
+    """
+    if len(docs) > 2:
+        docs = docs[:2]
+    """
+    chain = load_qa_chain(llm, chain_type="map_reduce", verbose=True)
+    #chain = load_qa_with_sources_chain(logical_llm, chain_type="map_reduce", verbose=True)
+    answer = await chain.arun(input_documents=docs, question=question)
+    #answer = await chain.arun({"input_documents": docs, "question": question}, return_only_outputs=True)
+    
+    return answer
+
+async def summarize_webpage(url, llm):
+    
+    url = url.strip("[").strip("]")
+    text = await get_important_text(url)
+
+    print(text)
+
+    #prepare and parse the text
+    texts = text_splitter.split_text(text)
+
+    if not texts:
+        return "No text found to summarize!"
+
+    docs = [Document(page_content=t) for t in texts[:3]]
+
+    """
+    if len(docs) > 2:
+        docs = docs[:2]
+    """
+    #prepare chain
+    chain = load_summarize_chain(llm, chain_type="map_reduce")
+    #run summary
+    summary = await chain.arun(docs)
+    
+    return f"{summary}\n"
 
 async def get_image_from_search(query: str) -> str:
     # Replace YOUR_API_KEY and YOUR_CSE_ID with your own API key and CSE ID
@@ -178,32 +238,3 @@ async def get_news_results(query: str) -> str:
     
     news_results_keys = []
     top_stories_keys = []
-    
-async def get_formatted_key_values_from_list(keys: list, list_of_dictionaries: list) -> list:
-    all_results = []
-
-    for dictionary_index in range(1):
-        formatted_str = await get_formatted_key_values(keys, list_of_dictionaries[dictionary_index])
-        all_results.append(formatted_str)
-
-    return all_results
-
-async def get_formatted_key_values(keys: list, dictionary: dict, prefix="") -> str:
-    formatted_str = ""
-
-    for key in keys:
-        if key in dictionary and dictionary[key]:
-            if isinstance(dictionary[key], dict):
-                # Handle nested dictionaries recursively
-                nested_prefix = f"{prefix}{key}."
-                formatted_str += await get_formatted_key_values(dictionary[key].keys(), dictionary[key], nested_prefix) + "\n"
-            elif isinstance(dictionary[key], list) and all(isinstance(item, dict) for item in dictionary[key]):
-                # Handle lists of dictionaries
-                for idx, nested_dict in enumerate(dictionary[key], start=1):
-                    nested_prefix = f"{prefix}{key}[{idx}]."
-                    formatted_str += await get_formatted_key_values(nested_dict.keys(), nested_dict, nested_prefix) + "\n"
-            else:
-                #formatted_str += f"{prefix}{key} - {dictionary[key]}\n"
-                formatted_str += f"{dictionary[key]}\n"
-
-    return formatted_str.strip()

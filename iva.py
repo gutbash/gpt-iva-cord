@@ -6,7 +6,14 @@ import discord.ext.tasks
 from log_utils import colors
 from redis_utils import save_pickle_to_redis, load_pickle_from_redis
 from postgres_utils import async_fetch_key
-from tools import get_image_from_search, get_organic_results, get_shopping_results
+from tool_utils import dummy_sync_function
+from tools import (
+    get_image_from_search,
+    get_organic_results,
+    get_shopping_results,
+    question_answer_webpage,
+    summarize_webpage,
+)
 
 import os
 import openai
@@ -34,15 +41,7 @@ from langchain.chains.conversation.memory import ConversationSummaryBufferMemory
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.agents import Tool, AgentExecutor, load_tools, ConversationalAgent
 from langchain import LLMChain
-from langchain.chains.question_answering import load_qa_chain
 from langchain.text_splitter import TokenTextSplitter
-from langchain.docstore.document import Document
-from langchain.chains.summarize import load_summarize_chain
-
-from langchain.document_loaders import TextLoader
-from langchain.indexes import GraphIndexCreator
-from langchain.chains import GraphQAChain
-
 from langchain.schema import (
     AIMessage,
     HumanMessage,
@@ -199,84 +198,14 @@ async def on_message(message):
                 request_timeout=600,
                 )
             
-            async def get_important_text(url):
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(url) as response:
-                        
-                        content_type = response.headers.get("content-type", "").lower()
-                        
-                        # Check if the content type is a PDF
-                        if "application/pdf" in content_type:
-                            
-                            # Read the PDF content into a BytesIO buffer
-                            pdf_content = await response.read()
-                            pdf_buffer = io.BytesIO(pdf_content)
-
-                            # Extract text from the PDF using PyPDF2
-                            reader = PyPDF2.PdfReader(pdf_buffer)
-                            important_text = ""
-                            
-                            for page_num in range(len(reader.pages)):
-                                important_text += reader.pages[page_num].extract_text()
-                            
-                        elif "text/html" in content_type:
-                            
-                            content = await response.text()
-                            soup = BeautifulSoup(content, 'html.parser')
-
-                            important_tags = ['p']
-                            important_text = ''
-
-                            for tag in important_tags:
-                                elements = soup.find_all(tag)
-                                for element in elements:
-                                    important_text += element.get_text(strip=True) + ' '
-                        else:
-                            print(f"Unknown content type for {url}: {content_type}")
-
-                        await session.close()
-                        
-                        return important_text
-            
-            async def question_answer_webpage(url, question):
-                
-                url = url.strip("[").strip("]")
-                text = await get_important_text(url)
-                texts = text_splitter.split_text(text)
-                docs = [Document(page_content=t) for t in texts[:3]]
-                print(docs)
-                """
-                if len(docs) > 2:
-                    docs = docs[:2]
-                """
-                chain = load_qa_chain(logical_llm, chain_type="map_reduce")
-                answer = await chain.arun(input_documents=docs, question=question)
-                
-                return answer
-            
-            async def parse_qa_webpage_input(string):
-                a, b = string.split(",")
-                answer = await question_answer_webpage(a, b)
+            async def parse_qa_webpage_input(url_comma_question):
+                a, b = url_comma_question.split(",")
+                answer = await question_answer_webpage(a, b, llm=logical_llm)
                 return f"{answer}\n"
             
-            async def summarize_webpage(url):
-                
-                url = url.strip("[").strip("]")
-                text = await get_important_text(url)
-                #prepare and parse the text
-                texts = text_splitter.split_text(text)
-                docs = [Document(page_content=t) for t in texts[:3]]
-                print(docs)
-                """
-                if len(docs) > 2:
-                    docs = docs[:2]
-                """
-                #prepare chain
-                chain = load_summarize_chain(logical_llm, chain_type="map_reduce")
-                #run summary
-                summary = await chain.arun(docs)
-                
-                return f"{summary}\n"
+            async def parse_summary_webpage_input(url):
+                summary = await summarize_webpage(url, llm=logical_llm)
+                return summary
             
             # STRINGIFY ACTIVE USERS
                 
@@ -312,7 +241,7 @@ async def on_message(message):
                 tools.append(Tool(
                     name = "Summarize Webpage",
                     func=dummy_sync_function,
-                    coroutine=summarize_webpage,
+                    coroutine=parse_summary_webpage_input,
                     description=f"Use this tool sparingly to summarize the content of a webpage for articles and other long form written content. Input should be the given url (i.e. https://www.google.com). The output will be a summary of the contents of the page."
                 ))
                 
@@ -616,7 +545,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
 
         view = Menu()
         
-        text_splitter = TokenTextSplitter()
         logical_llm = ChatOpenAI(
             openai_api_key=openai_key,
             temperature=0,
@@ -626,103 +554,14 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             request_timeout=600,
             )
         
-        def dummy_sync_function(tool_input: str) -> str:
-            raise NotImplementedError("This tool only supports async")
-        
-        async def get_important_text(url):
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url) as response:
-                    
-                    content_type = response.headers.get("content-type", "").lower()
-                    
-                    # Check if the content type is a PDF
-                    if "application/pdf" in content_type:
-                        
-                        # Read the PDF content into a BytesIO buffer
-                        pdf_content = await response.read()
-                        pdf_buffer = io.BytesIO(pdf_content)
-
-                        # Extract text from the PDF using PyPDF2
-                        reader = PyPDF2.PdfReader(pdf_buffer)
-                        important_text = ""
-                        
-                        for page_num in range(len(reader.pages)):
-                            important_text += reader.pages[page_num].extract_text()
-                        
-                    elif "text/html" in content_type:
-                        
-                        content = await response.text()
-                        soup = BeautifulSoup(content, 'html.parser')
-
-                        important_tags = ['p']
-                        important_text = ''
-
-                        for tag in important_tags:
-                            elements = soup.find_all(tag)
-                            for element in elements:
-                                important_text += element.get_text(strip=True) + ' '
-                    else:
-                        print(f"Unknown content type for {url}: {content_type}")
-
-                    await session.close()
-                    
-                    return important_text
-                
-        async def question_answer_webpage(url, question):
-            
-            url = url.strip("[").strip("]")
-            text = await get_important_text(url)
-
-            print(text)
-
-            texts = text_splitter.split_text(text)
-
-            if not texts:
-                return "No text found to summarize!"
-
-            docs = [Document(page_content=t) for t in texts[:3]]
-
-            """
-            if len(docs) > 2:
-                docs = docs[:2]
-            """
-            chain = load_qa_chain(logical_llm, chain_type="map_reduce", verbose=True)
-            #chain = load_qa_with_sources_chain(logical_llm, chain_type="map_reduce", verbose=True)
-            answer = await chain.arun(input_documents=docs, question=question)
-            #answer = await chain.arun({"input_documents": docs, "question": question}, return_only_outputs=True)
-            
-            return answer
-        
-        async def parse_qa_webpage_input(string):
-            a, b = string.split(",")
-            answer = await question_answer_webpage(a, b)
+        async def parse_qa_webpage_input(url_comma_question):
+            a, b = url_comma_question.split(",")
+            answer = await question_answer_webpage(a, b, llm=logical_llm)
             return f"{answer}\n"
         
-        async def summarize_webpage(url):
-            
-            url = url.strip("[").strip("]")
-            text = await get_important_text(url)
-
-            print(text)
-
-            #prepare and parse the text
-            texts = text_splitter.split_text(text)
-
-            if not texts:
-                return "No text found to summarize!"
-
-            docs = [Document(page_content=t) for t in texts[:3]]
-
-            """
-            if len(docs) > 2:
-                docs = docs[:2]
-            """
-            #prepare chain
-            chain = load_summarize_chain(logical_llm, chain_type="map_reduce")
-            #run summary
-            summary = await chain.arun(docs)
-            
-            return f"{summary}\n"
+        async def parse_summary_webpage_input(url):
+            summary = await summarize_webpage(url, llm=logical_llm)
+            return summary
 
         attachment_text = ""
         file_placeholder = ""
@@ -746,7 +585,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         tools.append(Tool(
             name = "Summarize Webpage",
             func=dummy_sync_function,
-            coroutine=summarize_webpage,
+            coroutine=parse_summary_webpage_input,
             description=f"Use this sparingly to to summarize the content of a webpage for articles and other long form written content. Input should be the given url. The output will be a summary of the contents of the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ` [1](http://source.com)` (include space)."
         ))
         
