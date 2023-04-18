@@ -16,3 +16,4 @@ psycopg2
 aioredis
 chardet
 lxml
+jinja2
