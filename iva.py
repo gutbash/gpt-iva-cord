@@ -929,7 +929,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                         
                         dot_file = discord.File(f'{subfolder}/graphviz{file_count}.png')
                         match_embed = discord.Embed(color=discord.Color.dark_theme())
-                        match_embed.set_image(url=f"attachment://{subfolder}/graphviz{file_count}.png")
+                        match_embed.set_image(url=f"attachment://graphviz{file_count}.png")
                         
                         file_count += 1
 
