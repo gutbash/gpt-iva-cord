@@ -40,7 +40,6 @@ from langchain.callbacks import get_openai_callback
 from langchain.chains.conversation.memory import ConversationSummaryBufferMemory
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.agents import Tool, AgentExecutor, load_tools, ConversationalAgent
-from langchain import LLMChain
 from langchain.text_splitter import TokenTextSplitter
 from langchain.schema import (
     AIMessage,
@@ -623,9 +622,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         - You must only send links or URLs exclusively obtained through tools
         - Absolutely never send a fabricated fake link
         - You must parenthetically cite any sources referenced from tools in your response as a clickable bold numbered hyperlink like ` [1](http://source.com)` (include space)
-        - Use ````[language]\\n[multi line code block]```` for ANY code. You must include a language after the first backticks.
+        - Use code blocks like ```[language]\\n[code block]``` for ANY code. You must include a language after the first backticks.
         - Answer and explain any and all math questions presented to the user in LaTeX code formatting for every mathematical expression, no matter how simple or complex. Wrap all LaTeX code in double dollar signs `$$` (DO NOT USE SINGLE `$`) and place it on a new line, like this: `\\n$$[latex]$$`. This should be done even for expressions that do not strictly require LaTeX formatting. Apply LaTeX formatting to tables and other complex information displays as well.
-        - Use DOT code blocks like ````dot\\n[dot code]```` to make digraphs to visualize and explain concepts in a stylish and aesthetically pleasing way with bgcolor=\"#36393f\" and complementary text colors and node fill colors.
+        - Use DOT code blocks like ```dot\\n[dot code block]``` to make digraphs to visualize and explain concepts in a stylish and aesthetically pleasing way with bgcolor=\"#36393f\" and complementary text colors and node fill colors.
 
         Please format your response using markdown for emphasis and clarity. Use the following elements...
         - `[hyperlink text](http://example.com)` for links
@@ -646,7 +645,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         ```
         Thought: Do I need to use a tool? Yes
         Action: the action to take, must be one of {tool_names}
-        Action Input: [the input to the action]
+        Action Input: the input to the action
         Observation: the result of the action
         ```
         
