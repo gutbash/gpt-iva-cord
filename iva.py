@@ -639,12 +639,12 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         """
         
         custom_format_instructions = f"""
-        To use a tool, please use the following format:
+        To use a tool, please use the following format. Replace the brackets with your input:
         
         ```
         Thought: Do I need to use a tool? Yes
-        Action: the action to take, must be one of {tool_names}
-        Action Input: the input to the action
+        Action: [the action to take, must be one of {tool_names}]
+        Action Input: [the input to the action]
         Observation: the result of the action
         ```
         
