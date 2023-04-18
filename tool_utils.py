@@ -36,7 +36,15 @@ async def get_formatted_key_values(keys: list, dictionary: dict, prefix="") -> s
     return formatted_str.strip()
 
 async def get_important_text(url):
-    async with aiohttp.ClientSession() as session:
+    
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive',
+    }
+    
+    async with aiohttp.ClientSession(headers=headers) as session:
         async with session.get(url) as response:
             
             content_type = response.headers.get("content-type", "").lower()
