@@ -562,13 +562,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         async def parse_summary_webpage_input(url):
             summary = await summarize_webpage(url, llm=logical_llm)
             return summary
-        
-        async def parse_digraph(concept):
-            try:
-                render_digraph(concept, llm=logical_llm)
-                return "success! digraph attached"
-            except Exception as e:
-                return f"failed to render digraph: {e}"
 
         attachment_text = ""
         file_placeholder = ""
@@ -580,40 +573,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         embeds_overflow = []
         files_overflow = []
         file_count=0
-        
-        async def render_digraph(concept: str, llm):
-            
-            prompt = PromptTemplate(
-                input_variables=["concept"],
-                template="Write only in Graphviz DOT code to visualize and explain the following concept in a stylish and aesthetically pleasing way with bgcolor=\"#36393f\" and complementary text colors and node fill colors.\n\nConcept: {concept}\n------------"
-            )
-            
-            chain = LLMChain(llm=llm, prompt=prompt)
-            
-            dot_result = chain.arun(concept)
-            
-            graphs = pydot.graph_from_dot_data(dot_result)
-            
-            graph = graphs[0]
-            subfolder = 'graphviz'
-
-            if not os.path.exists(subfolder):
-                os.makedirs(subfolder)
-
-            graph.write_png(f'{subfolder}/graphviz{file_count}.png')
-            
-            dot_file = discord.File(f'{subfolder}/graphviz{file_count}.png')
-            match_embed = discord.Embed(color=discord.Color.dark_theme())
-            match_embed.set_image(url=f"attachment://{subfolder}/graphviz{file_count}.png")
-            
-            file_count += 1
-
-            if len(embeds) >= 9:
-                embeds_overflow.append(match_embed)
-                files_overflow.append(dot_file)
-            else:
-                embeds.append(match_embed)
-                files.append(dot_file)
         
         tools.append(Tool(
             name = "Organic Results",
@@ -648,13 +607,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             func=dummy_sync_function,
             coroutine=get_image_from_search,
             description="A wrapper around Google Images. Useful for when you'd like to accompany a response with a revelant image. Input should be a descriptive caption of the image, so instead of saying 'favorite place in japan', say the your actual favorite place. Output will be the image link."
-        ))
-        
-        tools.append(Tool(
-            name = "Digraph",
-            func=dummy_sync_function,
-            coroutine=parse_digraph,
-            description="Use this to generate diagrams, graphs, and visualizations. Input should be a description of the concept. The resulting digraph will be automatically added at the end of your final response."
         ))
         
         tool_names = [tool.name for tool in tools]
@@ -897,15 +849,17 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         embeds.append(prompt_embed)
         file_count += 1
         
-        if '$$' in reply:
+        if '$$' in reply or '```\ndigraph' in reply:
 
             # Use the findall() method of the re module to find all occurrences of content between $$
             dpi = "{200}"
             color = "{white}"
             
             tex_pattern = re.compile(r"\$\$(.*?)\$\$", re.DOTALL)
+            dot_pattern = re.compile(r"```(?:\s*)digraph(?:.*?)```", re.DOTALL)
             
             tex_matches = tex_pattern.findall(reply)
+            dot_matches = dot_pattern.findall(reply)
             
             non_matches = re.sub(r"(\$\$|\%\%|\@\@).*?(\@\@|\%\%|\$\$)", "~~", reply, flags=re.DOTALL)
             reply_trim = re.sub(r"(\$\$|\%\%|\@\@).*?(\@\@|\%\%|\$\$)", "", reply, flags=re.DOTALL)
@@ -913,10 +867,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             non_matches = non_matches.split("~~")
             
             print(tex_matches)
+            print(dot_matches)
             
             try:
                 
-                for (tex_match, non_match) in itertools.zip_longest(tex_matches, non_matches):
+                for (tex_match, dot_match, non_match) in itertools.zip_longest(tex_matches, dot_matches, non_matches):
                     
                     if non_match != None and non_match != "" and non_match != "\n" and non_match != "." and non_match != "\n\n" and non_match != " " and non_match != "\n> " and non_match.isspace() != True and non_match.startswith("![") != True:
                         
@@ -958,6 +913,31 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                         else:
                             embeds.append(match_embed)
                             files.append(tex_file)
+                            
+                    if dot_match != None and dot_match != "" and dot_match != "\n" and dot_match.isspace() != True:
+                        
+                        graphs = pydot.graph_from_dot_data(dot_match)
+                        
+                        graph = graphs[0]
+                        subfolder = 'graphviz'
+
+                        if not os.path.exists(subfolder):
+                            os.makedirs(subfolder)
+
+                        graph.write_png(f'{subfolder}/graphviz{file_count}.png')
+                        
+                        dot_file = discord.File(f'{subfolder}/graphviz{file_count}.png')
+                        match_embed = discord.Embed(color=discord.Color.dark_theme())
+                        match_embed.set_image(url=f"attachment://{subfolder}/graphviz{file_count}.png")
+                        
+                        file_count += 1
+
+                        if len(embeds) >= 9:
+                            embeds_overflow.append(match_embed)
+                            files_overflow.append(dot_file)
+                        else:
+                            embeds.append(match_embed)
+                            files.append(dot_file)
                         
             except Exception as e:
                 print(e)
