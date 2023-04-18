@@ -644,7 +644,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         ```
         Thought: Do I need to use a tool? Yes
-        Action: choose which action to take, must be one of {tool_names}
+        Action: choose ONE of {tool_names}
         Action Input: [write the input to the action]
         Observation: the result of the action
         ```
