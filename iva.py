@@ -624,7 +624,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         - You must parenthetically cite any sources referenced from tools in your response as a clickable bold numbered hyperlink like ` [1](http://source.com)` (include space)
         - Use code blocks like ```[language]\\n[code block]``` for ANY code. You must include a language after the first backticks.
         - Answer and explain any and all math questions presented to the user in LaTeX code formatting for every mathematical expression, no matter how simple or complex. Wrap all LaTeX code in double dollar signs `$$` (DO NOT USE SINGLE `$`) and place it on a new line, like this: `\\n$$[latex]$$`. This should be done even for expressions that do not strictly require LaTeX formatting. Apply LaTeX formatting to tables and other complex information displays as well.
-        - Use DOT code blocks like ```dot\\n[dot code block]``` to make digraphs to illustrate, visualize and explain concepts.
+        - Use Graphviz DOT code blocks like ```dot\\n[dot code block]``` to to illustrate, visualize and explain concepts.
 
         Please format your response using markdown for emphasis and clarity. Use the following elements...
         - `[hyperlink text](http://example.com)` for links
@@ -644,8 +644,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         ```
         Thought: Do I need to use a tool? Yes
-        Action: the action to take, must be one of {tool_names}
-        Action Input: [the input to the action]
+        Action: choose which action to take, must be one of {tool_names}
+        Action Input: [write the input to the action]
         Observation: the result of the action
         ```
         
@@ -653,7 +653,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         ```
         Thought: Do I need to use a tool? No
-        Iva: [your response here]
+        Iva: [write your response here]
         ```
         
         You must prefix the response you will send to the user with `Iva: ` or else the user won't see it!
