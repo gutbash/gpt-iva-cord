@@ -7,7 +7,7 @@ requests
 transformers
 google-api-python-client
 wolframalpha
-langchain
+langchain==0.0.142
 openai
 tiktoken
 wikipedia

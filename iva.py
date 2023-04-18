@@ -286,7 +286,7 @@ async def on_message(message):
                 ```
                 Thought: Do I need to use a tool? Yes
                 Action: the action to take, must be one of {tool_names}
-                Action Input: [the input to the action]
+                Action Input: the input to the action
                 Observation: the result of the action
                 ```
                 
@@ -849,7 +849,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         embeds.append(prompt_embed)
         file_count += 1
         
-        if '$$' in reply or '```\ndigraph' in reply:
+        if '$$' in reply or '```dot' in reply:
 
             # Use the findall() method of the re module to find all occurrences of content between $$
             dpi = "{200}"
