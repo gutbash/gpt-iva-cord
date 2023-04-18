@@ -58,7 +58,7 @@ async def get_important_text(url):
             elif "text/html" in content_type:
                 
                 content = await response.text()
-                soup = BeautifulSoup(content, 'html.parser')
+                soup = BeautifulSoup(content, 'lxml')
 
                 important_tags = ['p']
                 important_text = ''
