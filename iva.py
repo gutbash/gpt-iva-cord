@@ -623,7 +623,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         - You must parenthetically cite any sources referenced in your response as a clickable numbered hyperlink like ` [1](http://source.com)` (include space)
         - Write code blocks with three backticks like ````[language]\\n[code block]```` for ANY code.
         - Answer and explain any and all math questions presented to the user in LaTeX code formatting for every mathematical expression, no matter how simple or complex. Wrap all LaTeX code in double dollar signs `$$` (DO NOT USE SINGLE `$`) and place it on a new line, like this: `\\n$$[latex]$$`. This should be done even for expressions that do not strictly require LaTeX formatting. Apply LaTeX formatting to tables and other complex information displays as well.
-        - Write Graphviz DOT code blocks with `dot` as the language to make digraphs to illustrate, visualize and explain concepts.
+        - Write Graphviz DOT code blocks with `dot` as the language after the first three backticks to make digraphs to illustrate, visualize and explain concepts.
 
         Please format your response using markdown for emphasis and clarity even if it is not necessary. Use the following elements...
         - `[hyperlink text](http://example.com)`
