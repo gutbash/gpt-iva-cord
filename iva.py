@@ -575,6 +575,46 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         tools = []
         
+        embeds = []
+        files = []
+        embeds_overflow = []
+        files_overflow = []
+        file_count=0
+        
+        async def render_digraph(concept: str, llm):
+            
+            prompt = PromptTemplate(
+                input_variables=["concept"],
+                template="Write only in Graphviz DOT code to visualize and explain the following concept in a stylish and aesthetically pleasing way with bgcolor=\"#36393f\" and complementary text colors and node fill colors.\n\nConcept: {concept}\n------------"
+            )
+            
+            chain = LLMChain(llm=llm, prompt=prompt)
+            
+            dot_result = chain.arun(concept)
+            
+            graphs = pydot.graph_from_dot_data(dot_result)
+            
+            graph = graphs[0]
+            subfolder = 'graphviz'
+
+            if not os.path.exists(subfolder):
+                os.makedirs(subfolder)
+
+            graph.write_png(f'{subfolder}/graphviz{file_count}.png')
+            
+            dot_file = discord.File(f'{subfolder}/graphviz{file_count}.png')
+            match_embed = discord.Embed(color=discord.Color.dark_theme())
+            match_embed.set_image(url=f"attachment://{subfolder}/graphviz{file_count}.png")
+            
+            file_count += 1
+
+            if len(embeds) >= 9:
+                embeds_overflow.append(match_embed)
+                files_overflow.append(dot_file)
+            else:
+                embeds.append(match_embed)
+                files.append(dot_file)
+        
         tools.append(Tool(
             name = "Organic Results",
             func=dummy_sync_function,
@@ -849,55 +889,13 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
         
-        embeds = []
-        files = []
-        
-        file_count=0
-        
         if file != None:
             files.append(discord.File(f"{file.filename}"))
             print(file.description)
             file_count += 1
         
-        embeds_overflow = []
-        files_overflow = []
-        
         embeds.append(prompt_embed)
         file_count += 1
-        
-        async def render_digraph(concept: str, llm):
-            
-            prompt = PromptTemplate(
-                input_variables=["concept"],
-                template="Write only in Graphviz DOT code to visualize and explain the following concept in a stylish and aesthetically pleasing way with bgcolor=\"#36393f\" and complementary text colors and node fill colors.\n\nConcept: {concept}\n------------"
-            )
-            
-            chain = LLMChain(llm=llm, prompt=prompt)
-            
-            dot_result = chain.arun(concept)
-            
-            graphs = pydot.graph_from_dot_data(dot_result)
-            
-            graph = graphs[0]
-            subfolder = 'graphviz'
-
-            if not os.path.exists(subfolder):
-                os.makedirs(subfolder)
-
-            graph.write_png(f'{subfolder}/graphviz{file_count}.png')
-            
-            dot_file = discord.File(f'{subfolder}/graphviz{file_count}.png')
-            match_embed = discord.Embed(color=discord.Color.dark_theme())
-            match_embed.set_image(url=f"attachment://{subfolder}/graphviz{file_count}.png")
-            
-            file_count += 1
-
-            if len(embeds) >= 9:
-                embeds_overflow.append(match_embed)
-                files_overflow.append(dot_file)
-            else:
-                embeds.append(match_embed)
-                files.append(dot_file)
         
         if '$$' in reply:
 
