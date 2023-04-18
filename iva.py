@@ -811,9 +811,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             if str(e).startswith("Could not parse LLM output:"):
                 reply = str(e).replace("Could not parse LLM output: `", "")
                 reply = reply.strip("`")
-                reply = reply.replace("Thought: ")
-                reply = reply.replace("Do I need to use a tool? No")
-                reply = reply.replace("Iva: ")
+                reply = reply.replace("Thought: ", "")
+                reply = reply.replace("Do I need to use a tool? No", "")
+                reply = reply.replace("Iva: ", "")
                 mem_list = memory.chat_memory.messages
                 extend_mems_list = [
                     HumanMessage(

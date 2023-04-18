@@ -48,7 +48,7 @@ async def get_important_text(url):
         async with session.get(url) as response:
             
             content_type = response.headers.get("content-type", "").lower()
-            print(f"Content type: {content_type}")
+            #print(f"Content type: {content_type}")
             
             # Check if the content type is a PDF
             if "application/pdf" in content_type:
@@ -67,7 +67,7 @@ async def get_important_text(url):
             elif "text/html" in content_type:
                 
                 content = await response.text()
-                print(f"HTML content: {content}")
+                #print(f"HTML content: {content}")
                 soup = BeautifulSoup(content, 'lxml')
 
                 important_tags = ['p']
@@ -78,7 +78,7 @@ async def get_important_text(url):
                     for element in elements:
                         important_text += element.get_text(strip=True) + ' '
                         
-                print(f"Important text: {important_text}")
+                #print(f"Important text: {important_text}")
             else:
                 print(f"Unknown content type for {url}: {content_type}")
 
