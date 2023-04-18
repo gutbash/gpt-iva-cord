@@ -711,7 +711,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         async def parse_qa_webpage_input(string):
             a, b = string.split(",")
-            answer = await question_answer_webpage(a, b)
+            answer = await graph_qa_webpage(a, b)
             return f"{answer}\n"
         
         async def summarize_webpage(url):
@@ -769,7 +769,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         tools.append(Tool(
             name = "Q&A Webpage",
             func=dummy_sync_function,
-            coroutine=graph_qa_webpage,
+            coroutine=parse_qa_webpage_input,
             description=f"Use this sparingly to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like `[url],[question]`. The output will be an answer to the input question from the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ` [1](http://source.com)` (include space)."
         ))
         
