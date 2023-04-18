@@ -562,6 +562,13 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         async def parse_summary_webpage_input(url):
             summary = await summarize_webpage(url, llm=logical_llm)
             return summary
+        
+        async def parse_digraph(concept):
+            try:
+                render_digraph(concept, llm=logical_llm)
+                return "success! digraph attached"
+            except:
+                return "failed to render digraph"
 
         attachment_text = ""
         file_placeholder = ""
@@ -601,6 +608,13 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             func=dummy_sync_function,
             coroutine=get_image_from_search,
             description="A wrapper around Google Images. Useful for when you'd like to accompany a response with a revelant image. Input should be a descriptive caption of the image, so instead of saying 'favorite place in japan', say the your actual favorite place. Output will be the image link."
+        ))
+        
+        tools.append(Tool(
+            name = "Digraph",
+            func=dummy_sync_function,
+            coroutine=parse_digraph,
+            description="Use this to generate diagrams, graphs, and visualizations. Input should be a description of the concept. The resulting digraph will be automatically added at the end of your final response."
         ))
         
         tool_names = [tool.name for tool in tools]
@@ -848,28 +862,60 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         embeds.append(prompt_embed)
         file_count += 1
         
-        if '$$' in reply or '%%' in reply:
+        async def render_digraph(concept: str, llm):
+            
+            prompt = PromptTemplate(
+                input_variables=["concept"],
+                template="Write only in Graphviz DOT code to visualize and explain the following concept in a stylish and aesthetically pleasing way with bgcolor=\"#36393f\" and complementary text colors and node fill colors.\n\nConcept: {concept}\n------------"
+            )
+            
+            chain = LLMChain(llm=llm, prompt=prompt)
+            
+            dot_result = chain.arun(concept)
+            
+            graphs = pydot.graph_from_dot_data(dot_result)
+            
+            graph = graphs[0]
+            subfolder = 'graphviz'
+
+            if not os.path.exists(subfolder):
+                os.makedirs(subfolder)
+
+            graph.write_png(f'{subfolder}/graphviz{file_count}.png')
+            
+            dot_file = discord.File(f'{subfolder}/graphviz{file_count}.png')
+            match_embed = discord.Embed(color=discord.Color.dark_theme())
+            match_embed.set_image(url=f"attachment://{subfolder}/graphviz{file_count}.png")
+            
+            file_count += 1
+
+            if len(embeds) >= 9:
+                embeds_overflow.append(match_embed)
+                files_overflow.append(dot_file)
+            else:
+                embeds.append(match_embed)
+                files.append(dot_file)
+        
+        if '$$' in reply:
 
             # Use the findall() method of the re module to find all occurrences of content between $$
             dpi = "{200}"
             color = "{white}"
             
             tex_pattern = re.compile(r"\$\$(.*?)\$\$", re.DOTALL)
-            dot_pattern = re.compile(r"\%\%(.*?)\%\%", re.DOTALL)
             
             tex_matches = tex_pattern.findall(reply)
-            dot_matches = dot_pattern.findall(reply)
             
             non_matches = re.sub(r"(\$\$|\%\%|\@\@).*?(\@\@|\%\%|\$\$)", "~~", reply, flags=re.DOTALL)
             reply_trim = re.sub(r"(\$\$|\%\%|\@\@).*?(\@\@|\%\%|\$\$)", "", reply, flags=re.DOTALL)
 
             non_matches = non_matches.split("~~")
             
-            print(dot_matches, tex_matches)
+            print(tex_matches)
             
             try:
                 
-                for (tex_match, dot_match, non_match) in itertools.zip_longest(tex_matches, dot_matches, non_matches):
+                for (tex_match, non_match) in itertools.zip_longest(tex_matches, non_matches):
                     
                     if non_match != None and non_match != "" and non_match != "\n" and non_match != "." and non_match != "\n\n" and non_match != " " and non_match != "\n> " and non_match.isspace() != True and non_match.startswith("![") != True:
                         
@@ -911,59 +957,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                         else:
                             embeds.append(match_embed)
                             files.append(tex_file)
-                        
-                    if dot_match != None and dot_match != "" and dot_match != "\n" and dot_match.isspace() != True:
-                        
-                        try:
-                            
-                            dot_system_message = {
-                                "role": "user",
-                                "content": f"Write only in Graphviz DOT code to visualize and explain {dot_match} in a stylish and aesthetically pleasing way. Use bgcolor=\"#36393f\". Text color and node fill color should be different."
-                            }
-
-                            dot_messages = []
-                            dot_messages.append(dot_system_message)
-
-                            dot_match = openai.ChatCompletion.create(
-                                model="gpt-3.5-turbo",
-                                messages=dot_messages,
-                                temperature=0.0,
-                                max_tokens=512,
-                                top_p=1.0,
-                                frequency_penalty=0.0,
-                                presence_penalty=0.0,
-                                )
-                            
-                            dot_match = dot_match['choices'][0]['message']['content']
-
-                            print(f"%%%{dot_match}%%%")
-                            
-                            graphs = pydot.graph_from_dot_data(dot_match)
-                            
-                            graph = graphs[0]
-                            subfolder = 'graphviz'
-
-                            if not os.path.exists(subfolder):
-                                os.makedirs(subfolder)
-
-                            graph.write_png(f'{subfolder}/graphviz{file_count}.png')
-                            
-                            dot_file = discord.File(f'{subfolder}/graphviz{file_count}.png')
-                            match_embed = discord.Embed(color=discord.Color.dark_theme())
-                            match_embed.set_image(url=f"attachment://{subfolder}/graphviz{file_count}.png")
-                            
-                            file_count += 1
-
-                            if len(embeds) >= 9:
-                                embeds_overflow.append(match_embed)
-                                files_overflow.append(dot_file)
-                            else:
-                                embeds.append(match_embed)
-                                files.append(dot_file)
-                            
-                            
-                        except Exception as e:
-                            print(e)
                         
             except Exception as e:
                 print(e)
@@ -1163,7 +1156,7 @@ async def model(interaction, choices: app_commands.Choice[str] = None):
         
         await save_pickle_to_redis('user_settings', user_settings)
         
-        embed = discord.Embed(description=f"<:ivathumbsup:1051918474299056189> **set model to `{choices.value}` for {mention}.**", color=discord.Color.dark_theme())
+        embed = discord.Embed(description=f"<:ivamodel:1096498759040520223> **set model to `{choices.value}` for {mention}.**", color=discord.Color.dark_theme())
         
     else:
         
@@ -1198,13 +1191,13 @@ async def temperature(interaction, temperature: float = None):
         
         await save_pickle_to_redis('user_settings', user_settings)
         
-        embed = discord.Embed(description=f"<:ivathumbsup:1051918474299056189> **set temperature to `{temperature}` for {mention}.**", color=discord.Color.dark_theme())
+        embed = discord.Embed(description=f"<:ivatemp:1097754157747818546>**set temperature to `{temperature}` for {mention}.**", color=discord.Color.dark_theme())
         
     else:
         
         temperature = user_settings.get(id, "0.5")["temperature"]
         
-        embed = discord.Embed(description=f"<:ivatemp:1097754157747818546> **Current Temperature:** `{temperature}`", color=discord.Color.dark_theme())
+        embed = discord.Embed(description=f"<:ivatemp:1097754157747818546>**Current Temperature:** `{temperature}`", color=discord.Color.dark_theme())
     
     await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=30)
     
