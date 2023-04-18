@@ -46,10 +46,11 @@ async def summarize_webpage(url, llm):
     
     url = url.strip("[").strip("]")
     text = await get_important_text(url)
+    
+    print(text)
 
     #prepare and parse the text
     texts = text_splitter.split_text(text)
-    print(text)
 
     if not texts:
         return "No text found to summarize!"
