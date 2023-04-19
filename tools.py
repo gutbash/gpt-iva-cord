@@ -267,6 +267,6 @@ async def get_blip_recognition(image_url: str, question: str = "What is this a p
     })
     async with aiohttp.ClientSession() as session:
         async with session.post(url, headers=headers, data=data) as response:
+            await asyncio.sleep(5)
             output = await response.json()
-            print(output)
             return output
