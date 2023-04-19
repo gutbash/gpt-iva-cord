@@ -242,6 +242,20 @@ async def get_news_results(query: str) -> str:
     news_results_keys = []
     top_stories_keys = []
     
+async def async_request(method, url, headers=None, data=None):
+    async with aiohttp.ClientSession() as session:
+        async with session.request(method, url, headers=headers, data=data) as response:
+            return await response.json()
+
+async def wait_for_completion(prediction_url, headers):
+    status = 'starting'
+    while status not in ('completed', 'error'):
+        await asyncio.sleep(5)  # Wait for 5 seconds before sending the next request.
+        response = await async_request('GET', prediction_url, headers=headers)
+        status = response.get('status', '')
+
+    return response
+    
 async def get_full_blip(image_url: str, question: str) -> str:
     description = await get_blip_recognition(image_url=image_url, caption=True)
     answer = await get_blip_recognition(image_url=image_url, question=question)
@@ -265,9 +279,10 @@ async def get_blip_recognition(image_url: str, question: str = "What is this a p
             'question': question,
             },
     })
-    async with aiohttp.ClientSession() as session:
-        async with session.post(url, headers=headers, data=data) as response:
-            await asyncio.sleep(5)
-            output = await response.json()
-            return output
-        
+    
+    response = await async_request('POST', url, headers=headers, data=data)
+    prediction_url = response['urls']['get']
+    completed_response = await wait_for_completion(prediction_url, headers=headers)
+    print(json.dumps(completed_response, indent=2))
+    
+    return completed_response
