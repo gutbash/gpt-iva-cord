@@ -626,11 +626,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         - Write Graphviz DOT code blocks (```dot\n[code block]```) to make digraphs to illustrate, visualize and explain concepts.
 
         Format your response using the following elements even if it is not necessary...
-        - `[hyperlink text](http://example.com)`
-        - `**bold**`
-        - `*italics*`
-        - ``label``
-        - `> blockquote`
+        - [hyperlink](http://hyperlink.com)
+        - **bold**
+        - *italics*
+        - `label`
+        - > blockquote
         
         TOOLS:
         Do not use a tool unless you absolutely need it to answer a question. Most likely you will need a tool when answering questions on the internet about current events after September, 2021. Otherwise you probably know the answer already. Here are the tools:
