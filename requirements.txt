@@ -2,7 +2,6 @@ discord.py
 google_search_results
 pydot
 PyPDF2
-replicate
 requests
 transformers
 google-api-python-client
