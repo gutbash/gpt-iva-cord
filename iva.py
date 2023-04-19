@@ -508,16 +508,22 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     
     global last_response
     
+    guild_id = interaction.guild_id
+    guild_name = interaction.guild
+    user_id = interaction.user.id
+    channel_id = interaction.channel.id
+    mention = interaction.user.mention
+    bot = client.user.display_name
+    user_name = interaction.user.name
+    
+    if isinstance(interaction.channel, discord.TextChannel):
+        thread = await interaction.channel.create_thread(
+            name=f"{user_name}'s thread with iva",
+        )
+        interaction.channel = thread
+        
     try:
         await interaction.response.defer()
-        
-        guild_id = interaction.guild_id
-        guild_name = interaction.guild
-        user_id = interaction.user.id
-        channel_id = interaction.channel.id
-        mention = interaction.user.mention
-        bot = client.user.display_name
-        user_name = interaction.user.name
 
         # fetch the row with the given id
         result = await async_fetch_key(user_id)
