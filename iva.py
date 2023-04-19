@@ -13,7 +13,7 @@ from tools import (
     get_shopping_results,
     question_answer_webpage,
     summarize_webpage,
-    get_blip_recognition,
+    get_full_blip,
 )
 
 import os
@@ -154,12 +154,8 @@ async def on_message(message):
         
         # RECOGNIZE IMAGES
         if images != []:
-            
-            description = await get_blip_recognition(image_url=images[0].url, caption=True)
-            answer = await get_blip_recognition(image_url=images[0].url, question=prompt)
-            
-            caption = f" I attached an image [Answer:{answer}, Attached Image: {description}]"
-            print(caption)
+            for image_index in range(len(images)):
+                prompt += f"\n\nimage {image_index}: {images[image_index].url}"
         
         print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightgreen}CHAT     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@{str(user_name).lower()}: {colors.reset}{prompt}")
 
@@ -199,6 +195,11 @@ async def on_message(message):
             async def parse_summary_webpage_input(url):
                 summary = await summarize_webpage(url, llm=logical_llm)
                 return summary
+            
+            async def parse_blip_recognition(url_comma_question):
+                a, b = url_comma_question.split(",")
+                output = await get_full_blip(image_url=a, question=b)
+                return output
             
             # STRINGIFY ACTIVE USERS
                 
@@ -250,6 +251,13 @@ async def on_message(message):
                     func=dummy_sync_function,
                     coroutine=get_image_from_search,
                     description="A wrapper around Google Images. Useful for when you'd like to accompany a response with a revelant image. Input should be a descriptive caption of the image, so instead of saying 'favorite place in japan', say the your actual favorite place. Output will be the image link."
+                ))
+                
+                tools.append(Tool(
+                    name = "BLIP2",
+                    func=dummy_sync_function,
+                    coroutine=parse_blip_recognition,
+                    description=f"Use this tool to recognize, caption, and answer questions about images. Input should be a comma separated list of length two, with the first entry being the image url, and the second input being the question, like '[url],[question]'. The output will be a caption of the image with the associated answer to the question."
                 ))
                 
                 tool_names = [tool.name for tool in tools]

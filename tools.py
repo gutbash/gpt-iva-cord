@@ -242,6 +242,14 @@ async def get_news_results(query: str) -> str:
     news_results_keys = []
     top_stories_keys = []
     
+async def get_full_blip(image_url: str, question: str) -> str:
+    description = await get_blip_recognition(image_url=image_url, caption=True)
+    answer = await get_blip_recognition(image_url=image_url, question=question)
+    
+    caption = f"[Image Caption: {description}, Answer:{answer}]"
+    
+    return caption
+    
 async def get_blip_recognition(image_url: str, question: str = "What is this a picture of?", caption: bool = False, context: str = None) -> str:
     replicate_api_token = REPLICATE_API_TOKEN
     url = 'https://api.replicate.com/v1/predictions'
