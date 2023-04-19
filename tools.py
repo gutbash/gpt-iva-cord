@@ -270,3 +270,4 @@ async def get_blip_recognition(image_url: str, question: str = "What is this a p
             await asyncio.sleep(5)
             output = await response.json()
             return output
+        
