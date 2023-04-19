@@ -249,7 +249,7 @@ async def async_request(method, url, headers=None, data=None):
 
 async def wait_for_completion(prediction_url, headers):
     status = 'starting'
-    while status not in ('completed', 'error'):
+    while status not in ('succeeded', 'error'):
         await asyncio.sleep(5)  # Wait for 5 seconds before sending the next request.
         response = await async_request('GET', prediction_url, headers=headers)
         status = response.get('status', '')
