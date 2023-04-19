@@ -285,4 +285,4 @@ async def get_blip_recognition(image_url: str, question: str = "What is this a p
     completed_response = await wait_for_completion(prediction_url, headers=headers)
     print(json.dumps(completed_response, indent=2))
     
-    return completed_response
+    return completed_response['output']
