@@ -212,12 +212,20 @@ async def on_message(message):
                 
                 files = []
 
-                chat_llm = ChatOpenAI(
-                    temperature=temperature,
-                    model_name=chat_model,
-                    #model_name="gpt-4",
-                    openai_api_key=openai_key,
-                    request_timeout=600,
+                if chat_model != "text-davinci-003":
+                    chat_llm = ChatOpenAI(
+                        temperature=temperature,
+                        model_name=chat_model,
+                        openai_api_key=openai_key,
+                        request_timeout=600,
+                        )
+                else:
+                    chat_llm = OpenAI(
+                        temperature=temperature,
+                        model_name=chat_model,
+                        openai_api_key=openai_key,
+                        request_timeout=600,
+                        verbose=True,
                     )
 
                 tools = []
@@ -250,7 +258,7 @@ async def on_message(message):
                     name = "Recognize Image",
                     func=dummy_sync_function,
                     coroutine=parse_blip_recognition,
-                    description=f"Use this tool anytime you are given an image url to recognize, caption, and answer questions about images. Input should be a comma separated list of length two, with the first entry being the image url, and the second input being the question, like '[url],[question]'. The output will be a caption of the image with the associated answer to the question."
+                    description=f"Use this tool anytime you are tasked to recognize, caption, or answer questions about a given image url. Input should be a comma separated list of length two, with the first entry being the image url, and the second input being the question, like '[url],[question]'. The output will be a caption of the image with the associated answer to the question."
                 ))
 
                 tools.append(Tool(
@@ -721,14 +729,23 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         except discord.errors.HTTPException as e:
             print(e)
         
-        ask_llm = ChatOpenAI(
-            temperature=temperature,
-            model_name=chat_model,
-            openai_api_key=openai_key,
-            request_timeout=600,
-            verbose=True,
-            #callback_manager=manager,
-            #max_tokens=max_tokens,
+        if chat_model != "text-davinci-003":
+            ask_llm = ChatOpenAI(
+                temperature=temperature,
+                model_name=chat_model,
+                openai_api_key=openai_key,
+                request_timeout=600,
+                verbose=True,
+                #callback_manager=manager,
+                #max_tokens=max_tokens,
+                )
+        else:
+            ask_llm = OpenAI(
+                temperature=temperature,
+                model_name=chat_model,
+                openai_api_key=openai_key,
+                request_timeout=600,
+                verbose=True,
             )
         
         guild_prompt = ConversationalAgent.create_prompt(
