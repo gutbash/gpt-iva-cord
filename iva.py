@@ -13,6 +13,7 @@ from tools import (
     get_shopping_results,
     question_answer_webpage,
     summarize_webpage,
+    get_blip_recognition,
 )
 
 import os
@@ -20,7 +21,6 @@ import openai
 import psycopg2
 import datetime
 from transformers import GPT2TokenizerFast
-import replicate
 import re
 import requests
 import itertools
@@ -55,13 +55,7 @@ GUILD_ID = os.getenv("GUILD_ID") # load dev guild
 SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 WOLFRAM_ALPHA_APPID = os.getenv("WOLFRAM_ALPHA_APPID")
-REPLICATE_API_TOKEN = os.getenv("REPLICATE_API_TOKEN")
 DATABASE_URL = os.getenv("DATABASE_URL")
-
-model_blip = replicate.models.get("salesforce/blip-2")
-version_blip = model_blip.versions.get("4b32258c42e9efd4288bb9910bc532a69727f9acd26aa08e175713a0a857a608")
-
-replicate.Client(api_token=REPLICATE_API_TOKEN)
 
 tokenizer = GPT2TokenizerFast.from_pretrained("gpt2") # initialize tokenizer
 
@@ -161,8 +155,8 @@ async def on_message(message):
         # RECOGNIZE IMAGES
         if images != []:
             
-            description = version_blip.predict(image=images[0].url, caption=True)
-            answer = version_blip.predict(image=images[0].url, question=prompt)
+            description = await get_blip_recognition(image_url=images[0].url, caption=True)
+            answer = await get_blip_recognition(image_url=images[0].url, question=prompt)
             
             caption = f" I attached an image [Answer:{answer}, Attached Image: {description}]"
             print(caption)

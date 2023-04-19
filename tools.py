@@ -2,6 +2,8 @@ from serpapi import GoogleSearch
 import random
 import aiohttp
 import os
+import asyncio
+import json
 
 from tool_utils import get_formatted_key_values, get_formatted_key_values_from_list, get_important_text
 
@@ -14,6 +16,7 @@ GOOGLE_API_KEY = os.getenv("GOOGLE_API_TOKEN")
 GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
 os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
 SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
+REPLICATE_API_TOKEN = os.getenv("REPLICATE_API_TOKEN")
 
 text_splitter = TokenTextSplitter()
         
@@ -238,3 +241,24 @@ async def get_news_results(query: str) -> str:
     
     news_results_keys = []
     top_stories_keys = []
+    
+async def get_blip_recognition(image_url: str, question: str = "What is this a picture of?", caption: bool = False, context: str = None) -> str:
+    replicate_api_token = REPLICATE_API_TOKEN
+    url = 'https://api.replicate.com/v1/predictions'
+    headers = {
+        'Authorization': f'Token {replicate_api_token}',
+        'Content-Type': 'application/json',
+    }
+    data = json.dumps({
+        'version': '4b32258c42e9efd4288bb9910bc532a69727f9acd26aa08e175713a0a857a608',
+        'input': {
+            'image': image_url,
+            'caption': caption,
+            'question': question,
+            },
+    })
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, headers=headers, data=data) as response:
+            output = await response.json()
+            print(output)
+            return output
