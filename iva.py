@@ -515,13 +515,12 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     mention = interaction.user.mention
     bot = client.user.display_name
     user_name = interaction.user.name
-    
+    """
     if isinstance(interaction.channel, discord.TextChannel):
         thread = await interaction.channel.create_thread(
             name=f"{user_name}'s thread with iva",
         )
-        interaction.channel = thread
-        
+    """    
     try:
         await interaction.response.defer()
 
