@@ -155,7 +155,7 @@ async def on_message(message):
         # RECOGNIZE IMAGES
         if images != []:
             for image_index in range(len(images)):
-                prompt += f"\n\nimage {image_index}: {images[image_index].url}"
+                prompt += f"\n\nimage {image_index} (use Recognize Image tool): {images[image_index].url}"
         
         print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightgreen}CHAT     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@{str(user_name).lower()}: {colors.reset}{prompt}")
 
@@ -245,19 +245,19 @@ async def on_message(message):
                     coroutine=parse_qa_webpage_input,
                     description=f"Use this tool sparingly to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like '[url],[question]'. The output will be an answer to the input question from the page."
                 ))
+                
+                tools.append(Tool(
+                    name = "Recognize Image",
+                    func=dummy_sync_function,
+                    coroutine=parse_blip_recognition,
+                    description=f"Use this tool anytime you are given an image url to recognize, caption, and answer questions about images. Input should be a comma separated list of length two, with the first entry being the image url, and the second input being the question, like '[url],[question]'. The output will be a caption of the image with the associated answer to the question."
+                ))
 
                 tools.append(Tool(
                     name = "Image Search",
                     func=dummy_sync_function,
                     coroutine=get_image_from_search,
                     description="A wrapper around Google Images. Useful for when you'd like to accompany a response with a revelant image. Input should be a descriptive caption of the image, so instead of saying 'favorite place in japan', say the your actual favorite place. Output will be the image link."
-                ))
-                
-                tools.append(Tool(
-                    name = "BLIP2",
-                    func=dummy_sync_function,
-                    coroutine=parse_blip_recognition,
-                    description=f"Use this tool anytime you are given an image url to recognize, caption, and answer questions about images. Input should be a comma separated list of length two, with the first entry being the image url, and the second input being the question, like '[url],[question]'. The output will be a caption of the image with the associated answer to the question."
                 ))
                 
                 tool_names = [tool.name for tool in tools]
