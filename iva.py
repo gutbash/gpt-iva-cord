@@ -257,7 +257,7 @@ async def on_message(message):
                     name = "BLIP2",
                     func=dummy_sync_function,
                     coroutine=parse_blip_recognition,
-                    description=f"Use this tool to recognize, caption, and answer questions about images. Input should be a comma separated list of length two, with the first entry being the image url, and the second input being the question, like '[url],[question]'. The output will be a caption of the image with the associated answer to the question."
+                    description=f"Use this tool anytime you are given an image url to recognize, caption, and answer questions about images. Input should be a comma separated list of length two, with the first entry being the image url, and the second input being the question, like '[url],[question]'. The output will be a caption of the image with the associated answer to the question."
                 ))
                 
                 tool_names = [tool.name for tool in tools]
