@@ -702,9 +702,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         {{agent_scratchpad}}
         """
         
+        blip_text = ""
+        
         if file != None:
             
-            file_placeholder = f"\n\n:page_facing_up: **{file.filename}**"
+            files.append(file)
             
             attachment_bytes = await file.read()
             file_type = file.content_type
@@ -717,9 +719,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 for page in range(len(pdf_reader.pages)):
                     pdf_content += pdf_reader.pages[page].extract_text()
                 attachment_text = f"\n\n--- {file.filename} ---\n\n{pdf_content}"
+                file_placeholder = f"\n\n:page_facing_up: **{file.filename}**"
                 
             if file_type in ('image/jpeg', 'image/jpg', 'image/png'):
-                prompt += f"\n\nimage attached: (use Recognize Image tool): {file.url}"
+                blip_text = f"\n\nimage attached: (use Recognize Image tool): {file.url}"
+                file_placeholder = f"\n\n:frame_photo: **{file.filename}**"
                 
             else:
                 try:
@@ -728,14 +732,12 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                     encoding = detected['encoding']
                     # Decode using the detected encoding
                     attachment_text = f"\n\n--- {file.filename} ---\n\n{attachment_bytes.decode(encoding)}"
+                    file_placeholder = f"\n\n:page_facing_up: **{file.filename}**"
                     
                 except:
                     embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} the attachment\'s file type is unknown. consider converting it to plain text such as `.txt`.', color=discord.Color.dark_theme())
                     await interaction.followup.send(embed=embed, ephemeral=False)
                     return
-            
-            with open(f'{file.filename}', 'w') as f:
-                f.write(attachment_text)
 
             file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + attachment_text, truncation=True, max_length=12000)['input_ids'])
 
@@ -833,7 +835,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
             with get_openai_callback() as cb:
             
-                reply = await agent_chain.arun(input=f"{prompt}{attachment_text}")
+                reply = await agent_chain.arun(input=f"{prompt}{blip_text}{attachment_text}")
                 total_cost = cb.total_cost
                 
         except Exception as e:
