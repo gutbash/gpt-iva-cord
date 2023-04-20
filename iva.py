@@ -515,12 +515,14 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     mention = interaction.user.mention
     bot = client.user.display_name
     user_name = interaction.user.name
-    """
+
+    is_text_channel = False
     if isinstance(interaction.channel, discord.TextChannel):
         thread = await interaction.channel.create_thread(
             name=f"{user_name}'s thread with iva",
         )
-    """    
+        is_text_channel = True
+
     try:
         await interaction.response.defer()
 
@@ -987,7 +989,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         try:
             print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightcyan}ASK     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@iva: {colors.reset}{reply}")
             
-            await interaction.followup.send(files=files, embeds=embeds, view=view)
+            if is_text_channel:
+                await interaction.followup.send(files=files, embeds=embeds, view=view, thread=thread.id)
+            else:
+                await interaction.followup.send(files=files, embeds=embeds, view=view)
             
             last_response[channel_id][user_id] = interaction
             
