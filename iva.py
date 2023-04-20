@@ -1165,7 +1165,7 @@ async def tutorial(interaction):
     features_intro = discord.Embed(title="Features", description="Becoming familiar with all Iva has to offer will allow you to maximize your workflow. This list is constantly being updated, so be on the look out!", color=discord.Color.dark_theme())
     features_intro.set_thumbnail(url=client.user.avatar.url)
     
-    feature_list = discord.Embed(description=textwrap.dedent(feature_list).strip(), color=discord.Color.dark_theme())
+    feature_list = discord.Embed(description=textwrap.dedent(features_string).strip(), color=discord.Color.dark_theme())
     
     #feature_eleven = discord.Embed(title="🔍 AI Content Detector (TBA)", description="We are collaborating with a leading content detection service to provide on-the-fly content detection.", color=discord.Color.dark_theme())
 
