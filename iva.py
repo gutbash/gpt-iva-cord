@@ -1165,9 +1165,9 @@ async def setup(interaction, key: str):
         
 @tree.command(name = "model", description="choose a completion model")
 @app_commands.choices(choices=[
-        app_commands.Choice(name="gpt-3.5", value="gpt-3.5-turbo"),
-        app_commands.Choice(name="gpt-4", value="gpt-4"),
-        app_commands.Choice(name="text-davinci-003", value="text-davinci-003"),
+        app_commands.Choice(name="gpt-3.5 ($0.002 / 1k tokens)", value="gpt-3.5-turbo"),
+        app_commands.Choice(name="gpt-4 ($0.06 / 1k tokens)", value="gpt-4"),
+        app_commands.Choice(name="text-davinci-003 ($0.02 / 1k tokens)", value="text-davinci-003"),
     ])
 async def model(interaction, choices: app_commands.Choice[str] = None):
     
