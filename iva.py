@@ -578,6 +578,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         async def parse_summary_webpage_input(url):
             summary = await summarize_webpage(url, llm=logical_llm)
             return summary
+        
+        async def parse_blip_recognition(url_comma_question):
+            a, b = url_comma_question.split(",")
+            output = await get_full_blip(image_url=a, question=b)
+            return output
 
         attachment_text = ""
         file_placeholder = ""
@@ -616,6 +621,13 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             func=dummy_sync_function,
             coroutine=parse_qa_webpage_input,
             description=f"Use this sparingly to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like `[url],[question]`. The output will be an answer to the input question from the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ` [1](http://source.com)` (include space)."
+        ))
+        
+        tools.append(Tool(
+            name = "Recognize Image",
+            func=dummy_sync_function,
+            coroutine=parse_blip_recognition,
+            description=f"Use this tool anytime you are tasked to recognize, caption, or answer questions about a given image url. Input should be a comma separated list of length two, with the first entry being the image url, and the second input being the question, like '[url],[question]'. The output will be a caption of the image with the associated answer to the question."
         ))
         
         tools.append(Tool(
@@ -705,7 +717,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 for page in range(len(pdf_reader.pages)):
                     pdf_content += pdf_reader.pages[page].extract_text()
                 attachment_text = f"\n\n--- {file.filename} ---\n\n{pdf_content}"
-
+                
+            if file_type in ('image/jpeg', 'image/jpg', 'image/png'):
+                prompt += f"\n\nimage attached: (use Recognize Image tool): {file.url}"
+                
             else:
                 try:
                     # Detect encoding
