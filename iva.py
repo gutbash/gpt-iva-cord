@@ -710,6 +710,13 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             file_type = file.content_type
             file_name = file.filename
             
+            with open(f'{file_name}', 'wb') as f:
+                f.write(attachment_bytes)
+                
+            files.append(discord.File(f"{file_name}"))
+            print(file.description)
+            file_count += 1
+            
             if file_type == "application/pdf": #pdf
 
                 pdf_file = io.BytesIO(attachment_bytes)
@@ -878,15 +885,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         reply = reply.replace("```C#", "```csharp")
         
         embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
-        
-        
-        with open(f'{file_name}', 'wb') as f:
-            f.write(attachment_bytes)
-            
-        if file != None:
-            files.append(discord.File(f"{file_name}"))
-            print(file.description)
-            file_count += 1
         
         embeds.append(prompt_embed)
         file_count += 1
