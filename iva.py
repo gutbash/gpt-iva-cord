@@ -878,8 +878,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
         
-        with open(f'{file.filename}', 'w') as f:
+        with open(f'{file.filename}', 'wb') as f:
             f.write(attachment_bytes)
+            
         
         if file != None:
             files.append(discord.File(f"{file.filename}"))
