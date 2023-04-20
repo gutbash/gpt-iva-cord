@@ -990,7 +990,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightcyan}ASK     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@iva: {colors.reset}{reply}")
             
             if is_text_channel:
-                await interaction.followup.send(files=files, embeds=embeds, view=view, thread=thread.id)
+                await interaction.followup.send(files=files, embeds=embeds, view=view, thread=thread)
             else:
                 await interaction.followup.send(files=files, embeds=embeds, view=view)
             
