@@ -706,9 +706,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         if file != None:
             
-            files.append(file)
-            file_count += 1
-            
             attachment_bytes = await file.read()
             file_type = file.content_type
             
@@ -880,6 +877,14 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         reply = reply.replace("```C#", "```csharp")
         
         embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
+        
+        with open(f'{file.filename}', 'w') as f:
+            f.write(attachment_bytes)
+        
+        if file != None:
+            files.append(discord.File(f"{file.filename}"))
+            print(file.description)
+            file_count += 1
         
         embeds.append(prompt_embed)
         file_count += 1
