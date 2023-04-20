@@ -1150,7 +1150,7 @@ async def tutorial(interaction):
     
     feature_ten = discord.Embed(title="👤 User Settings", description="Personal settings such as model switching between gpt-4 and gpt-3.5 persist for a familiar workflow you can return to at any time.", color=discord.Color.dark_theme())
     
-    feature_eleven = discord.Embed(title="🔍 AI Content Detector (TBA)", description="We are collaborating with a leading content detection service to provide on-the-fly content detection.", color=discord.Color.dark_theme())
+    #feature_eleven = discord.Embed(title="🔍 AI Content Detector (TBA)", description="We are collaborating with a leading content detection service to provide on-the-fly content detection.", color=discord.Color.dark_theme())
 
     embeds = [
         features_intro,
@@ -1164,7 +1164,7 @@ async def tutorial(interaction):
         feature_eight,
         feature_nine,
         feature_ten,
-        feature_eleven,
+        #feature_eleven,
     ]
     
     await interaction.response.send_message(embeds=embeds, ephemeral=False)
