@@ -1117,7 +1117,7 @@ async def tutorial(interaction):
     embed_other.add_field(inline=True, name="`/help`", value="show instructions for setup.")
     embed_other.add_field(inline=True, name="`/setup`", value="enter your key. `/help` for more info.")
     
-    await interaction.response.send_message(embeds=[embed_main, embed_chat, embed_ask, embed_other], ephemeral=False)
+    await interaction.response.send_message(embeds=[embed_main, embed_chat, embed_ask, embed_other], ephemeral=True)
     
 @tree.command(name = "features", description="learn all the features iva has to offer")
 async def tutorial(interaction):
@@ -1167,7 +1167,7 @@ async def tutorial(interaction):
         #feature_eleven,
     ]
     
-    await interaction.response.send_message(embeds=embeds, ephemeral=False)
+    await interaction.response.send_message(embeds=embeds, ephemeral=True)
     
 @tree.command(name = "setup", description="register your key")
 @app_commands.describe(key = "key")
