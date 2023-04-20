@@ -522,6 +522,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             name=f"{user_name}'s thread with iva",
         )
         is_text_channel = True
+        thread_id = thread.id
 
     try:
         await interaction.response.defer()
@@ -990,7 +991,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightcyan}ASK     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@iva: {colors.reset}{reply}")
             
             if is_text_channel:
-                await interaction.followup.send(files=files, embeds=embeds, view=view, thread=thread)
+                await interaction.followup.send(files=files, embeds=embeds, view=view, thread=thread_id)
             else:
                 await interaction.followup.send(files=files, embeds=embeds, view=view)
             
