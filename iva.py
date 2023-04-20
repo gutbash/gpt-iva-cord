@@ -1127,44 +1127,51 @@ async def tutorial(interaction):
     
     mention = interaction.user.mention
     
-    features_intro = discord.Embed(title="**Features**", description="Becoming familiar with all Iva has to offer will allow you to maximize your workflow. This list is constantly being updated, so be on the look out!", color=discord.Color.dark_theme())
+    features_string = """
+    📰 Internet Browsing
+    Iva safely searches, summarizes, and answers questions on the web, sharing articles, videos, images, social media posts, music, wikis, movies, shopping, and more.
+
+    📝 Citations
+    Iva cites any sources utilized to give users the power to explore and verify information on their own in the pursuit of truthfulness and prevention of hallucinations.
+
+    📁 File Input
+    Drag and drop your file in context. Iva will process pretty much any popular file type (.txt, .pdf, .py, .cs, etc.) for debugging, Q&A, and more.
+
+    🔗 Link Input
+    Send .pdf or article URLs to Iva with no length limit. Iva will perform summarization and/or Q&A on the content for uncompromised results.
+
+    🧠 Persistent Seamless Memory
+    Iva's memory never runs into length limits, and retains the chat history. Pick up where you left off and refer to previous chat events.
+
+    👥 Group Conversations
+    Iva can optionally speak to multiple users in one channel and recognizes individual users, enabling collaborative discussions and more inclusive ideas.
+
+    👁️ Image Recognition with BLIP2
+    Iva intelligently recognizes and answers questions of a given image, all while remaining in the context of the conversation.
+
+    🧮 LaTeX Formatting
+    Iva writes STEM expressions in beautiful LaTeX.
+
+    🖥️ Codex
+    Iva debugs and codes in formatted blocks.
+
+    👤 User Settings
+    Personal settings such as model switching between gpt-4 and gpt-3.5 persist for a familiar workflow you can return to at any time.
+
+    🔍 AI Content Detector (TBA)
+    We are collaborating with a leading content detection service to provide on-the-fly content detection.
+    """
+    
+    features_intro = discord.Embed(title="Features", description="Becoming familiar with all Iva has to offer will allow you to maximize your workflow. This list is constantly being updated, so be on the look out!", color=discord.Color.dark_theme())
     features_intro.set_thumbnail(url=client.user.avatar.url)
     
-    feature_one = discord.Embed(title="📰 Internet Browsing", description="Iva safely searches, summarizes, and answers questions on the web, sharing articles, videos, images, social media posts, music, wikis, movies, shopping, and more.", color=discord.Color.dark_theme())
-    
-    feature_two = discord.Embed(title="📝 Citations", description="Iva cites any sources utilized to give users the power to explore and verify information on their own in the pursuit of truthfulness and prevention of hallucinations.", color=discord.Color.dark_theme())
-    
-    feature_three = discord.Embed(title="📁 File Input", description="Drag and drop your file in context. Iva will process pretty much any popular file type (.txt, .pdf, .py, .cs, etc.) for debugging, Q&A, and more.", color=discord.Color.dark_theme())
-    
-    feature_four = discord.Embed(title="🔗 Link Input", description="Send .pdf or article URLs to Iva with no length limit. Iva will perform summarization and/or Q&A on the content for uncompromised results.", color=discord.Color.dark_theme())
-    
-    feature_five = discord.Embed(title="🧠 Persistent Seamless Memory", description="Iva's memory never runs into length limits, and retains the chat history. Pick up where you left off and refer to previous chat events.", color=discord.Color.dark_theme())
-    
-    feature_six = discord.Embed(title="👥 Group Conversations", description="Iva can optionally speak to multiple users in one channel and recognizes individual users, enabling collaborative discussions and more inclusive ideas.", color=discord.Color.dark_theme())
-    
-    feature_seven = discord.Embed(title="👁️ Image Recognition with BLIP2", description="Iva intelligently recognizes and answers questions of a given image, all while remaining in the context of the conversation.", color=discord.Color.dark_theme())
-    
-    feature_eight = discord.Embed(title="🧮 LaTeX Formatting", description="Iva writes STEM expressions in beautiful LaTeX.", color=discord.Color.dark_theme())
-    
-    feature_nine = discord.Embed(title="🖥️ Codex", description="Iva debugs and codes in formatted blocks.", color=discord.Color.dark_theme())
-    
-    feature_ten = discord.Embed(title="👤 User Settings", description="Personal settings such as model switching between gpt-4 and gpt-3.5 persist for a familiar workflow you can return to at any time.", color=discord.Color.dark_theme())
+    feature_list = discord.Embed(description=textwrap.dedent(feature_list).strip(), color=discord.Color.dark_theme())
     
     #feature_eleven = discord.Embed(title="🔍 AI Content Detector (TBA)", description="We are collaborating with a leading content detection service to provide on-the-fly content detection.", color=discord.Color.dark_theme())
 
     embeds = [
         features_intro,
-        feature_one,
-        feature_two,
-        feature_three,
-        feature_four,
-        feature_five,
-        feature_six,
-        feature_seven,
-        feature_eight,
-        feature_nine,
-        feature_ten,
-        #feature_eleven,
+        feature_list,
     ]
     
     await interaction.response.send_message(embeds=embeds, ephemeral=True)
