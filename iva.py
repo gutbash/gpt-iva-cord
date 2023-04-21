@@ -648,7 +648,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         RULES:
         - Send links or URLs exclusively obtained through tools
-        - Never send a fabricated fake link
+        - Do not send fabricated fake links
         - You must parenthetically cite any sources referenced in your response as a clickable numbered hyperlink like ` [1](http://source.com)` (include space)
         - Write code blocks with three backticks (```[language]\\n[code block]```) for ANY code.
         - Answer and explain any and all math questions presented to the user in LaTeX code formatting for every mathematical expression, no matter how simple or complex. Wrap all LaTeX code in double dollar signs `$$` (DO NOT USE SINGLE `$`) and place it on a new line, like this: `\\n$$[latex]$$`. This should be done even for expressions that do not strictly require LaTeX formatting. Apply LaTeX formatting to tables and other complex information displays as well.
