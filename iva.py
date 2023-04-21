@@ -723,7 +723,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 pdf_reader = PyPDF2.PdfReader(pdf_file)
                 pdf_content = ""
                 for page in range(len(pdf_reader.pages)):
-                    pdf_content += pdf_reader.pages[page].extract_text()
+                    page_text = pdf_reader.pages[page].extract_text()
+                    # Replace multiple newlines with a single space
+                    page_text = re.sub(r'\n+', ' ', page_text)
+                    pdf_content += page_text
                 attachment_text = f"\n\n--- {file_name} ---\n\n{pdf_content}"
                 file_placeholder = f"\n\n:page_facing_up: **{file_name}**"
                 
