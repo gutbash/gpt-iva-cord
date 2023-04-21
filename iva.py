@@ -791,7 +791,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             human_prefix = f"User",
         )
         
-        k_limit = 6
+        k_limit = 3
         total_cost = None
         
         if channel_id in ask_mems and user_id in ask_mems[channel_id] and ask_mems[channel_id][user_id] is not None:
