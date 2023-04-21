@@ -727,7 +727,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 attachment_text = f"\n\n--- {file_name} ---\n\n{pdf_content}"
                 file_placeholder = f"\n\n:page_facing_up: **{file_name}**"
                 
-            if file_type in ('image/jpeg', 'image/jpg', 'image/png'):
+            elif file_type in ('image/jpeg', 'image/jpg', 'image/png'):
                 blip_text = f"\n\nimage attached: (use Recognize Image tool): {file.url}"
                 file_placeholder = f"\n\n:frame_photo: **{file_name}**"
                 
