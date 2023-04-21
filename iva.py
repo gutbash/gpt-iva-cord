@@ -599,7 +599,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             name = "Organic Results",
             func=dummy_sync_function,
             coroutine=get_organic_results,
-            description="A wrapper around Google Search. Input should be a description of the query in question. Do not input the same query twice. Do not search for things that are personal or unrelated to the user's original query. Do not input URL links. Output returns the top result you can read or simply share with the user. You must parenthetically cite the result as a clickable numbered hyperlink like ` [1](http://source.com)` (include space) if it is referenced in your response."
+            description="A wrapper around Google Search. Input should be the query in question. Do not input the same query twice. Do not search for things that are personal or unrelated to the user's original query. Do not input URL links. Output returns the top result you can read or simply share with the user. You must cite the result as a clickable numbered hyperlink like ` [1](http://source.com)` (include space)."
         ))
         """
         tools.append(Tool(
@@ -613,21 +613,21 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             name = "Summarize Webpage",
             func=dummy_sync_function,
             coroutine=parse_summary_webpage_input,
-            description=f"Use this sparingly to to summarize the content of a webpage for articles and other long form written content. Input should be the given url. The output will be a summary of the contents of the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ` [1](http://source.com)` (include space)."
+            description=f"Use this sparingly to to summarize the content of a webpage for articles and other long form written content. Input should be the given url. The output will be a summary of the contents of the page. You must cite the website as a clickable numbered hyperlink like ` [1](http://source.com)` (include space)."
         ))
         
         tools.append(Tool(
             name = "Q&A Webpage",
             func=dummy_sync_function,
             coroutine=parse_qa_webpage_input,
-            description=f"Use this sparingly to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like `[url],[question]`. The output will be an answer to the input question from the page. You must parenthetically cite the inputted website if referenced in your response as a clickable numbered hyperlink like ` [1](http://source.com)` (include space)."
+            description=f"Use this to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like `url,question`. The output will be an answer to the input question from the page. You must cite the website as a clickable numbered hyperlink like ` [1](http://source.com)` (include space)."
         ))
         
         tools.append(Tool(
             name = "Recognize Image",
             func=dummy_sync_function,
             coroutine=parse_blip_recognition,
-            description=f"Use this tool anytime you are tasked to recognize, caption, or answer questions about a given image url. Input should be a comma separated list of length two, with the first entry being the image url, and the second input being the question, like '[url],[question]'. The output will be a caption of the image with the associated answer to the question."
+            description=f"Use this tool to recognize, caption, or answer questions about a given image url. Input should be a comma separated list of length two, with the first entry being the image url, and the second input being the question, like 'image_url,question'. The output will be a caption of the image with the associated answer to the question."
         ))
         
         tools.append(Tool(
