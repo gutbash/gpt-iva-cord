@@ -613,14 +613,14 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             name = "Summarize Webpage",
             func=dummy_sync_function,
             coroutine=parse_summary_webpage_input,
-            description=f"Use this sparingly to to summarize the content of a webpage for articles and other long form written content. Input should be the given url. The output will be a summary of the contents of the page. You must cite the website as a clickable numbered hyperlink like ` [1](http://source.com)` (include space)."
+            description=f"Use this sparingly to to summarize the content of a webpage for articles and other long form written content. Input should be the given url. The output will be a summary of the contents of the page. You must cite the website as a clickable numbered hyperlink like ` [1](http://source.com)` (include space, no footnote)."
         ))
         
         tools.append(Tool(
             name = "Q&A Webpage",
             func=dummy_sync_function,
             coroutine=parse_qa_webpage_input,
-            description=f"Use this to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like `url,question`. The output will be an answer to the input question from the page. You must cite the website as a clickable numbered hyperlink like ` [1](http://source.com)` (include space)."
+            description=f"Use this to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like `url,question`. The output will be an answer to the input question from the page. You must cite the website as a clickable numbered hyperlink like ` [1](http://source.com)` (include space, no footnote)."
         ))
         
         tools.append(Tool(
@@ -649,7 +649,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         RULES:
         - Send links or URLs exclusively obtained through tools
         - Do not send fabricated fake links
-        - You must parenthetically cite any sources referenced in your response as a clickable numbered hyperlink like ` [1](http://source.com)` (include space)
+        - You must parenthetically cite any links from tools referenced in your response as a clickable numbered hyperlink like ` [1](http://source.com)` (include space, no footnote)
         - Write code blocks with three backticks (```[language]\\n[code block]```) for ANY code.
         - Answer and explain any and all math questions presented to the user in LaTeX code formatting for every mathematical expression, no matter how simple or complex. Wrap all LaTeX code in double dollar signs `$$` (DO NOT USE SINGLE `$`) and place it on a new line, like this: `\\n$$[latex]$$`. This should be done even for expressions that do not strictly require LaTeX formatting. Apply LaTeX formatting to tables and other complex information displays as well.
 
