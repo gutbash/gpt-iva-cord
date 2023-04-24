@@ -647,7 +647,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         Knowledge Cutoff - September, 2021
 
         Format your response using the following elements even if it is not necessary...
-        - ```language\\ncode block```
+        - ```language
+        code block
+        ```
         - \\n$$latex$$
         - [hyperlink](http://hyperlink.com)
         - **bold**
