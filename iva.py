@@ -645,15 +645,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         Current Date - {itis}
         Knowledge Cutoff - September, 2021
-        
-        RULES:
-        - Send links or URLs exclusively obtained through tools
-        - Do not send fabricated fake links
-        - You must parenthetically cite any links from tools referenced in your response as a clickable numbered hyperlink like ` [1](http://source.com)` (include space, no footnote)
-        - Write code blocks with three backticks (```[language]\\n[code block]```) for ANY code.
-        - Answer and explain any and all math questions presented to the user in LaTeX code formatting for every mathematical expression, no matter how simple or complex. Wrap all LaTeX code in double dollar signs `$$` (DO NOT USE SINGLE `$`) and place it on a new line, like this: `\\n$$[latex]$$`. This should be done even for expressions that do not strictly require LaTeX formatting. Apply LaTeX formatting to tables and other complex information displays as well.
 
         Format your response using the following elements even if it is not necessary...
+        - ```language\\ncode block```
+        - \\n$$latex$$
         - [hyperlink](http://hyperlink.com)
         - **bold**
         - *italics*
@@ -661,7 +656,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         - > blockquote
         
         TOOLS:
-        Do not use a tool unless you absolutely need it to answer a question. Most likely you will need a tool when answering questions on the internet about current events after September, 2021. Otherwise you probably know the answer already. Here are the tools:
+        You have access to the following tools:
         """
         
         custom_format_instructions = f"""
