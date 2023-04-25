@@ -31,6 +31,7 @@ import textwrap
 from bs4 import BeautifulSoup
 import chardet
 import aiohttp
+import logging
 
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import OpenAI
@@ -56,6 +57,8 @@ SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 WOLFRAM_ALPHA_APPID = os.getenv("WOLFRAM_ALPHA_APPID")
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 tokenizer = GPT2TokenizerFast.from_pretrained("gpt2") # initialize tokenizer
 
 intents = discord.Intents.default() # declare intents
@@ -72,30 +75,15 @@ last_response = {}
 async def on_ready():
     
     await async_fetch_keys_table()
-
-    timestamp = datetime.datetime.now()
-    time = timestamp.strftime(r"%Y-%m-%d %I:%M:%S")
-    print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightblue}INFO     {colors.reset}{colors.fg.purple}discord.client.guilds {colors.reset}registered {colors.bold}{len(client.guilds)}{colors.reset} guilds")
-    print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightblue}INFO     {colors.reset}{colors.fg.purple}discord.client.user {colors.reset}logged in as {colors.bold}@{client.user.name}")
-    
-    for guild in client.guilds:
-            
-        active_users[guild.id] = []
-        active_names[guild.id] = ""
-        
     await tree.sync()
+
+    logging.info(f"Registered {len(client.guilds)} guilds.")
+    logging.info(f"Logged in as @{client.user.name}.")
     
 @client.event
 async def on_guild_join(guild):
     
-    timestamp = datetime.datetime.now()
-    time = timestamp.strftime(r"%Y-%m-%d %I:%M %p")
-    print(f"[{time}]")
-    
-    print(guild)
-        
-    active_users[guild.id] = []
-    active_names[guild.id] = ""
+    logging.info(f"Client added to guild {guild}.")
     
     await tree.sync(guild=guild)
 
