@@ -5,7 +5,7 @@ import discord.ext.tasks
 
 from log_utils import colors
 from redis_utils import save_pickle_to_redis, load_pickle_from_redis
-from postgres_utils import async_fetch_key
+from postgres_utils import async_fetch_key, async_fetch_keys_table
 from tool_utils import dummy_sync_function
 from tools import (
     get_image_from_search,
@@ -55,19 +55,10 @@ GUILD_ID = os.getenv("GUILD_ID") # load dev guild
 SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 WOLFRAM_ALPHA_APPID = os.getenv("WOLFRAM_ALPHA_APPID")
-DATABASE_URL = os.getenv("DATABASE_URL")
 
 tokenizer = GPT2TokenizerFast.from_pretrained("gpt2") # initialize tokenizer
 
-with psycopg2.connect(DATABASE_URL) as conn:
-    with conn.cursor() as cursor:
-        # check if the keys table exists
-        cursor.execute("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'keys')")
-        table_exists = cursor.fetchone()[0]
-        # create the keys table if it does not exist
-        if not table_exists:
-            cursor.execute("CREATE TABLE keys (id TEXT PRIMARY KEY, key TEXT)")
-            conn.commit()
+await async_fetch_keys_table()
 
 intents = discord.Intents.default() # declare intents
 intents.message_content = True
