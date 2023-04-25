@@ -17,3 +17,5 @@ chardet
 lxml
 jinja2
 brotlipy
+Flask
+gunicorn
