@@ -650,7 +650,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         - ```language
         code block
         ```
-        - \\n$$latex$$
+        - $$latex$$ (no single $'s, start on new line)
         - [hyperlink](http://hyperlink.com)
         - **bold**
         - *italics*
