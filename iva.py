@@ -58,8 +58,6 @@ WOLFRAM_ALPHA_APPID = os.getenv("WOLFRAM_ALPHA_APPID")
 
 tokenizer = GPT2TokenizerFast.from_pretrained("gpt2") # initialize tokenizer
 
-await async_fetch_keys_table()
-
 intents = discord.Intents.default() # declare intents
 intents.message_content = True
 
@@ -73,6 +71,8 @@ last_response = {}
 @client.event
 async def on_ready():
     
+    await async_fetch_keys_table()
+
     timestamp = datetime.datetime.now()
     time = timestamp.strftime(r"%Y-%m-%d %I:%M:%S")
     print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightblue}INFO     {colors.reset}{colors.fg.purple}discord.client.guilds {colors.reset}registered {colors.bold}{len(client.guilds)}{colors.reset} guilds")
