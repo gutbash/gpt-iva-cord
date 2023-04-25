@@ -594,14 +594,14 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             coroutine=parse_summary_webpage_input,
             description=f"Use this sparingly to to summarize the content of a webpage. Input should be the given url. Output will be a summary of the contents of the page. You must cite the website as a hyperlink like ` [1](http://source.com)` (include space, no footnote)."
         ))
-        """
+        
         tools.append(Tool(
             name = "Q&A Webpage",
             func=dummy_sync_function,
             coroutine=parse_qa_webpage_input,
             description=f"Use this to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like `url,question`. Output will be an answer to the input question from the page. You must cite the website as a clickable numbered hyperlink like ` [1](http://source.com)` (include space, no footnote)."
         ))
-        """
+        
         tools.append(Tool(
             name = "Recognize Image",
             func=dummy_sync_function,
