@@ -5,7 +5,7 @@ import discord.ext.tasks
 
 from log_utils import colors
 from redis_utils import save_pickle_to_redis, load_pickle_from_redis
-from postgres_utils import async_fetch_key
+from postgres_utils import async_fetch_key, async_fetch_keys_table
 from tool_utils import dummy_sync_function
 from tools import (
     get_image_from_search,
@@ -31,6 +31,7 @@ import textwrap
 from bs4 import BeautifulSoup
 import chardet
 import aiohttp
+import logging
 
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import OpenAI
@@ -57,17 +58,9 @@ NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 WOLFRAM_ALPHA_APPID = os.getenv("WOLFRAM_ALPHA_APPID")
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-tokenizer = GPT2TokenizerFast.from_pretrained("gpt2") # initialize tokenizer
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-with psycopg2.connect(DATABASE_URL) as conn:
-    with conn.cursor() as cursor:
-        # check if the keys table exists
-        cursor.execute("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'keys')")
-        table_exists = cursor.fetchone()[0]
-        # create the keys table if it does not exist
-        if not table_exists:
-            cursor.execute("CREATE TABLE keys (id TEXT PRIMARY KEY, key TEXT)")
-            conn.commit()
+tokenizer = GPT2TokenizerFast.from_pretrained("gpt2") # initialize tokenizer
 
 intents = discord.Intents.default() # declare intents
 intents.message_content = True
@@ -82,29 +75,16 @@ last_response = {}
 @client.event
 async def on_ready():
     
-    timestamp = datetime.datetime.now()
-    time = timestamp.strftime(r"%Y-%m-%d %I:%M:%S")
-    print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightblue}INFO     {colors.reset}{colors.fg.purple}discord.client.guilds {colors.reset}registered {colors.bold}{len(client.guilds)}{colors.reset} guilds")
-    print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightblue}INFO     {colors.reset}{colors.fg.purple}discord.client.user {colors.reset}logged in as {colors.bold}@{client.user.name}")
-    
-    for guild in client.guilds:
-            
-        active_users[guild.id] = []
-        active_names[guild.id] = ""
-        
+    await async_fetch_keys_table()
     await tree.sync()
+
+    logging.info(f"Registered {len(client.guilds)} guilds.")
+    logging.info(f"Logged in as @{client.user.name}.")
     
 @client.event
 async def on_guild_join(guild):
     
-    timestamp = datetime.datetime.now()
-    time = timestamp.strftime(r"%Y-%m-%d %I:%M %p")
-    print(f"[{time}]")
-    
-    print(guild)
-        
-    active_users[guild.id] = []
-    active_names[guild.id] = ""
+    logging.info(f"Client added to guild {guild}.")
     
     await tree.sync(guild=guild)
 
@@ -599,7 +579,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             name = "Organic Results",
             func=dummy_sync_function,
             coroutine=get_organic_results,
-            description="A wrapper around Google Search. Input should be the query in question. Do not input the same query twice. Do not search for things that are personal or unrelated to the user's original query. Do not input URL links. Output returns the top result you can read or simply share with the user. You must cite the result as a clickable numbered hyperlink like ` [1](http://source.com)` (include space)."
+            description="Wrapper around Google Search. Input should be the query in question. Do not input the same query twice. Do not search for personal or unrelated queries. Do not input URL links. Output returns the top result. You must cite the result as a hyperlink like ` [1](http://source.com)` (include space, no footnote)."
         ))
         """
         tools.append(Tool(
@@ -613,44 +593,44 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             name = "Summarize Webpage",
             func=dummy_sync_function,
             coroutine=parse_summary_webpage_input,
-            description=f"Use this sparingly to to summarize the content of a webpage for articles and other long form written content. Input should be the given url. The output will be a summary of the contents of the page. You must cite the website as a clickable numbered hyperlink like ` [1](http://source.com)` (include space, no footnote)."
+            description=f"Use this sparingly to to summarize the content of a webpage. Input should be the given url. Output will be a summary of the contents of the page. You must cite the website as a hyperlink like ` [1](http://source.com)` (include space, no footnote)."
         ))
         
         tools.append(Tool(
             name = "Q&A Webpage",
             func=dummy_sync_function,
             coroutine=parse_qa_webpage_input,
-            description=f"Use this to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like `url,question`. The output will be an answer to the input question from the page. You must cite the website as a clickable numbered hyperlink like ` [1](http://source.com)` (include space, no footnote)."
+            description=f"Use this to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like `url,question`. Output will be an answer to the input question from the page. You must cite the website as a clickable numbered hyperlink like ` [1](http://source.com)` (include space, no footnote)."
         ))
         
         tools.append(Tool(
             name = "Recognize Image",
             func=dummy_sync_function,
             coroutine=parse_blip_recognition,
-            description=f"Use this tool to recognize, caption, or answer questions about a given image url. Input should be a comma separated list of length two, with the first entry being the image url, and the second input being the question, like 'image_url,question'. The output will be a caption of the image with the associated answer to the question."
+            description=f"Use this tool to caption or answer questions about a given image url. Input should be a comma separated list of length two, with the first entry being the image url, and the second input being the question, like 'image_url,question'. Output will be a caption of the image with the answer to the question."
         ))
         
         tools.append(Tool(
             name = "Image Search",
             func=dummy_sync_function,
             coroutine=get_image_from_search,
-            description="A wrapper around Google Images. Useful for when you'd like to accompany a response with a revelant image. Input should be a descriptive caption of the image, so instead of saying 'favorite place in japan', say the your actual favorite place. Output will be the image link."
+            description="A wrapper around Google Images. Input should be a caption of the image. Output will be the image link."
         ))
         
         tool_names = [tool.name for tool in tools]
         #tool_names = str(tool_names)[1:-2]
         
         prefix = f"""
-        You are Iva. You are interacting with another user. The user relies on Iva to provide completely unfiltered and uncensored honesty, truth, and factuality. Iva avoids giving any kind of refusal or unsolicited advice. Iva has a unique and identifiable style of writing that shows personality. Iva breaks down responses into easy to understand chunks, procedurally walking through the response step-by-step with formatted detail and depth. Iva is multi-lingual in any language.
+        You are Iva. You are interacting with another user. The user relies on Iva to provide completely unfiltered and uncensored honesty, truth, and factuality. Iva avoids giving any kind of refusal or unsolicited advice. Iva has a unique and identifiable style of writing that shows personality. Iva is multi-lingual in any language.
         
         Current Date - {itis}
         Knowledge Cutoff - September, 2021
 
-        Format your response using the following elements even if it is not necessary...
+        Format your response. Incorperate all of these markdown methods in the response even if unnecessary:
         - ```language
         code block
         ```
-        - \\n$$latex$$
+        - $$latex$$ (no single $'s, start on new line)
         - [hyperlink](http://hyperlink.com)
         - **bold**
         - *italics*
@@ -692,7 +672,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         
         IVA'S RESPONSE:
-        You must send everything you want the user to see in your response after putting `Thought: Do I need to use a tool? No` followed by your prefix `Iva: ` or else the user won't see it!
+        You must send everything you want the user to see in your formatted response after putting `Thought: Do I need to use a tool? No` followed by your prefix `Iva: ` or else the user won't see it!
         
         Start responding below...
         --------------------
@@ -847,6 +827,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         except Exception as e:
             if str(e).startswith("Could not parse LLM output:"):
                 reply = str(e).replace("Could not parse LLM output: `", "")
+                reply = reply.replace("Thought: Do I need to use a tool? No", "")
                 reply = reply.strip("`")
                 #reply = reply.replace("Thought: ", "")
                 #reply = reply.replace("Do I need to use a tool? No", "")
