@@ -625,7 +625,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         Current Date - {itis}
         Knowledge Cutoff - September, 2021
 
-        Format your response. Find a way to incorperate all of these markdown methods if they are applicable even if unnecessary:
+        Format your response. Incorperate all of these markdown methods in the response even if unnecessary:
         - ```language
         code block
         ```
