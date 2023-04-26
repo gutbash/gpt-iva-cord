@@ -18,6 +18,7 @@ from tools import (
 
 import os
 import openai
+import asyncpg
 import datetime
 from transformers import GPT2TokenizerFast
 import re
