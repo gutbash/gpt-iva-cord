@@ -33,7 +33,16 @@ p {
 }
 .last-updated {
     font-family: "vinila-variable", sans-serif;
-    font-variation-settings: "slnt" 0, "wght" 100, "wdth" 100;
+    font-variation-settings: "slnt" 0, "wght" 200, "wdth" 100;
     text-align: right;
+    font-style: normal;
+}
+.app-name {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    font-size: 24px;
+    font-family: "vinila-variable", sans-serif;
+    font-variation-settings: "slnt" 0, "wght" 500, "wdth" 125;
     font-style: normal;
 }
