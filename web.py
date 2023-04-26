@@ -2,7 +2,7 @@ from flask import Flask, render_template
 
 app = Flask(__name__)
 
-@app.route('/policies')
+@app.route('/')
 def policies():
     return render_template('policies.html')
 
