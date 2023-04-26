@@ -11,7 +11,7 @@ openai
 tiktoken
 wikipedia
 graphviz
-psycopg2
+asyncpg
 aioredis
 chardet
 lxml
