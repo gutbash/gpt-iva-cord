@@ -41,7 +41,7 @@ p {
 .navbar {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: space-between;
     background-color: #333;
     height: 60px;
     padding: 0 20px;
