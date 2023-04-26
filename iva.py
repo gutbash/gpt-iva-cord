@@ -626,16 +626,16 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         Current Date - {itis}
         Knowledge Cutoff - September, 2021
 
-        Format your response. Incorperate all of these markdown methods in the response even if unnecessary:
-        - ```language
-        code block
+        Format your response. Incorperate all of these markdown methods in the response even if unnecessary. Replace the brackets with your input:
+        - ```[language]
+        [code block]
         ```
-        - $$latex$$ (no single $'s, start on new line)
-        - [hyperlink](http://hyperlink.com)
-        - **bold**
-        - *italics*
-        - `label`
-        - > blockquote
+        - $$[latex]$$ (no single $'s, start on new line)
+        - [[hyperlink]]([http://hyperlink.com])
+        - **[bold]**
+        - *[italics]*
+        - `[label]`
+        - > [blockquote]
         
         TOOLS:
         You have access to the following tools:
