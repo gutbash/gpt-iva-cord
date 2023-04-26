@@ -1,7 +1,7 @@
 body {
     font-family: source-serif-pro, serif;
     font-style: normal;
-    font-weight: 300;
+    font-weight: 200;
     margin: 0;
     padding: 0;
     background-color: #2d2d2d;
@@ -29,7 +29,7 @@ h2 {
 p {
     font-family: source-serif-pro, serif;
     font-style: normal;
-    font-weight: 300;
+    font-weight: 200;
 }
 .last-updated {
     text-align: right;
