@@ -103,6 +103,9 @@ footer {
 }
 /* Add button styles */
 .add-button {
+    font-family: "vinila-variable", sans-serif;
+    font-style: normal;
+    font-variation-settings: "slnt" 0, "wght" 400, "wdth" 125;
     display: flex;
     align-items: center;
     background-color: #7289da;
@@ -114,6 +117,9 @@ footer {
 }
 
 .support-button {
+    font-family: "vinila-variable", sans-serif;
+    font-style: normal;
+    font-variation-settings: "slnt" 0, "wght" 400, "wdth" 125;
     display: flex;
     align-items: center;
     background-color: #6abd83;
