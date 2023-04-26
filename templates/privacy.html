@@ -27,31 +27,25 @@
     </header>
     <div class="container">
         <h1>Privacy Policy</h1>
+        <h2>Introduction</h2>
         <p>This policy explains how Iva, a Discord bot, handles your personal information. By using Iva, you agree to this policy.</p>
     
         <h2>Information Collection and Use</h2>
-        <p>Iva collects and stores:</p>
+        <p>Iva collects and stores the following data which is protected by AES-256 encryption at the content level and the server level at rest:</p>
         <ul>
-            <li>User messages (encrypted)</li>
-            <li>OpenAI API keys (encrypted)</li>
-            <li>User settings</li>
-        </ul>
-    
-        <h2>Third-Party Services</h2>
-        <p>Iva uses third-party services:</p>
-        <ul>
-            <li>Heroku for hosting</li>
-            <li>OpenAI API for language model completions</li>
+            <li>Message Content</li>
+            <li>API Keys</li>
         </ul>
     
         <h2>Data Storage and Retention</h2>
-        <p>Iva keeps user data indefinitely unless the user requests deletion.</p>
+        <p>Message content data is deleted every 30 days, however can be deleted at any time upon request.</p>
     
         <h2>Data Access, Correction, and Deletion</h2>
-        <p>Use these commands with Iva:</p>
+        <p>Use these commands with Iva to delete all associated data:</p>
         <ul>
-            <li>/reset: Deletes message history for that channel or thread.</li>
-            <li>/setup: To delete or replace the OpenAI API key, input an empty value.</li>
+            <li>/reset: Deletes all message content for that channel or thread.</li>
+            <li>/erase: Deletes all message content associated with a user from all channels and threads.</li>
+            <li>/setup: Deletes the API key entry associated with a user when no argument is given.</li>
         </ul>
     
         <h2>Age Limitations</h2>
