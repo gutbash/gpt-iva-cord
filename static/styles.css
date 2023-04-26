@@ -32,6 +32,8 @@ p {
     font-variation-settings: "wght" 300;
 }
 .last-updated {
+    font-family: "vinila-variable", sans-serif;
+    font-variation-settings: "slnt" 0, "wght" 100, "wdth" 100;
     text-align: right;
     font-style: normal;
 }
