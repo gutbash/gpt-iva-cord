@@ -56,14 +56,6 @@ p {
     font-variation-settings: "slnt" 0, "wght" 500, "wdth" 125;
     font-style: normal;
 }
-
-/* Mobile styles */
-@media (max-width: 767px) {
-    .navbar {
-        justify-content: space-between;
-    }
-}
-
 /* Footer styles */
 footer {
     background-color: #333;
@@ -107,5 +99,32 @@ footer {
 
     .footer-links {
         margin-bottom: 10px;
+    }
+}
+/* Add button styles */
+.add-button {
+    display: flex;
+    align-items: center;
+    background-color: #7289da;
+    border-radius: 5px;
+    padding: 8px 12px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.add-button i {
+    margin-right: 5px;
+}
+
+.add-button:hover {
+    background-color: #586dc8;
+}
+
+/* Mobile styles */
+@media (max-width: 767px) {
+    .navbar {
+        justify-content: space-between;
     }
 }
