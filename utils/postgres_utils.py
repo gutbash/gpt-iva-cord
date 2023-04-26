@@ -15,13 +15,17 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 async def fetch_key(id):
-    async with asyncpg.connect(DATABASE_URL) as conn:
+    conn = await asyncpg.connect(DATABASE_URL)
+    try:
         result = await conn.fetchrow("SELECT key FROM keys WHERE id = $1", str(id))
         logging.info("Fetched key from keys table.")
+    finally:
+        await conn.close()
     return result
 
 async def fetch_keys_table():
-    async with asyncpg.connect(DATABASE_URL) as conn:
+    conn = await asyncpg.connect(DATABASE_URL)
+    try:
         # check if the keys table exists
         table_exists = await conn.fetchval("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'keys')")
         logging.info("Fetched existing 'keys' table.")
@@ -29,9 +33,12 @@ async def fetch_keys_table():
         if not table_exists:
             await conn.execute("CREATE TABLE keys (id TEXT PRIMARY KEY, key TEXT)")
             logging.info("Created new 'keys' table.")
+    finally:
+        await conn.close()
 
 async def upsert_key(id, key):
-    async with asyncpg.connect(DATABASE_URL) as conn:
+    conn = await asyncpg.connect(DATABASE_URL)
+    try:
         await conn.execute("""
             INSERT INTO keys (id, key)
             VALUES ($1, $2)
@@ -39,3 +46,5 @@ async def upsert_key(id, key):
             DO UPDATE SET key = $2
         """, str(id), key)
         logging.info("Upserted key in the 'keys' table.")
+    finally:
+        await conn.close()
