@@ -1,4 +1,7 @@
 body {
+    font-family: owners, sans-serif;
+    font-style: normal;
+    font-weight: 400;
     margin: 0;
     padding: 0;
     background-color: #2d2d2d;
@@ -12,14 +15,14 @@ body {
 h1 {
     font-family: owners-xxwide, sans-serif;
     font-style: normal;
-    font-weight: 500;
+    font-weight: 400;
     text-align: center;
     margin-bottom: 1.5em;
 }
 h2 {
     font-family: owners-xwide, sans-serif;
     font-style: normal;
-    font-weight: 500;
+    font-weight: 400;
     margin-top: 1.5em;
     margin-bottom: 1em;
 }
