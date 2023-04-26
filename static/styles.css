@@ -1,7 +1,7 @@
 body {
-    font-family: source-serif-pro, serif;
+    font-family: loretta-variable, sans-serif;
     font-style: normal;
-    font-weight: 200;
+    font-variation-settings: "wght" 300;
     margin: 0;
     padding: 0;
     background-color: #2d2d2d;
@@ -27,9 +27,9 @@ h2 {
     margin-bottom: 1em;
 }
 p {
-    font-family: source-serif-pro, serif;
+    font-family: loretta-variable, sans-serif;
     font-style: normal;
-    font-weight: 200;
+    font-variation-settings: "wght" 300;
 }
 .last-updated {
     text-align: right;
