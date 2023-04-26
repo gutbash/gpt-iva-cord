@@ -111,6 +111,7 @@ footer {
     color: #fff;
     text-decoration: none;
     transition: background-color 0.3s;
+    margin-right: 10px;
 }
 
 .support-button {
@@ -137,4 +138,13 @@ footer {
     .navbar {
         justify-content: space-between;
     }
+}
+
+.nav-buttons {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    padding: 10px;
 }
