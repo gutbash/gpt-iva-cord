@@ -5,7 +5,7 @@ import os
 import asyncio
 import json
 
-from tool_utils import get_formatted_key_values, get_formatted_key_values_from_list, get_important_text
+from utils.tool_utils import get_formatted_key_values, get_formatted_key_values_from_list, get_important_text
 
 from langchain.docstore.document import Document
 from langchain.chains.summarize import load_summarize_chain

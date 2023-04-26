@@ -3,10 +3,10 @@ from discord import app_commands
 import discord.ext.commands
 import discord.ext.tasks
 
-from log_utils import colors
-from redis_utils import save_pickle_to_redis, load_pickle_from_redis
-from postgres_utils import async_fetch_key, async_fetch_keys_table
-from tool_utils import dummy_sync_function
+from utils.log_utils import colors
+from utils.redis_utils import save_pickle_to_redis, load_pickle_from_redis
+from utils.postgres_utils import async_fetch_key, async_fetch_keys_table
+from utils.tool_utils import dummy_sync_function
 from tools import (
     get_image_from_search,
     get_organic_results,
