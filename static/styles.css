@@ -1,7 +1,7 @@
 body {
     font-family: owners, sans-serif;
     font-style: normal;
-    font-weight: 400;
+    font-weight: 300;
     margin: 0;
     padding: 0;
     background-color: #2d2d2d;
@@ -29,10 +29,10 @@ h2 {
 p {
     font-family: owners, sans-serif;
     font-style: normal;
-    font-weight: 400;
+    font-weight: 300;
     margin-bottom: 1em;
 }
 .last-updated {
     text-align: right;
-    font-style: italic;
+    font-style: normal;
 }
