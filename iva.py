@@ -5,7 +5,7 @@ import discord.ext.tasks
 
 from utils.log_utils import colors
 from utils.redis_utils import save_pickle_to_redis, load_pickle_from_redis
-from utils.postgres_utils import async_fetch_key, async_fetch_keys_table, upsert_key
+from utils.postgres_utils import fetch_key, fetch_keys_table, upsert_key
 from utils.tool_utils import dummy_sync_function
 from tools import (
     get_image_from_search,
@@ -75,7 +75,7 @@ last_response = {}
 @client.event
 async def on_ready():
     
-    await async_fetch_keys_table()
+    await fetch_keys_table()
     await tree.sync()
 
     logging.info(f"Registered {len(client.guilds)} guilds.")
@@ -142,7 +142,7 @@ async def on_message(message):
             
         async with message.channel.typing():
             
-            result = await async_fetch_key(id)
+            result = await fetch_key(id)
             user_settings = await load_pickle_from_redis('user_settings')
             
             chat_model = user_settings.get(id, {}).get('model', 'gpt-3.5-turbo')
@@ -507,7 +507,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         await interaction.response.defer()
 
         # fetch the row with the given id
-        result = await async_fetch_key(user_id)
+        result = await fetch_key(user_id)
         openai_key = ""
         
         if result != None:
@@ -1169,7 +1169,7 @@ async def setup(interaction, key: str):
     mention = interaction.user.mention
 
     # Use the `SELECT` statement to fetch the row with the given id
-    result = await async_fetch_key(id)
+    result = await fetch_key(id)
 
     if result != None:
 
