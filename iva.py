@@ -18,7 +18,6 @@ from tools import (
 
 import os
 import openai
-import psycopg2
 import datetime
 from transformers import GPT2TokenizerFast
 import re
