@@ -37,12 +37,29 @@ p {
     text-align: right;
     font-style: normal;
 }
-.app-name {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    font-size: 24px;
+/* Navbar styles */
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    background-color: #333;
+    height: 60px;
+    padding: 0 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-logo {
+    font-size: 1.5em;
+    color: #fff;
+    text-decoration: none;
     font-family: "vinila-variable", sans-serif;
     font-variation-settings: "slnt" 0, "wght" 500, "wdth" 125;
     font-style: normal;
+}
+
+/* Mobile styles */
+@media (max-width: 767px) {
+    .navbar {
+        justify-content: space-between;
+    }
 }
