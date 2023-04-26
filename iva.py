@@ -5,7 +5,7 @@ import discord.ext.tasks
 
 from utils.log_utils import colors
 from utils.redis_utils import save_pickle_to_redis, load_pickle_from_redis
-from utils.postgres_utils import async_fetch_key, async_fetch_keys_table
+from utils.postgres_utils import async_fetch_key, async_fetch_keys_table, upsert_key
 from utils.tool_utils import dummy_sync_function
 from tools import (
     get_image_from_search,
@@ -1176,15 +1176,10 @@ async def setup(interaction, key: str):
         # Access the values of the columns in the row
         if key != result[0]:
             
-            with psycopg2.connect(DATABASE_URL) as conn:
-                with conn.cursor() as cursor:
-                    # update the API key in the table
-                    cursor.execute("UPDATE keys SET key = %s WHERE id = %s", (key, str(id)))
+            await upsert_key(str(id), key)
             
             embed = discord.Embed(description=f"<:ivathumbsup:1051918474299056189> **Key updated for {mention}.**", color=discord.Color.dark_theme())
             await interaction.response.send_message(embed=embed, ephemeral=True, delete_after=10)
-            
-            conn.commit()
             
         elif key == result[0]:
             
@@ -1193,10 +1188,7 @@ async def setup(interaction, key: str):
 
     else:
         
-        with psycopg2.connect(DATABASE_URL) as conn:
-            with conn.cursor() as cursor:
-                # insert a new API key into the table
-                cursor.execute("INSERT INTO keys (id, key) VALUES (%s, %s)", (str(id), key))
+        await upsert_key(str(id), key)
 
         embed = discord.Embed(description=f"<:ivathumbsup:1051918474299056189> **Key registered for {mention}.**", color=discord.Color.dark_theme())
         await interaction.response.send_message(embed=embed, ephemeral=True, delete_after=10)
