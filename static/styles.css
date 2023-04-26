@@ -40,7 +40,11 @@ p {
     padding: 0 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
+.effective-date {
+    font-family: "loretta-variable", sans-serif;
+    font-style: italic;
+    font-variation-settings: "wght" 400;
+}
 .navbar-logo {
     font-size: 1.5em;
     color: #fff;
