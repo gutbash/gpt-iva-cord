@@ -19,3 +19,4 @@ jinja2
 brotlipy
 Flask
 gunicorn
+cryptography
