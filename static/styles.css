@@ -111,7 +111,6 @@ footer {
     color: #fff;
     text-decoration: none;
     transition: background-color 0.3s;
-    margin-right: 10px;
 }
 
 .support-button {
@@ -125,12 +124,12 @@ footer {
     transition: background-color 0.3s;
 }
 
-.add-button i {
-    margin-right: 5px;
-}
-
 .add-button:hover {
     background-color: #586dc8;
+}
+
+.support-button:hover {
+    background-color: #77d192;
 }
 
 /* Mobile styles */
