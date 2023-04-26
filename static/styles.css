@@ -114,6 +114,18 @@ footer {
     transition: background-color 0.3s;
 }
 
+.support-button {
+    display: flex;
+    align-items: center;
+    background-color: #7289da;
+    border-radius: 5px;
+    padding: 8px 12px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
 .add-button i {
     margin-right: 5px;
 }
