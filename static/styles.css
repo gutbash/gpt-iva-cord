@@ -13,16 +13,16 @@ body {
     padding: 40px;
 }
 h1 {
-    font-family: owners-xxwide, sans-serif;
+    font-family: vinila-variable, sans-serif;
     font-style: normal;
-    font-weight: 400;
+    font-variation-settings: "slnt" 0, "wght" 400, "wdth" 125;
     text-align: center;
     margin-bottom: 1.5em;
 }
 h2 {
-    font-family: owners-xwide, sans-serif;
+    font-family: vinila-variable, sans-serif;
     font-style: normal;
-    font-weight: 400;
+    font-variation-settings: "slnt" 0, "wght" 300, "wdth" 100;
     margin-top: 1.5em;
     margin-bottom: 1em;
 }
