@@ -21,8 +21,11 @@ async def fetch_key(id):
         pg_master_key = await get_pg_master_key()
         row = await conn.fetchrow("SELECT key FROM keys WHERE id = $1", str(id))
         logging.info("Fetched key from keys table.")
-        encrypted_key = row['key']
-        decrypted_key = envelope_decrypt(encrypted_key, pg_master_key).decode()
+        if row is None:
+            return None
+        else:
+            encrypted_key = row['key']
+            decrypted_key = envelope_decrypt(encrypted_key, pg_master_key).decode()
     finally:
         await conn.close()
     return decrypted_key

@@ -20,4 +20,3 @@ brotlipy
 Flask
 gunicorn
 cryptography
-certifi

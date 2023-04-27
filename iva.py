@@ -149,8 +149,8 @@ async def on_message(message):
             temperature = 0.5
             
             if result != None:
-                openai.api_key=result[0]
-                openai_key=result[0]
+                openai.api_key=result
+                openai_key=result
                 
             else:
                 embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {user_mention} Use `/setup` to register API key first or `/help` for more info. You can find your API key at https://beta.openai.com.', color=discord.Color.dark_theme())
@@ -510,8 +510,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         openai_key = ""
         
         if result != None:
-            openai.api_key=result[0]
-            openai_key=result[0]
+            openai.api_key=result
+            openai_key=result
         else:
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} Use `/setup` to register API key first or `/help` for more info. You can find your API key at https://beta.openai.com.', color=discord.Color.dark_theme())
             await interaction.followup.send(embed=embed, ephemeral=False)
