@@ -48,12 +48,13 @@ async def upsert_key(id, key):
     try:
         pg_master_key = await get_pg_master_key()
         encrypted_key = envelope_encrypt(key.encode(), pg_master_key)
+        encrypted_key_memoryview = memoryview(encrypted_key)  # Convert bytes to memoryview
         await conn.execute("""
             INSERT INTO keys (id, key)
             VALUES ($1, $2)
             ON CONFLICT (id)
             DO UPDATE SET key = $2
-        """, str(id), encrypted_key)
+        """, str(id), encrypted_key_memoryview)
         logging.info("Upserted key in the 'keys' table.")
     finally:
         await conn.close()
