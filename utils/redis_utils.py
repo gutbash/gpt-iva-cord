@@ -1,12 +1,15 @@
 import os
+import ssl
+import certifi
 import logging
 import aioredis
 import pickle
 from utils.crypto_utils import envelope_decrypt, envelope_encrypt
 
 async def get_redis_client():
+    ssl_context = ssl.create_default_context(cafile=certifi.where())
     REDIS_TLS_URL = os.getenv('REDIS_TLS_URL')
-    return await aioredis.from_url(REDIS_TLS_URL)
+    return await aioredis.from_url(REDIS_TLS_URL, ssl=ssl_context)
 
 async def get_redis_master_key():
     hex_redis_master_key = os.getenv("REDIS_MASTER_KEY")
