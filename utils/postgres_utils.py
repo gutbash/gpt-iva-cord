@@ -1,7 +1,7 @@
 import asyncpg
 import logging
 import os
-from crypto_utils import envelope_decrypt, envelope_encrypt
+from utils.crypto_utils import envelope_decrypt, envelope_encrypt
 
 
 async def get_pg_client():

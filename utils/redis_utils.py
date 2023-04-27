@@ -2,7 +2,7 @@ import os
 import logging
 import aioredis
 import pickle
-from crypto_utils import envelope_decrypt, envelope_encrypt
+from utils.crypto_utils import envelope_decrypt, envelope_encrypt
 
 async def get_redis_client():
     REDIS_TLS_URL = os.getenv('REDIS_TLS_URL')
