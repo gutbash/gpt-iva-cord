@@ -57,3 +57,4 @@ async def upsert_key(id, key):
         logging.info("Upserted key in the 'keys' table.")
     finally:
         await conn.close()
+        
