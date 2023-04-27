@@ -5,8 +5,8 @@ import pickle
 from crypto_utils import envelope_decrypt, envelope_encrypt
 
 async def get_redis_client():
-    REDIS_URL = os.getenv('REDIS_URL')
-    return await aioredis.from_url(REDIS_URL)
+    REDIS_TLS_URL = os.getenv('REDIS_TLS_URL')
+    return await aioredis.from_url(REDIS_TLS_URL)
 
 async def get_redis_master_key():
     hex_redis_master_key = os.getenv("REDIS_MASTER_KEY")
