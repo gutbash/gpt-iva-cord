@@ -3,7 +3,6 @@ import logging
 import os
 from utils.crypto_utils import envelope_decrypt, envelope_encrypt
 
-
 async def get_pg_client():
     DATABASE_URL = os.getenv("DATABASE_URL")
     return await asyncpg.connect(DATABASE_URL)
@@ -57,4 +56,3 @@ async def upsert_key(id, key):
         logging.info("Upserted key in the 'keys' table.")
     finally:
         await conn.close()
-        

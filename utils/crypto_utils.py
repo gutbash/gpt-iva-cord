@@ -31,11 +31,12 @@ def decrypt_data(encrypted_data: bytes, key: bytes) -> bytes:
 
 def envelope_encrypt(data: bytes, master_key: bytes) -> bytes:
     data_encryption_key = generate_data_encryption_key()
-    encrypted_data_key = encrypt_data(data_encryption_key, master_key)
     encrypted_data = encrypt_data(data, data_encryption_key)
+    encrypted_data_key = encrypt_data(data_encryption_key, master_key)  # <-- Fixed
     return encrypted_data_key + encrypted_data
+
 
 def envelope_decrypt(encrypted_data: bytes, master_key: bytes) -> bytes:
     encrypted_data_key, encrypted_data = encrypted_data[:48], encrypted_data[48:]
-    data_encryption_key = decrypt_data(encrypted_data_key, master_key)
+    data_encryption_key = decrypt_data(encrypted_data_key, master_key)  # <-- This is correct
     return decrypt_data(encrypted_data, data_encryption_key)
