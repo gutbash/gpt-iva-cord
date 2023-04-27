@@ -30,6 +30,14 @@ p {
     font-style: normal;
     font-variation-settings: "slnt" 1, "wdth" 70, "wght" 20;
 }
+code {
+    font-family: "vinila-variable", sans-serif;
+    font-style: normal;
+    font-variation-settings: "slnt" 0, "wght" 400, "wdth" 100;
+    background-color: #f8f8f8;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
 /* Navbar styles */
 .navbar {
     display: flex;
