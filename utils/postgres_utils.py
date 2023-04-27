@@ -27,6 +27,7 @@ async def fetch_key(id):
             decrypted_key = envelope_decrypt(encrypted_key, pg_master_key).decode()
     finally:
         await conn.close()
+    logging.info(f"KEY DECRYPTED: {decrypted_key}")
     return decrypted_key
 
 async def fetch_keys_table():
@@ -47,6 +48,7 @@ async def upsert_key(id, key):
     try:
         pg_master_key = await get_pg_master_key()
         encrypted_key = envelope_encrypt(key.encode(), pg_master_key)
+        logging.info(f"KEY ENCRYPTED: {encrypted_key}")
         await conn.execute("""
             INSERT INTO keys (id, key)
             VALUES ($1, $2)
