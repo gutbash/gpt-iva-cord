@@ -19,7 +19,6 @@ async def save_pickle_to_redis(key, data):
         redis_master_key = await get_redis_master_key()
         pickled_data = pickle.dumps(data)
         encrypted_message = envelope_encrypt(pickled_data, redis_master_key)
-        logging.info(f"MESSAGE ENCRYPTED: {encrypted_message}")
         await redis_client.set(key, encrypted_message)
 
 async def load_pickle_from_redis(key):
@@ -29,6 +28,5 @@ async def load_pickle_from_redis(key):
         if encrypted_message is None:
             return {}
         pickled_data = envelope_decrypt(encrypted_message, redis_master_key)
-        logging.info(f"MESSAGE DECRYPTED: {pickled_data}")
         loaded_data = pickle.loads(pickled_data)
     return loaded_data
