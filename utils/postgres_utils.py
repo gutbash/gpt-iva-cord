@@ -1,5 +1,6 @@
 import asyncpg
 import logging
+import base64
 import os
 from utils.crypto_utils import envelope_decrypt, envelope_encrypt
 
@@ -24,7 +25,8 @@ async def fetch_key(id):
         if row is None:
             return None
         else:
-            encrypted_key = row['key']
+            encrypted_key_base64 = row['key']
+            encrypted_key = base64.b64decode(encrypted_key_base64)  # Decode from base64 to bytes
             decrypted_key = envelope_decrypt(encrypted_key, pg_master_key).decode()
     finally:
         await conn.close()
@@ -48,13 +50,13 @@ async def upsert_key(id, key):
     try:
         pg_master_key = await get_pg_master_key()
         encrypted_key = envelope_encrypt(key.encode(), pg_master_key)
-        encrypted_key_memoryview = memoryview(encrypted_key)  # Convert bytes to memoryview
+        encrypted_key_base64 = base64.b64encode(encrypted_key).decode()  # Encode to base64 and convert to string
         await conn.execute("""
             INSERT INTO keys (id, key)
             VALUES ($1, $2)
             ON CONFLICT (id)
             DO UPDATE SET key = $2
-        """, str(id), encrypted_key_memoryview)
+        """, str(id), encrypted_key_base64)
         logging.info("Upserted key in the 'keys' table.")
     finally:
         await conn.close()
