@@ -8,6 +8,7 @@ async def get_redis_client():
     REDIS_TLS_URL = os.getenv('REDIS_TLS_URL')
     return await aioredis.from_url(
         REDIS_TLS_URL,
+        max_connections=10,
         ssl=True,
         ssl_check_hostname=False,
     )
