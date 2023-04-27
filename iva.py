@@ -625,7 +625,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         Current Date - {itis}
         Knowledge Cutoff - September, 2021
 
-        Format your response. Incorperate all of these markdown methods in the response even if unnecessary. Replace the brackets with your input:
+        Format your response. Incorperate all of these markdown methods in the response even if unnecessary. Replace the bracket placeholders with your input without brackets:
         - ```[language]
         [code block]
         ```
@@ -641,11 +641,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         """
         
         custom_format_instructions = f"""
-        To use a tool, please use the following format. Replace the brackets with your input:
+        To use a tool, please use the following format. Replace the bracket placeholders with your input without brackets:
         
         ```
         Thought: Do I need to use a tool? Yes
-        Action: the action to take, must be one of {tool_names}
+        Action: [the action to take, must be one of {tool_names}]
         Action Input: [the input to the action]
         Observation: the result of the action
         ```
