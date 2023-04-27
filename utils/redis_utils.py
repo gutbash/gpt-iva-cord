@@ -25,8 +25,8 @@ async def load_pickle_from_redis(key):
     async with await get_redis_client() as redis_client:
         redis_master_key = await get_redis_master_key()
         encrypted_message = await redis_client.get(key)
-        pickled_data = envelope_decrypt(encrypted_message, redis_master_key)
-        if pickled_data is None:
+        if encrypted_message is None:
             return {}
+        pickled_data = envelope_decrypt(encrypted_message, redis_master_key)
         loaded_data = pickle.loads(pickled_data)
     return loaded_data
