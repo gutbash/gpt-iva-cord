@@ -1,7 +1,7 @@
 body {
-    font-family: "loretta-variable", sans-serif;
+    font-family: "latino-gothic-variable", sans-serif;
     font-style: normal;
-    font-variation-settings: "wght" 300;
+    font-variation-settings: "slnt" 1, "wdth" 70, "wght" 20;
     margin: 0;
     padding: 0;
     background-color: #2d2d2d;
@@ -26,9 +26,9 @@ h2 {
     margin-bottom: 1em;
 }
 p {
-    font-family: "loretta-variable", sans-serif;
+    font-family: "latino-gothic-variable", sans-serif;
     font-style: normal;
-    font-variation-settings: "wght" 300;
+    font-variation-settings: "slnt" 1, "wdth" 70, "wght" 20;
 }
 /* Navbar styles */
 .navbar {
@@ -41,9 +41,9 @@ p {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 .effective-date p {
-    font-family: "loretta-variable", sans-serif;
-    font-style: italic;
-    font-variation-settings: "wght" 400;
+    font-family: "latino-gothic-variable", sans-serif;
+    font-style: normal;
+    font-variation-settings: "slnt" 50, "wdth" 70, "wght" 20;
 }
 .navbar-logo {
     font-size: 1.5em;
