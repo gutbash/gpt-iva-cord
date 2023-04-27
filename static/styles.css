@@ -38,6 +38,9 @@ code {
     padding: 2px 2px;
     border-radius: 2px;
 }
+ul li, ol li {
+    line-height: 1.5; /* Adjust the value as needed */
+}
 /* Navbar styles */
 .navbar {
     display: flex;
