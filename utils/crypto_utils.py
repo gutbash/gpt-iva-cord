@@ -1,42 +1,41 @@
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
-from cryptography.hazmat.primitives import hashes, hmac
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.backends import default_backend
 import os
-import base64
 
-def generate_key(password, salt):
+def generate_data_encryption_key() -> bytes:
+    return os.urandom(32)
+
+def encrypt_data(data: bytes, key: bytes) -> bytes:
     backend = default_backend()
-    kdf = PBKDF2HMAC(
-        algorithm=hashes.SHA256(),
-        length=32,
-        salt=salt,
-        iterations=100000,
-        backend=backend
-    )
-    return kdf.derive(password.encode('utf-8'))
-
-def encrypt_data(data, key):
     iv = os.urandom(16)
-    cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
+    cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=backend)
     encryptor = cipher.encryptor()
+    
     padder = padding.PKCS7(128).padder()
-    padded_data = padder.update(data.encode('utf-8')) + padder.finalize()
+    padded_data = padder.update(data) + padder.finalize()
+    
     encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
-    return base64.b64encode(iv + encrypted_data).decode('utf-8')
+    return iv + encrypted_data
 
-
-def decrypt_data(data, key):
-    decoded_data = base64.b64decode(data.encode('utf-8'))
-    iv = decoded_data[:16]
-    encrypted_data = decoded_data[16:]
-    cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
+def decrypt_data(encrypted_data: bytes, key: bytes) -> bytes:
+    backend = default_backend()
+    iv, encrypted_data = encrypted_data[:16], encrypted_data[16:]
+    cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=backend)
     decryptor = cipher.decryptor()
-    decrypted_data = decryptor.update(encrypted_data) + decryptor.finalize()
+    
+    data = decryptor.update(encrypted_data) + decryptor.finalize()
+    
     unpadder = padding.PKCS7(128).unpadder()
-    unpadded_data = unpadder.update(decrypted_data) + unpadder.finalize()
-    return unpadded_data.decode('utf-8')
+    return unpadder.update(data) + unpadder.finalize()
 
-def generate_salt():
-    return os.urandom(16)
+def envelope_encrypt(data: bytes, master_key: bytes) -> bytes:
+    data_encryption_key = generate_data_encryption_key()
+    encrypted_data_key = encrypt_data(data_encryption_key, master_key)
+    encrypted_data = encrypt_data(data, data_encryption_key)
+    return encrypted_data_key + encrypted_data
+
+def envelope_decrypt(encrypted_data: bytes, master_key: bytes) -> bytes:
+    encrypted_data_key, encrypted_data = encrypted_data[:48], encrypted_data[48:]
+    data_encryption_key = decrypt_data(encrypted_data_key, master_key)
+    return decrypt_data(encrypted_data, data_encryption_key)

@@ -1,50 +1,56 @@
 import asyncpg
-import asyncio
 import logging
-
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.primitives import padding
-from cryptography.hazmat.primitives import hashes, hmac
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from cryptography.hazmat.backends import default_backend
 import os
-import base64
+from crypto_utils import envelope_decrypt, envelope_encrypt
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+
+async def get_pg_client():
+    DATABASE_URL = os.getenv("DATABASE_URL")
+    return await asyncpg.connect(DATABASE_URL)
+
+async def get_pg_master_key():
+    hex_pg_master_key = os.getenv("PG_MASTER_KEY")
+    PG_MASTER_KEY = bytes.fromhex(hex_pg_master_key)
+    return PG_MASTER_KEY
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 async def fetch_key(id):
-    conn = await asyncpg.connect(DATABASE_URL)
+    conn = await get_pg_client()
     try:
-        result = await conn.fetchrow("SELECT key FROM keys WHERE id = $1", str(id))
+        pg_master_key = await get_pg_master_key()
+        row = await conn.fetchrow("SELECT key FROM keys WHERE id = $1", str(id))
         logging.info("Fetched key from keys table.")
+        encrypted_key = row['key']
+        decrypted_key = envelope_decrypt(encrypted_key, pg_master_key).decode()
     finally:
         await conn.close()
-    return result
+    return decrypted_key
 
 async def fetch_keys_table():
-    conn = await asyncpg.connect(DATABASE_URL)
+    conn = await get_pg_client()
     try:
         # check if the keys table exists
         table_exists = await conn.fetchval("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'keys')")
         logging.info("Fetched existing 'keys' table.")
         # create the keys table if it does not exist
         if not table_exists:
-            await conn.execute("CREATE TABLE keys (id TEXT PRIMARY KEY, key TEXT)")
+            await conn.execute("CREATE TABLE keys (id TEXT PRIMARY KEY, key bytea)")
             logging.info("Created new 'keys' table.")
     finally:
         await conn.close()
 
 async def upsert_key(id, key):
-    conn = await asyncpg.connect(DATABASE_URL)
+    conn = await get_pg_client()
     try:
+        pg_master_key = await get_pg_master_key()
+        encrypted_key = envelope_encrypt(key.encode(), pg_master_key)
         await conn.execute("""
             INSERT INTO keys (id, key)
             VALUES ($1, $2)
             ON CONFLICT (id)
             DO UPDATE SET key = $2
-        """, str(id), key)
+        """, str(id), encrypted_key)
         logging.info("Upserted key in the 'keys' table.")
     finally:
         await conn.close()
