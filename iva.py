@@ -336,10 +336,26 @@ async def on_message(message):
                     reply = await agent_chain.arun(input=f"{user_name} ({user_mention}): {prompt}{caption}")
 
                 except Exception as e:
-                    logging.error(e)
-                    embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {user_mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
-                    await message.channel.send(embed=embed)
-                    return
+                    if str(e).startswith("Could not parse LLM output:"):
+                        reply = str(e).replace("Could not parse LLM output: `", "")
+                        reply = reply.replace("Thought: Do I need to use a tool? No", "")
+                        reply = reply.strip("`")
+                        mem_list = guild_memory.chat_memory.messages
+                        extend_mems_list = [
+                            HumanMessage(
+                                content=prompt,
+                                additional_kwargs={},
+                            ),
+                            AIMessage(
+                                content=reply,
+                                additional_kwargs={},
+                            )]
+                        mem_list.extend(extend_mems_list)
+                    else:
+                        logging.error(e)
+                        embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {user_mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
+                        await message.channel.send(embed=embed)
+                        return
                 
                 if len(reply) > 2000:
                     embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
@@ -733,9 +749,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 reply = str(e).replace("Could not parse LLM output: `", "")
                 reply = reply.replace("Thought: Do I need to use a tool? No", "")
                 reply = reply.strip("`")
-                #reply = reply.replace("Thought: ", "")
-                #reply = reply.replace("Do I need to use a tool? No", "")
-                #reply = reply.replace("Iva: ", "")
                 mem_list = memory.chat_memory.messages
                 extend_mems_list = [
                     HumanMessage(
