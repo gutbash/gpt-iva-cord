@@ -70,7 +70,7 @@ async def get_ask_suffix():
     
     NEW PROMPT:
     
-    User: {{input}}
+    {{input}}
     
     YOUR RESPONSE:
     You must put `Thought: Do I need to use a tool? No` followed by your prefix `Iva: ` before your formatted response or else the user won't see it!
