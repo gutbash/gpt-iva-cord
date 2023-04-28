@@ -56,3 +56,14 @@ async def upsert_key(id, key):
         logging.info("Upserted key in the 'keys' table.")
     finally:
         await conn.close()
+        
+async def delete_key(id):
+    conn = await get_pg_client()
+    try:
+        result = await conn.execute("DELETE FROM keys WHERE id = $1", str(id))
+        if result:
+            logging.info(f"Deleted key with id {id} from keys table.")
+        else:
+            logging.warning(f"No key with id {id} found in keys table.")
+    finally:
+        await conn.close()
