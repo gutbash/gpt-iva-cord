@@ -397,7 +397,7 @@ class Opt(discord.ui.View):
         await upsert_key(str(id), self.key)
         
         embed = discord.Embed(description=f"<:ivathumbsup:1051918474299056189> **Key registered for {mention}. Welcome to Iva!**", color=discord.Color.dark_theme())
-        await interaction.message.edit(embed=embed, ephemeral=True, delete_after=10, view=None)
+        await interaction.message.edit(embed=embed, delete_after=10, view=None)
         return
 
     @discord.ui.button(emoji="<:ivadown:1101609054729666610>", style=discord.ButtonStyle.grey)
@@ -408,7 +408,7 @@ class Opt(discord.ui.View):
         await delete_key(user_id)
         
         embed = discord.Embed(description=f"<:ivathumbsup:1051918474299056189> **You have opted out.**", color=discord.Color.dark_theme())
-        await interaction.message.edit(embed=embed, ephemeral=True, delete_after=10, view=None)
+        await interaction.message.edit(embed=embed, delete_after=10, view=None)
         return
         
 class Menu(discord.ui.View):
