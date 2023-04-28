@@ -396,10 +396,8 @@ class Opt(discord.ui.View):
         
         await upsert_key(str(id), self.key)
         
-        await self.message.delete()
-        
-        embed = discord.Embed(description=f"<:ivathumbsup:1051918474299056189> **Key registered for {mention}.**", color=discord.Color.dark_theme())
-        await interaction.response.send_message(embed=embed, ephemeral=True, delete_after=10)
+        embed = discord.Embed(description=f"<:ivathumbsup:1051918474299056189> **Key registered for {mention}. Welcome to Iva!**", color=discord.Color.dark_theme())
+        await interaction.message.edit(embed=embed, ephemeral=True, delete_after=10, view=None)
         return
 
     @discord.ui.button(emoji="<:ivadown:1101609054729666610>", style=discord.ButtonStyle.grey)
@@ -409,10 +407,8 @@ class Opt(discord.ui.View):
         
         await delete_key(user_id)
         
-        await self.message.delete()
-        
         embed = discord.Embed(description=f"<:ivathumbsup:1051918474299056189> **You have opted out.**", color=discord.Color.dark_theme())
-        await interaction.response.send_message(embed=embed, ephemeral=True, delete_after=10)
+        await interaction.message.edit(embed=embed, ephemeral=True, delete_after=10, view=None)
         return
         
 class Menu(discord.ui.View):
@@ -1115,7 +1111,7 @@ async def setup(interaction, key: str = None):
         
         view = Opt(key=key)
         
-        embed = discord.Embed(description=f"<:ivanotify:1051918381844025434> Hey {mention}, does Iva have your permission to save your key and the conversations you will have together? All data is securely encrypted for your safety and in accordance with Discord's Terms of Service and Privacy Policy. Without your permission, Iva won't be able to talk to you. :(", color=discord.Color.dark_theme())
+        embed = discord.Embed(description=f"<:ivanotify:1051918381844025434> **Hey {mention}, does Iva have your permission to save your key and the conversations you will have together?**\n\nAll data is securely encrypted for your safety and in accordance with Discord's Terms of Service and Privacy Policy.\n\nWithout your permission, Iva won't be able to talk with you :(\n\nYou can read more here: [iva.gg](https://iva.gg/)", color=discord.Color.dark_theme())
         
         await interaction.response.send_message(embed=embed, ephemeral=True, view=view)
         
