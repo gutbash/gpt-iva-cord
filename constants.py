@@ -12,15 +12,15 @@ IMAGE_SEARCH_ASK_TOOL_DESCRIPTION = "A wrapper around Google Images. Input shoul
 
 ### CHAT TOOL DESCRIPTIONS ###
 
-ORGANIC_RESULTS_CHAT_TOOL_DESCRIPTION = "A wrapper around Google Search. Input should be a description of the query in question. Do not input the same query twice. Do not search for things that are personal or unrelated to the user's original query. Do not input URL links. Output returns the top result you can utilize."
+ORGANIC_RESULTS_CHAT_TOOL_DESCRIPTION = "Wrapper around Google Search. Input should be the query in question. Do not input the same query twice. Do not search for personal or unrelated queries. Do not input URL links. Output returns the top result. You must cite the result as a hyperlink like ` [1](http://source.com)` (include space, no footnote)."
 
-SUMMARIZE_WEBPAGE_CHAT_TOOL_DESCRIPTION = "Use this tool sparingly to summarize the content of a webpage for articles and other long form written content. Input should be the given url (i.e. https://www.google.com). The output will be a summary of the contents of the page."
+SUMMARIZE_WEBPAGE_CHAT_TOOL_DESCRIPTION = "Use this sparingly to to summarize the content of a webpage. Input should be the given url. Output will be a summary of the contents of the page. You must cite the website as a hyperlink like ` [1](http://source.com)` (include space, no footnote)."
 
-QA_WEBPAGE_CHAT_TOOL_DESCRIPTION = "Use this tool sparingly to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like '[url],[question]'. The output will be an answer to the input question from the page."
+QA_WEBPAGE_CHAT_TOOL_DESCRIPTION = "Use this to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like `url,question`. Output will be an answer to the input question from the page. You must cite the website as a clickable numbered hyperlink like ` [1](http://source.com)` (include space, no footnote)."
 
-RECOGNIZE_IMAGE_CHAT_TOOL_DESCRIPTION = "Use this tool anytime you are tasked to recognize, caption, or answer questions about a given image url. Input should be a comma separated list of length two, with the first entry being the image url, and the second input being the question, like '[url],[question]'. The output will be a caption of the image with the associated answer to the question."
+RECOGNIZE_IMAGE_CHAT_TOOL_DESCRIPTION = "Use this tool to caption or answer questions about a given image url. Input should be a comma separated list of length two, with the first entry being the image url, and the second input being the question, like 'image_url,question'. Output will be a caption of the image with the answer to the question."
 
-IMAGE_SEARCH_CHAT_TOOL_DESCRIPTION = "A wrapper around Google Images. Useful for when you'd like to accompany a response with a revelant image. Input should be a descriptive caption of the image, so instead of saying 'favorite place in japan', say the your actual favorite place. Output will be the image link."
+IMAGE_SEARCH_CHAT_TOOL_DESCRIPTION = "A wrapper around Google Images. Input should be a caption of the image. Output will be the image link."
 
 ### ASK PROMPT COMPONENTS ###
 
@@ -34,10 +34,15 @@ async def get_ask_prefix(itis):
 
     Format your response. Incorperate all of these markdown methods in the response even if unnecessary. Replace the bracket placeholders with your input without brackets:
     - ```[language]
-    [code block]
+    [fenced code block]
     ```
     - $$[latex]$$ (no single $'s, start on new line)
     - [[hyperlink]]([http://hyperlink.com])
+    - # [H1]
+    - ## [H2]
+    - ### [H3]
+    - 1. [ordered list]
+    - - [unordered list]
     - **[bold]**
     - *[italics]*
     - `[label]`
