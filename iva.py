@@ -174,7 +174,7 @@ async def on_message(message):
                 openai_key=result
                 
             else:
-                embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {user_mention} Use `/setup` to register API key first or `/help` for more info. You can find your API key at https://beta.openai.com.', color=discord.Color.dark_theme())
+                embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {user_mention} Use `/setup` to register API key first or `/help` for more info. You can find your API key at (openai.com)[https://beta.openai.com].', color=discord.Color.dark_theme())
                 await message.channel.send(embed=embed)
                 return
             
@@ -532,7 +532,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             openai.api_key=result
             openai_key=result
         else:
-            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} Use `/setup` to register API key first or `/help` for more info. You can find your API key at https://beta.openai.com.', color=discord.Color.dark_theme())
+            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} Use `/setup` to register API key first or `/help` for more info. You can find your API key at (openai.com)[https://beta.openai.com].', color=discord.Color.dark_theme())
             await interaction.followup.send(embed=embed, ephemeral=False)
             return
 
