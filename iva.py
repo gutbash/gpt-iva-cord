@@ -499,7 +499,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         # Get the current timestamp
         timestamp = datetime.datetime.now()
-        time = timestamp.strftime(r"%Y-%m-%d %I:%M:%S")
         itis = timestamp.strftime(r"%B %d, %Y")
 
         view = Menu()
