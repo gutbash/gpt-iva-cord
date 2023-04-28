@@ -1111,7 +1111,7 @@ async def setup(interaction, key: str = None):
         
         view = Opt(key=key)
         
-        embed = discord.Embed(description=f"<:ivanotify:1051918381844025434> **{mention} In order to use Iva, you must agree to our **[Privacy Policy](https://iva.gg/privacy)** and **[Terms of Service](https://iva.gg/terms)**.\n\nPlease take a few minutes to read and understand them both.", color=discord.Color.dark_theme())
+        embed = discord.Embed(description=f"<:ivanotify:1051918381844025434> **{mention} In order to use Iva, you must agree to our [Privacy Policy](https://iva.gg/privacy) and [Terms of Service](https://iva.gg/terms)**.\n\nPlease take a few minutes to read and understand them both.", color=discord.Color.dark_theme())
         
         await interaction.response.send_message(embed=embed, ephemeral=True, view=view)
         
