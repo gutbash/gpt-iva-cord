@@ -1111,7 +1111,7 @@ async def setup(interaction, key: str = None):
         
         view = Opt(key=key)
         
-        embed = discord.Embed(description=f"<:ivanotify:1051918381844025434> **Hey {mention}, does Iva have your permission to save your key and the conversations you will have together?**\n\nAll data is securely encrypted for your safety and in accordance with Discord's Terms of Service and Privacy Policy.\n\nWithout your permission, Iva won't be able to talk with you :(\n\nYou can read more here: [iva.gg](https://iva.gg/)", color=discord.Color.dark_theme())
+        embed = discord.Embed(description=f"<:ivanotify:1051918381844025434> **{mention} Does Iva have your permission to save your key and the conversations you will have together?**\n\nWithout your permission, Iva won't be able to talk with you :(\n\n*All data is securely encrypted for your safety and in accordance with Discord's Terms of Service and Privacy Policy.*\n\nYou can read more here: [iva.gg](https://iva.gg/)", color=discord.Color.dark_theme())
         
         await interaction.response.send_message(embed=embed, ephemeral=True, view=view)
         
