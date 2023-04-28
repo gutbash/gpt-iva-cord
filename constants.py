@@ -65,9 +65,10 @@ async def get_ask_custom_format_instructions(tool_names):
 
 async def get_ask_suffix():
     ask_suffix = f"""
+    PREVIOUS PROMPTS:
     {{chat_history}}
     
-    NEW MESSAGE FOR IVA:
+    NEW PROMPT FOR IVA:
     
     User: {{input}}
     
@@ -136,7 +137,7 @@ async def get_chat_suffix():
     {{chat_history}}
     
     
-    User: {{input}}
+    {{input}}
     
     
     IVA'S RESPONSE:
