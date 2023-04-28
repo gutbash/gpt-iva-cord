@@ -389,7 +389,7 @@ class Opt(discord.ui.View):
 
         await self.message.edit(view=self)
     
-    @discord.ui.button(emoji="<:ivaup:1101609056604524594>", style=discord.ButtonStyle.grey)
+    @discord.ui.button(label="Agree and Continue", emoji="<:ivaup:1101609056604524594>", style=discord.ButtonStyle.grey)
     async def agree(self, interaction: discord.Interaction, button: discord.ui.Button):
         user_id = interaction.user.id
         mention = interaction.user.mention
@@ -400,7 +400,7 @@ class Opt(discord.ui.View):
         await interaction.response.edit_message(embed=embed, delete_after=10, view=None)
         return
 
-    @discord.ui.button(emoji="<:ivadown:1101609054729666610>", style=discord.ButtonStyle.grey)
+    @discord.ui.button(label="Disagree", emoji="<:ivadown:1101609054729666610>", style=discord.ButtonStyle.grey)
     async def disagree(self, interaction: discord.Interaction, button: discord.ui.Button):
         user_id = interaction.user.id
         mention = interaction.user.mention
@@ -1111,7 +1111,7 @@ async def setup(interaction, key: str = None):
         
         view = Opt(key=key)
         
-        embed = discord.Embed(description=f"<:ivanotify:1051918381844025434> **{mention} Does Iva have your permission to save your key and the conversations you will have together?**\n\nWithout your permission, Iva won't be able to talk with you :(\n\n*All data is securely encrypted for your safety and in accordance with Discord's Terms of Service and Privacy Policy.*\n\nYou can read more here: [iva.gg](https://iva.gg/)", color=discord.Color.dark_theme())
+        embed = discord.Embed(description=f"<:ivanotify:1051918381844025434> **{mention} In order to use Iva, you must agree to our **[Privacy Policy](https://iva.gg/privacy)** and **[Terms of Service](https://iva.gg/terms)**.\n\nPlease take a few minutes to read and understand them both.", color=discord.Color.dark_theme())
         
         await interaction.response.send_message(embed=embed, ephemeral=True, view=view)
         
