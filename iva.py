@@ -997,9 +997,6 @@ async def reset(interaction):
 @tree.command(name = "help", description="get started")
 async def help(interaction):
     
-    global active_users
-    global active_names
-    
     mention = interaction.user.mention
 
     embed = discord.Embed(title=f"Welcome. Let's **Get Started**.\n\n", color=discord.Color.dark_theme())
@@ -1020,9 +1017,6 @@ async def help(interaction):
 
 @tree.command(name = "tutorial", description="how to talk with iva")
 async def tutorial(interaction):
-    
-    global active_users
-    global active_names
     
     mention = interaction.user.mention
 
@@ -1049,11 +1043,6 @@ async def tutorial(interaction):
 @tree.command(name = "features", description="learn all the features iva has to offer")
 async def tutorial(interaction):
     
-    global active_users
-    global active_names
-    
-    mention = interaction.user.mention
-    
     features_string = FEATURES
     
     features_intro = discord.Embed(title="Features", description="Becoming familiar with all Iva has to offer will allow you to maximize your workflow. This list is constantly being updated, so be on the look out!", color=discord.Color.dark_theme())
@@ -1071,11 +1060,7 @@ async def tutorial(interaction):
 @tree.command(name = "setup", description="register your key")
 @app_commands.describe(key = "key")
 async def setup(interaction, key: str = None):
-    
-    global active_users
-    global active_names
-    
-    guild_id = interaction.guild_id
+
     id = interaction.user.id
     mention = interaction.user.mention
     
