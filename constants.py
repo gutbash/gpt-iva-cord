@@ -65,12 +65,13 @@ async def get_ask_custom_format_instructions(tool_names):
 
 async def get_ask_suffix():
     ask_suffix = f"""
-    PREVIOUS PROMPTS:
+    PREVIOUS MESSAGES:
+    
     {{chat_history}}
     
-    NEW PROMPT:
+    NEW MESSAGE:
     
-    {{input}}
+    User: {{input}}
     
     YOUR RESPONSE:
     You must put `Thought: Do I need to use a tool? No` followed by your prefix `Iva: ` before your formatted response or else it won't be seen!
