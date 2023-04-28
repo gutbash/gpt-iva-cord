@@ -1090,8 +1090,11 @@ async def model(interaction, choices: app_commands.Choice[str] = None):
         
     else:
         
-        current_model = user_settings.get(id, "gpt-3.5-turbo")["model"]
-        
+        try:
+            current_model = user_settings.get(id)["model"]
+        except KeyError:
+            current_model = "gpt-3.5-turbo"
+            
         embed = discord.Embed(description=f"<:ivamodel:1096498759040520223> **Current Model:** `{current_model}`", color=discord.Color.dark_theme())
     
     await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=30)
@@ -1125,7 +1128,10 @@ async def temperature(interaction, temperature: float = None):
         
     else:
         
-        temperature = user_settings.get(id, "0.5")["temperature"]
+        try:
+            temperature = user_settings.get(id)["temperature"]
+        except KeyError:
+            temperature = "0.5"
         
         embed = discord.Embed(description=f"<:ivatemp:1097754157747818546>**Current Temperature:** `{temperature}`", color=discord.Color.dark_theme())
     
