@@ -157,9 +157,6 @@ async def on_message(message):
         if images != []:
             for image_index in range(len(images)):
                 prompt += f"\n\nimage {image_index} (use Recognize Image tool): {images[image_index].url}"
-        
-        print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightgreen}CHAT     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@{str(user_name).lower()}: {colors.reset}{prompt}")
-
             
         async with message.channel.typing():
             
@@ -337,7 +334,7 @@ async def on_message(message):
                     reply = await agent_chain.arun(input=f"{user_name} ({user_mention}): {prompt}{caption}")
 
                 except Exception as e:
-                    print(e)
+                    logging.error(e)
                     embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {user_mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
                     await message.channel.send(embed=embed)
                     return
@@ -347,7 +344,6 @@ async def on_message(message):
                     await message.channel.send(embed=embed)
                     return
                 else:
-                    print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightgreen}CHAT     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@iva: {colors.reset}{reply}")
                     await message.channel.send(content=f"{reply}", files=files)
                 
                 chat_mems[channel_id] = guild_memory
@@ -356,7 +352,7 @@ async def on_message(message):
                 await save_pickle_to_redis('chat_mems', chat_mems)
                 
             except Exception as e:
-                print(e)
+                logging.error(e)
                 embed = discord.Embed(description=f'error', color=discord.Color.dark_theme())
                 await message.channel.send(embed=embed)
                 return
@@ -505,8 +501,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         timestamp = datetime.datetime.now()
         time = timestamp.strftime(r"%Y-%m-%d %I:%M:%S")
         itis = timestamp.strftime(r"%B %d, %Y")
-        
-        print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightcyan}ASK     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@{str(user_name).lower()}: {colors.reset}{prompt}")
 
         view = Menu()
         
@@ -600,7 +594,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 f.write(attachment_bytes)
                 
             files.append(discord.File(f"{file_name}"))
-            print(file.description)
+
             file_count += 1
             
             if file_type == "application/pdf": #pdf
@@ -646,7 +640,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             if channel_id in last_response and user_id in last_response[channel_id] and last_response[channel_id][user_id] is not None:
                 await last_response[channel_id][user_id].edit_original_response(content="⠀", view=None)
         except discord.errors.HTTPException as e:
-            print(e)
+            logging.error(e)
         
         if chat_model != "text-davinci-003":
             ask_llm = ChatOpenAI(
@@ -753,7 +747,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                     )]
                 mem_list.extend(extend_mems_list)
             else:
-                print(e)
+                logging.error(e)
                 embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
                 await interaction.followup.send(embed=embed)
                 return
@@ -796,16 +790,12 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
 
             non_matches = non_matches.split("~~")
             
-            print(tex_matches)
-            print(dot_matches)
-            
             try:
                 
                 for (tex_match, dot_match, non_match) in itertools.zip_longest(tex_matches, dot_matches, non_matches):
                     
                     if non_match != None and non_match != "" and non_match != "\n" and non_match != "." and non_match != "\n\n" and non_match != " " and non_match != "\n> " and non_match.isspace() != True and non_match.startswith("![") != True:
                         
-                        print(f"+++{non_match}+++")
                         non_match = non_match.replace("$", "`")
                         non_match_embed = discord.Embed(description=non_match, color=discord.Color.dark_theme())
                         
@@ -816,7 +806,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                         
                     if tex_match != None and tex_match != "" and tex_match != "\n" and tex_match != " " and tex_match.isspace() != True:
                         
-                        print(f"$$${tex_match}$$$")
                         tex_match = tex_match.strip()
                         tex_match = tex_match.replace("\n", "")
                         tex_match = tex_match.strip("$")
@@ -825,7 +814,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                         match_embed = discord.Embed(color=discord.Color.dark_theme())
 
                         image_url = f"https://latex.codecogs.com/png.image?\dpi{dpi}\color{color}{tex_match}"
-                        print(image_url)
+
                         img_data = requests.get(image_url, verify=False).content
                         subfolder = 'tex'
                         if not os.path.exists(subfolder):
@@ -874,7 +863,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                             files.append(dot_file)
                     
             except Exception as e:
-                print(e)
+                logging.error(e)
         else:
             if len(reply) > 4000:
                 try:
@@ -895,7 +884,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 embeds.append(embed)
             
         try:
-            print(f"{colors.fg.darkgrey}{colors.bold}{time} {colors.fg.lightcyan}ASK     {colors.reset}{colors.fg.darkgrey}{str(guild_name).lower()}{colors.reset} {colors.bold}@iva: {colors.reset}{reply}")
             
             await interaction.followup.send(files=files, embeds=embeds, view=view)
             
@@ -918,9 +906,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 
             return
         except Exception as e:
-            print(e)
+            logging.error(e)
     except discord.errors.NotFound as e:
-        print(f"An error occurred: {e}")
+        logging.error(e)
 
 @tree.command(name = "reset", description="start a new conversation")
 async def reset(interaction):
@@ -939,7 +927,7 @@ async def reset(interaction):
         if channel_id in last_response and user_id in last_response[channel_id] and last_response[channel_id][user_id] is not None:
             await last_response[channel_id][user_id].edit_original_response(content="⠀", view=None)
     except discord.errors.HTTPException as e:
-        print(e)
+        logging.error(e)
 
     if channel_id in last_response and user_id in last_response[channel_id] and last_response[channel_id][user_id] is not None:
         last_response[channel_id][user_id] = None
