@@ -375,6 +375,45 @@ async def on_message(message):
                 await message.channel.send(embed=embed)
                 return
     return
+
+class Opt(discord.ui.View):
+    def __init__(self, key: str):
+        super().__init__(timeout=60 * 60 * 24 * 365)
+        self.value = None
+        self.key = key
+        
+    async def on_timeout(self) -> None:
+
+        for item in self.children:
+            item.disabled = True
+
+        await self.message.edit(view=self)
+    
+    @discord.ui.button(emoji="<:ivaup:1101609056604524594>", style=discord.ButtonStyle.grey)
+    async def agree(self, interaction: discord.Interaction, button: discord.ui.Button):
+        user_id = interaction.user.id
+        mention = interaction.user.mention
+        
+        await upsert_key(str(id), self.key)
+        
+        await self.message.delete()
+        
+        embed = discord.Embed(description=f"<:ivathumbsup:1051918474299056189> **Key registered for {mention}.**", color=discord.Color.dark_theme())
+        await interaction.response.send_message(embed=embed, ephemeral=True, delete_after=10)
+        return
+
+    @discord.ui.button(emoji="<:ivadown:1101609054729666610>", style=discord.ButtonStyle.grey)
+    async def disagree(self, interaction: discord.Interaction, button: discord.ui.Button):
+        user_id = interaction.user.id
+        mention = interaction.user.mention
+        
+        await delete_key(user_id)
+        
+        await self.message.delete()
+        
+        embed = discord.Embed(description=f"<:ivathumbsup:1051918474299056189> **You have opted out.**", color=discord.Color.dark_theme())
+        await interaction.response.send_message(embed=embed, ephemeral=True, delete_after=10)
+        return
         
 class Menu(discord.ui.View):
     def __init__(self):
@@ -780,7 +819,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         else:
             prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}`  `{temperature}`")
         
-        reply = reply.replace("```C#", "```csharp")
+        reply = reply.replace("```C#", "```cs")
         
         embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
         
@@ -1074,11 +1113,11 @@ async def setup(interaction, key: str = None):
 
     else:
         
-        await upsert_key(str(id), key)
-
-        embed = discord.Embed(description=f"<:ivathumbsup:1051918474299056189> **Key registered for {mention}.**", color=discord.Color.dark_theme())
-        await interaction.response.send_message(embed=embed, ephemeral=True, delete_after=10)
-        return
+        view = Opt(key=key)
+        
+        embed = discord.Embed(description=f"<:ivanotify:1051918381844025434> Hey {mention}, does Iva have your permission to save your key and the conversations you will have together? All data is securely encrypted for your safety and in accordance with Discord's Terms of Service and Privacy Policy. Without your permission, Iva won't be able to talk to you. :(", color=discord.Color.dark_theme())
+        
+        await interaction.response.send_message(embed=embed, ephemeral=True, view=view)
         
 @tree.command(name = "model", description="choose a completion model")
 @app_commands.choices(choices=[
