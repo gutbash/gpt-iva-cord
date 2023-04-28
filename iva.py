@@ -394,7 +394,7 @@ class Opt(discord.ui.View):
         user_id = interaction.user.id
         mention = interaction.user.mention
         
-        await upsert_key(str(id), self.key)
+        await upsert_key(str(user_id), self.key)
         
         embed = discord.Embed(description=f"<:ivathumbsup:1051918474299056189> **Key registered for {mention}. Welcome to Iva!**", color=discord.Color.dark_theme())
         await interaction.response.edit_message(embed=embed, delete_after=10, view=None)
