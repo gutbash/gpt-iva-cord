@@ -52,14 +52,14 @@ async def get_ask_custom_format_instructions(tool_names):
     Observation: the result of the action
     ```
     
-    When you do not need to use a tool and you have a final response to say to the user, you MUST use the format:
+    When you do not need to use a tool and you have a final response to say, you MUST use the format:
     
     ```
     Thought: Do I need to use a tool? No
     Iva: [your response here]
     ```
     
-    You must prefix the response you will send to the user with `Iva: ` or else the user won't see it!
+    You must prefix the response with `Iva: ` or else it won't be seen!
     """
     return ask_custom_format_instructions
 
@@ -73,7 +73,7 @@ async def get_ask_suffix():
     {{input}}
     
     YOUR RESPONSE:
-    You must put `Thought: Do I need to use a tool? No` followed by your prefix `Iva: ` before your formatted response or else the user won't see it!
+    You must put `Thought: Do I need to use a tool? No` followed by your prefix `Iva: ` before your formatted response or else it won't be seen!
     
     Start responding below...
     --------------------
