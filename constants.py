@@ -65,14 +65,11 @@ async def get_ask_custom_format_instructions(tool_names):
 
 async def get_ask_suffix():
     ask_suffix = f"""
-    CHAT HISTORY:
-    Decide what to say next in context based on the following message history.
-    
     {{chat_history}}
     
+    NEW MESSAGE FOR IVA:
     
     User: {{input}}
-    
     
     IVA'S RESPONSE:
     You must send everything you want the user to see in your formatted response after putting `Thought: Do I need to use a tool? No` followed by your prefix `Iva: ` or else the user won't see it!
