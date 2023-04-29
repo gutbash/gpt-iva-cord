@@ -935,10 +935,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                     type=discord.ChannelType.public_thread,
                     name=f"{user_name}'s thread with iva",
                 )
-                await asyncio.sleep(3)
-                #await channel.send(files=files, embeds=embeds, view=view)
-                await interaction.followup.edit(channel=channel)
                 await channel.send(files=files, embeds=embeds, view=view)
+                await interaction.followup.send(content=channel.jump_url)
             
             last_response[channel_id][user_id] = interaction
             
