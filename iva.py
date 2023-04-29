@@ -518,13 +518,15 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
 
     try:
         
+        interaction.response.defer()
+        
         if isinstance(interaction.channel, discord.TextChannel):
             channel = await interaction.channel.create_thread(
                 type=discord.ChannelType.public_thread,
                 name=f"{user_name}'s thread with iva",
             )
             channel_id = channel.id
-            await interaction.response.send_message(content=channel.jump_url)
+            await interaction.followup.send(content=channel.jump_url)
 
         # fetch the row with the given id
         result = await fetch_key(user_id)
