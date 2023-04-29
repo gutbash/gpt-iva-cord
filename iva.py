@@ -518,7 +518,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
 
     try:
         
-        interaction.response.defer()
+        await interaction.response.defer()
         
         if isinstance(interaction.channel, discord.TextChannel):
             channel = await interaction.channel.create_thread(
