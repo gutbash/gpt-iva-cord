@@ -929,13 +929,13 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
             if isinstance(interaction.channel, discord.TextChannel):
                 thread = await interaction.channel.create_thread(
+                    message=".",
                     name=f"{user_name}'s thread with iva",
                 )
-                logging.debug("Sending to new thread from text channel.")
-                await interaction.followup.send(files=files, embeds=embeds, view=view, thread=thread)
-            else:
-                logging.debug("Sending within existing thread.")
-                await interaction.followup.send(files=files, embeds=embeds, view=view)
+                
+            await interaction.followup.edit(channel=thread.id)
+
+            await interaction.followup.send(files=files, embeds=embeds, view=view)
             
             last_response[channel_id][user_id] = interaction
             
