@@ -956,9 +956,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 
             return
         except Exception as e:
-            logging.error(e)
+            logging.error(e, stack_info=True)
     except discord.errors.NotFound as e:
-        logging.error(e)
+        logging.error(e, stack_info=True)
 
 @tree.command(name = "reset", description="start a new conversation")
 async def reset(interaction):
