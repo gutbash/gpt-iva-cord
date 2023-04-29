@@ -515,6 +515,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     bot = client.user.display_name
     user_name = interaction.user.name
     channel = interaction.channel
+    message_id = interaction.message.id
 
     try:
         
@@ -694,7 +695,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
         try:
             if channel_id in last_response and user_id in last_response[channel_id] and last_response[channel_id][user_id] is not None:
-                await last_response[channel_id][user_id].edit_original_response(content="⠀", view=None)
+                original_message = await interaction.channel.fetch_message(last_response[channel_id][user_id])
+                original_message.edit(content="⠀", view=None)
         except discord.errors.HTTPException as e:
             logging.error(e)
         
@@ -939,11 +941,12 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         try:
             
             if isinstance(interaction.channel, discord.TextChannel):
-                await channel.send(files=files, embeds=embeds, view=view)
+                initial_message = await channel.send(files=files, embeds=embeds, view=view)
+                message_id = initial_message.id
             else:
                 await interaction.followup.send(files=files, embeds=embeds, view=view)
             
-            last_response[channel_id][user_id] = interaction
+            last_response[channel_id][user_id] = message_id
             
             if len(embeds_overflow) > 0:
                 await channel.send(files = files_overflow, embeds=embeds_overflow)
