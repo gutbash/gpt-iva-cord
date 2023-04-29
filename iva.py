@@ -513,6 +513,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     mention = interaction.user.mention
     bot = client.user.display_name
     user_name = interaction.user.name
+    channel = interaction.channel
 
     try:
         await interaction.response.defer()
@@ -928,19 +929,19 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         try:
             
             if isinstance(interaction.channel, discord.TextChannel):
-                thread = await interaction.channel.create_thread(
+                channel = await interaction.channel.create_thread(
                     type=discord.ChannelType.public_thread,
                     name=f"{user_name}'s thread with iva",
                 )
+                await channel.send(files=files, embeds=embeds, view=view)
+                await interaction.followup.delete()
             else:
-                thread = interaction.channel
-            
-            await interaction.followup.send(files=files, embeds=embeds, view=view, thread=thread)
+                await interaction.followup.send(files=files, embeds=embeds, view=view)
             
             last_response[channel_id][user_id] = interaction
             
             if len(embeds_overflow) > 0:
-                await interaction.channel.send(files = files_overflow, embeds=embeds_overflow)
+                await channel.send(files = files_overflow, embeds=embeds_overflow)
             
             url_pattern = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
             links = url_pattern.findall(reply)
@@ -949,7 +950,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             if len(stripped_links) > 0:
                 stripped_links = list(set(stripped_links))
                 formatted_links = "\n".join(stripped_links)
-                await interaction.channel.send(content=formatted_links)
+                await channel.send(content=formatted_links)
                 
             ask_mems[channel_id][user_id] = memory
             await save_pickle_to_redis('ask_mems', ask_mems)
