@@ -515,11 +515,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     bot = client.user.display_name
     user_name = interaction.user.name
     channel = interaction.channel
-    message_id = interaction.message.id
 
     try:
-        
-        await interaction.response.defer()
         
         if isinstance(interaction.channel, discord.TextChannel):
             channel = await interaction.channel.create_thread(
@@ -527,7 +524,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 name=f"{user_name}'s thread with iva",
             )
             channel_id = channel.id
-            await interaction.followup.send(content=channel.jump_url)
+            await interaction.response.send_message(content=channel.jump_url)
 
         # fetch the row with the given id
         result = await fetch_key(user_id)
@@ -695,8 +692,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
         try:
             if channel_id in last_response and user_id in last_response[channel_id] and last_response[channel_id][user_id] is not None:
-                original_message = await interaction.channel.fetch_message(last_response[channel_id][user_id])
-                original_message.edit(content="⠀", view=None)
+                await last_response[channel_id][user_id].edit_original_response(content="⠀", view=None)
         except discord.errors.HTTPException as e:
             logging.error(e)
         
@@ -942,11 +938,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
             if isinstance(interaction.channel, discord.TextChannel):
                 initial_message = await channel.send(files=files, embeds=embeds, view=view)
-                message_id = initial_message.id
             else:
                 await interaction.followup.send(files=files, embeds=embeds, view=view)
             
-            last_response[channel_id][user_id] = message_id
+            last_response[channel_id][user_id] = interaction
             
             if len(embeds_overflow) > 0:
                 await channel.send(files = files_overflow, embeds=embeds_overflow)
