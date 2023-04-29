@@ -926,7 +926,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 embeds.append(embed)
             
         try:
-            
+            """
             if isinstance(interaction.channel, discord.TextChannel):
                 thread = await interaction.channel.create_thread(
                     message=".",
@@ -934,7 +934,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 )
                 
                 await interaction.followup.edit(channel=thread)
-
+            """
             await interaction.followup.send(files=files, embeds=embeds, view=view)
             
             last_response[channel_id][user_id] = interaction
