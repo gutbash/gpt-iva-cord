@@ -933,7 +933,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                     name=f"{user_name}'s thread with iva",
                 )
                 
-            await interaction.followup.edit(channel=thread.id)
+                await interaction.followup.edit(channel=thread)
 
             await interaction.followup.send(files=files, embeds=embeds, view=view)
             
