@@ -516,6 +516,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     channel = interaction.channel
 
     try:
+        
         await interaction.response.defer()
 
         # fetch the row with the given id
@@ -933,10 +934,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                     type=discord.ChannelType.public_thread,
                     name=f"{user_name}'s thread with iva",
                 )
-                await channel.send(files=files, embeds=embeds, view=view)
-                await interaction.followup.delete()
-            else:
-                await interaction.followup.send(files=files, embeds=embeds, view=view)
+                #await channel.send(files=files, embeds=embeds, view=view)
+                await interaction.followup.send(files=files, embeds=embeds, view=view, thread=channel)
             
             last_response[channel_id][user_id] = interaction
             
