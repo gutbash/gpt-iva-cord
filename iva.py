@@ -541,8 +541,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         if isinstance(interaction.channel, discord.TextChannel):
             
-            thread_namer = ChatOpenAI(temperature=1, openai_api_key=openai_key)
-            template=f"{user_name} and Iva are having a conversation. Solely return a simple yet informative title (title case, no subtitle) for their discussion including {user_name}'s name based on the following opening prompt by {user_name}:"
+            thread_namer = ChatOpenAI(temperature=0.7, openai_api_key=openai_key)
+            template=f"The following is the start of a discussion between {user_name} and Iva. Solely return a simple yet informative title in title case and no subtitle for their discussion including {user_name}'s name and relevant emojis based on the following opening prompt by {user_name}:"
             system_message_prompt = SystemMessagePromptTemplate.from_template(template)
             human_template=f"{user_name}: {{text}}"
             human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
