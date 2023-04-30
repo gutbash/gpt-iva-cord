@@ -75,6 +75,8 @@ from constants import (
     get_chat_custom_format_instructions,
     get_chat_suffix,
     
+    get_thread_namer_prompt,
+    
     FEATURES,
 )
 
@@ -543,7 +545,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
             try:
                 thread_namer = ChatOpenAI(temperature=0.7, openai_api_key=openai_key)
-                template=f"The following is the start of a discussion between {user_name} and Iva. Solely return a simple yet informative title in title case (do not put subtitle or parentheses) for the discussion including {user_name}'s name and relevant emojis based on the following opening prompt by {user_name}:"
+                template= await get_thread_namer_prompt(user_name)
                 system_message_prompt = SystemMessagePromptTemplate.from_template(template)
                 human_template=f"{user_name}: {{text}}"
                 human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)

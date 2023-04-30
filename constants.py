@@ -1,3 +1,9 @@
+### THREAD NAMER ###
+
+async def get_thread_namer_prompt(user_name):
+    thread_namer_prompt = f"The following is the start of a discussion between {user_name} and Iva. Solely return a simple yet informative title in title case (do not put subtitle or parentheses) for the discussion including {user_name}'s name and relevant emojis based on the following opening prompt by {user_name}:"
+    return thread_namer_prompt
+
 ### ASK TOOL DESCRIPTIONS ###
 
 ORGANIC_RESULTS_ASK_TOOL_DESCRIPTION = "Wrapper around Google Search. Input should be the query in question. Do not input the same query twice. Do not search for personal or unrelated queries. Do not input URL links. Output returns the top webpage result. You must cite the webpage as a numbered hyperlink."
