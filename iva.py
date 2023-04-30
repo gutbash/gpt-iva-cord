@@ -477,6 +477,7 @@ class Menu(discord.ui.View):
         ask_mems = await load_pickle_from_redis('ask_mems')
         
         if channel_id in last_response and user_id in last_response[channel_id] and last_response[channel_id][user_id] is not None:
+            logging.info(last_response[channel_id][user_id])
             original_interaction_message = await interaction.channel.fetch_message(last_response[channel_id][user_id])
 
         else:
@@ -946,6 +947,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             if isinstance(interaction.channel, discord.TextChannel):
                 initial_message = await channel.send(files=files, embeds=embeds, view=view)
                 message_id = initial_message.id
+                logging.info(message_id)
             else:
                 followup_message = await interaction.followup.send(files=files, embeds=embeds, view=view)
                 message_id = followup_message.id
