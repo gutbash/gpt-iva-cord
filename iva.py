@@ -94,7 +94,6 @@ tree = app_commands.CommandTree(client)
 
 active_users = {} # dict of lists
 active_names = {} # dict of strings
-last_response = {}
 
 @client.event
 async def on_ready():
@@ -428,8 +427,6 @@ class Menu(discord.ui.View):
     @discord.ui.button(emoji="<:ivadelete:1095559772754952232>", style=discord.ButtonStyle.grey)
     async def delete(self, interaction: discord.Interaction, button: discord.ui.Button):
         
-        global last_response
-        
         guild_id = interaction.guild_id
         user_id = interaction.user.id
         channel_id = interaction.channel.id
@@ -437,22 +434,22 @@ class Menu(discord.ui.View):
         
         ask_mems = await load_pickle_from_redis('ask_mems')
         
-        if channel_id in last_response and user_id in last_response[channel_id] and last_response[channel_id][user_id] is not None:
-            original_interaction = last_response[channel_id][user_id]
+        if channel_id in ask_mems and user_id in ask_mems[channel_id] and ask_mems[channel_id][user_id]["user_id"] is not None:
+            original_user_id = ask_mems[channel_id][user_id]["user_id"]
         else:
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} You do not own this context line', color=discord.Color.dark_theme())
             await interaction.response.send_message(embed=embed, ephemeral=True, delete_after=10)
             return
         
-        if original_interaction.user.id != user_id:
+        if original_user_id != user_id:
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} You do not own this context line', color=discord.Color.dark_theme())
             await interaction.response.send_message(embed=embed, ephemeral=True, delete_after=10)
             return
         else:
             try:
-                if channel_id in ask_mems and user_id in ask_mems[channel_id] and ask_mems[channel_id][user_id] is not None:
+                if channel_id in ask_mems and user_id in ask_mems[channel_id] and ask_mems[channel_id][user_id]["memory"] is not None:
                     
-                    memory = ask_mems[channel_id][user_id]
+                    memory = ask_mems[channel_id][user_id]["memory"]
                     memory.chat_memory.messages = memory.chat_memory.messages[:-2]
                     await save_pickle_to_redis('ask_mems', ask_mems)
                     
@@ -467,8 +464,6 @@ class Menu(discord.ui.View):
     @discord.ui.button(emoji="<:ivareset:1051691297443950612>", style=discord.ButtonStyle.grey)
     async def reset(self, interaction: discord.Interaction, button: discord.ui.Button):
         
-        global last_response
-        
         guild_id = interaction.guild_id
         channel_id = interaction.channel.id
         user_id = interaction.user.id
@@ -476,24 +471,28 @@ class Menu(discord.ui.View):
         
         ask_mems = await load_pickle_from_redis('ask_mems')
         
-        if channel_id in last_response and user_id in last_response[channel_id] and last_response[channel_id][user_id] is not None:
-            logging.info(last_response[channel_id][user_id])
-            original_interaction_message = await interaction.channel.fetch_message(last_response[channel_id][user_id])
-            logging.info(type(original_interaction_message))
+        if channel_id in ask_mems and user_id in ask_mems[channel_id] and ask_mems[channel_id][user_id]["user_id"] is not None:
+            original_user_id = ask_mems[channel_id][user_id]["user_id"]
 
         else:
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} You do not own this context line', color=discord.Color.dark_theme())
             await interaction.response.send_message(embed=embed, ephemeral=True, delete_after=10)
             return
 
-        if original_interaction_message.interaction.user.id != user_id:
+        if original_user_id != user_id:
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} You do not own this context line', color=discord.Color.dark_theme())
             await interaction.response.send_message(embed=embed, ephemeral=True, delete_after=10)
             return
         else:
-            if channel_id in ask_mems and user_id in ask_mems[channel_id] and ask_mems[channel_id][user_id] is not None:
-                ask_mems[channel_id][user_id] = None
-            last_response[channel_id][user_id] = None
+            
+            if channel_id in ask_mems and user_id in ask_mems[channel_id] and ask_mems[channel_id][user_id]["memory"] is not None:
+                
+                ask_mems[channel_id][user_id]["memory"] = None
+                
+            if channel_id in ask_mems and user_id in ask_mems[channel_id] and ask_mems[channel_id][user_id]["last_message_id"] is not None:
+                
+                ask_mems[channel_id][user_id]["last_message_id"] = None
+                
             await save_pickle_to_redis('ask_mems', ask_mems)
         
         embed = discord.Embed(description="<:ivareset:1051691297443950612>", color=discord.Color.dark_theme())
@@ -507,8 +506,6 @@ class Menu(discord.ui.View):
 @tree.command(name = "iva", description="write a prompt")
 @app_commands.describe(prompt = "prompt", file = "file")
 async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attachment = None):
-    
-    global last_response
     
     guild_id = interaction.guild_id
     guild_name = interaction.guild
@@ -544,12 +541,17 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} Use `/setup` to register API key first or `/help` for more info. You can find your API key at [openai.com](https://beta.openai.com).', color=discord.Color.dark_theme())
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
+        
+        default_user_data = {
+            "last_message_id": None,
+            "user_id": None,
+            "memory": None,
+        }
 
         user_settings = await load_pickle_from_redis('user_settings')
         ask_mems = await load_pickle_from_redis('ask_mems')
         
-        ask_mems.setdefault(channel_id, {}).setdefault(user_id, None)
-        last_response.setdefault(channel_id, {}).setdefault(user_id, None)
+        ask_mems.setdefault(channel_id, {}).setdefault(user_id, default_user_data)
         
         chat_model = user_settings.get(user_id, {}).get('model', 'gpt-3.5-turbo')
         temperature = user_settings.get(user_id, {}).get('temperature', 0.5)
@@ -698,10 +700,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 return
             
         try:
-            if channel_id in last_response and user_id in last_response[channel_id] and last_response[channel_id][user_id] is not None:
-                original_message = await interaction.channel.fetch_message(last_response[channel_id][user_id])
+            if channel_id in ask_mems and user_id in ask_mems[channel_id] and ask_mems[channel_id][user_id]["last_message_id"] is not None:
+                
+                original_message = await interaction.channel.fetch_message(ask_mems[channel_id][user_id]["last_message_id"])
                 await original_message.edit(content="⠀", view=None)
-                #await last_response[channel_id][user_id].edit_original_response(content="⠀", view=None)
+
         except discord.errors.HTTPException as e:
             logging.error(e)
         
@@ -737,9 +740,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         k_limit = 3
         total_cost = None
         
-        if channel_id in ask_mems and user_id in ask_mems[channel_id] and ask_mems[channel_id][user_id] is not None:
+        if channel_id in ask_mems and user_id in ask_mems[channel_id] and ask_mems[channel_id][user_id]["memory"] is not None:
             
-            memory = ask_mems[channel_id][user_id]
+            memory = ask_mems[channel_id][user_id]["memory"]
             
         else:
             
@@ -752,7 +755,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 human_prefix = f"User",
             )
             
-            last_response[channel_id][user_id] = None
+            ask_mems[channel_id][user_id]["memory"] = None
         
         llm_chain = LLMChain(
             llm=ask_llm,
@@ -953,8 +956,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 followup_message = await interaction.followup.send(files=files, embeds=embeds, view=view)
                 message_id = followup_message.id
             
-            last_response[channel_id][user_id] = message_id
-            
             if len(embeds_overflow) > 0:
                 await channel.send(files = files_overflow, embeds=embeds_overflow)
             
@@ -966,8 +967,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 stripped_links = list(set(stripped_links))
                 formatted_links = "\n".join(stripped_links)
                 await channel.send(content=formatted_links)
-                
-            ask_mems[channel_id][user_id] = memory
+            
+            ask_mems[channel_id][user_id]["last_message_id"] = message_id
+            ask_mems[channel_id][user_id]["user_id"] = user_id
+            ask_mems[channel_id][user_id]["memory"] = memory
             await save_pickle_to_redis('ask_mems', ask_mems)
                 
             return
@@ -979,8 +982,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
 @tree.command(name = "reset", description="start a new conversation")
 async def reset(interaction):
     
-    global last_response
-    
     channel_id = interaction.channel_id
     guild_id = interaction.guild_id
     user_id = interaction.user.id
@@ -990,15 +991,21 @@ async def reset(interaction):
     ask_mems = await load_pickle_from_redis('ask_mems')
     
     try:
-        if channel_id in last_response and user_id in last_response[channel_id] and last_response[channel_id][user_id] is not None:
-            await last_response[channel_id][user_id].edit_original_response(content="⠀", view=None)
+        if channel_id in ask_mems and user_id in ask_mems[channel_id] and ask_mems[channel_id][user_id]["last_message_id"] is not None:
+                
+                original_message = await interaction.channel.fetch_message(ask_mems[channel_id][user_id]["last_message_id"])
+                await original_message.edit(content="⠀", view=None)
+            
     except discord.errors.HTTPException as e:
         logging.error(e)
 
-    if channel_id in last_response and user_id in last_response[channel_id] and last_response[channel_id][user_id] is not None:
-        last_response[channel_id][user_id] = None
-    if channel_id in ask_mems and user_id in ask_mems[channel_id] and ask_mems[channel_id][user_id] is not None:
-        ask_mems[channel_id][user_id] = None
+    if channel_id in ask_mems and user_id in ask_mems[channel_id] and ask_mems[channel_id][user_id]["last_message_id"] is not None:
+        
+        ask_mems[channel_id][user_id]["last_message_id"] = None
+        
+    if channel_id in ask_mems and user_id in ask_mems[channel_id] and ask_mems[channel_id][user_id]["memory"] is not None:
+        
+        ask_mems[channel_id][user_id]["memory"] = None
         
     chat_mems[channel_id] = None
     active_users[channel_id] = []
