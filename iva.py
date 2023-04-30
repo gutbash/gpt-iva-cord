@@ -479,6 +479,7 @@ class Menu(discord.ui.View):
         if channel_id in last_response and user_id in last_response[channel_id] and last_response[channel_id][user_id] is not None:
             logging.info(last_response[channel_id][user_id])
             original_interaction_message = await interaction.channel.fetch_message(last_response[channel_id][user_id])
+            logging.info(type(original_interaction_message))
 
         else:
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} You do not own this context line', color=discord.Color.dark_theme())
