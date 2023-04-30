@@ -183,7 +183,7 @@ async def on_message(message):
             logical_llm = ChatOpenAI(
                 openai_api_key=openai_key,
                 temperature=0,
-                verbose=True,
+                verbose=False,
                 #callback_manager=manager,
                 request_timeout=600,
                 )
@@ -226,7 +226,7 @@ async def on_message(message):
                         model_name=chat_model,
                         openai_api_key=openai_key,
                         request_timeout=600,
-                        verbose=True,
+                        verbose=False,
                     )
 
                 tools = []
@@ -307,14 +307,14 @@ async def on_message(message):
                 
                 llm_chain = LLMChain(
                     llm=chat_llm,
-                    verbose=True,
+                    verbose=False,
                     prompt=guild_prompt,
                 )
                 
                 agent = ConversationalAgent(
                     llm_chain=llm_chain,
                     tools=tools,
-                    verbose=True,
+                    verbose=False,
                     ai_prefix=f"Iva",
                     llm_prefix=f"Iva",
                     )
@@ -322,7 +322,7 @@ async def on_message(message):
                 agent_chain = AgentExecutor.from_agent_and_tools(
                     agent=agent,
                     tools=tools,
-                    verbose=True,
+                    verbose=False,
                     memory=guild_memory,
                     ai_prefix=f"Iva",
                     llm_prefix=f"Iva",
@@ -566,7 +566,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         logical_llm = ChatOpenAI(
             openai_api_key=openai_key,
             temperature=0,
-            verbose=True,
+            verbose=False,
             #model_name=chat_model,
             #callback_manager=manager,
             request_timeout=600,
@@ -707,7 +707,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 model_name=chat_model,
                 openai_api_key=openai_key,
                 request_timeout=600,
-                verbose=True,
+                verbose=False,
                 #callback_manager=manager,
                 #max_tokens=max_tokens,
                 )
@@ -717,7 +717,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 model_name=chat_model,
                 openai_api_key=openai_key,
                 request_timeout=600,
-                verbose=True,
+                verbose=False,
             )
         
         guild_prompt = ConversationalAgent.create_prompt(
@@ -752,7 +752,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         llm_chain = LLMChain(
             llm=ask_llm,
-            verbose=True,
+            verbose=False,
             prompt=guild_prompt,
             #callback_manager=manager
         )
@@ -760,7 +760,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         agent = ConversationalAgent(
             llm_chain=llm_chain,
             tools=tools,
-            verbose=True,
+            verbose=False,
             ai_prefix=f"Iva",
             llm_prefix=f"Iva",
             )
@@ -768,7 +768,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         agent_chain = AgentExecutor.from_agent_and_tools(
             agent=agent,
             tools=tools,
-            verbose=True,
+            verbose=False,
             memory=memory,
             ai_prefix=f"Iva",
             llm_prefix=f"Iva",
