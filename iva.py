@@ -710,7 +710,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                     
                 except:
                     embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} the attachment\'s file type is unknown. consider converting it to plain text such as `.txt`.', color=discord.Color.dark_theme())
-                    await interaction.followup.send(embed=embed, ephemeral=True)
+                    if isinstance(interaction.channel, discord.TextChannel):
+                        await channel.send(embed=embed, ephemeral=True)
+                    else:
+                        await interaction.followup.send(embed=embed, ephemeral=True)
                     return
 
             file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + attachment_text, truncation=True, max_length=12000)['input_ids'])
@@ -718,7 +721,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             if file_tokens >= max_tokens:
 
                 embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} this file is too large at {file_tokens} tokens. try shortening the file length. you can also send unlimited length files as URLs to Iva to perform simple summary and question-answer if you are willing to compromise exact information.', color=discord.Color.dark_theme())
-                await interaction.followup.send(embed=embed, ephemeral=True)
+                if isinstance(interaction.channel, discord.TextChannel):
+                    await channel.send(embed=embed, ephemeral=True)
+                else:
+                    await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             
         try:
@@ -834,7 +840,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             else:
                 logging.error(e)
                 embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
-                await interaction.followup.send(embed=embed, ephemeral=True)
+                if isinstance(interaction.channel, discord.TextChannel):
+                    await channel.send(embed=embed, ephemeral=True)
+                else:
+                    await interaction.followup.send(embed=embed, ephemeral=True)
                 return
         
         dash_count = ""
@@ -964,7 +973,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                         embeds.append(embed_string)
                 except:                   
                     embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{mention} 4096 character response limit reached. Response contains {len(reply)} characters. Use `/reset`.**', color=discord.Color.dark_theme())
-                    await interaction.followup.send(embed=embed, ephemeral=True)
+                    if isinstance(interaction.channel, discord.TextChannel):
+                        await channel.send(embed=embed, ephemeral=True)
+                    else:
+                        await interaction.followup.send(embed=embed, ephemeral=True)
             else:
                 embeds.append(embed)
             
