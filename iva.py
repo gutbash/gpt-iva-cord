@@ -477,7 +477,7 @@ class Menu(discord.ui.View):
         ask_mems = await load_pickle_from_redis('ask_mems')
         
         if channel_id in last_response and user_id in last_response[channel_id] and last_response[channel_id][user_id] is not None:
-            original_interaction_message = interaction.channel.fetch_message(last_response[channel_id][user_id])
+            original_interaction_message = await interaction.channel.fetch_message(last_response[channel_id][user_id])
 
         else:
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} You do not own this context line', color=discord.Color.dark_theme())
