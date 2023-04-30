@@ -528,7 +528,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             channel_id = channel.id
             
             followup_message = await interaction.followup.send(content=channel.jump_url)
-            message_id = followup_message.id
             await followup_message.delete()
             
         # fetch the row with the given id
@@ -697,7 +696,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
         try:
             if channel_id in last_response and user_id in last_response[channel_id] and last_response[channel_id][user_id] is not None:
-                await last_response[channel_id][user_id].edit_original_response(content="⠀", view=None)
+                original_message = await interaction.channel.fetch_message(last_response[channel_id][user_id])
+                await original_message.edit(content="⠀", view=None)
+                #await last_response[channel_id][user_id].edit_original_response(content="⠀", view=None)
         except discord.errors.HTTPException as e:
             logging.error(e)
         
@@ -945,9 +946,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 initial_message = await channel.send(files=files, embeds=embeds, view=view)
                 message_id = initial_message.id
             else:
-                await interaction.followup.send(files=files, embeds=embeds, view=view)
+                followup_message = await interaction.followup.send(files=files, embeds=embeds, view=view)
+                message_id = followup_message.id
             
-            last_response[channel_id][user_id] = interaction
+            last_response[channel_id][user_id] = message_id
             
             if len(embeds_overflow) > 0:
                 await channel.send(files = files_overflow, embeds=embeds_overflow)
