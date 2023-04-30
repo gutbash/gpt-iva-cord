@@ -529,7 +529,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
             followup_message = await interaction.followup.send(content=channel.jump_url)
             message_id = followup_message.id
-            interaction.message.delete()
+            followup_message.delete()
             
         # fetch the row with the given id
         result = await fetch_key(user_id)
