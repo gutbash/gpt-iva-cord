@@ -550,10 +550,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             thread_namer_chain = LLMChain(llm=thread_namer, prompt=chat_prompt)
             
             thread_name = await thread_namer_chain.arun(prompt)
-            thread_name.strip('.')
-            thread_name.strip('"')
-            thread_name.strip("'")
-            
+            thread_name = thread_name.strip('"')
+            thread_name = thread_name.strip("'")
+            thread_name = thread_name.strip('.')
+
             channel = await interaction.channel.create_thread(
                 type=discord.ChannelType.public_thread,
                 name=thread_name,
