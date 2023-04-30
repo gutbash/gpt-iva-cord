@@ -47,6 +47,12 @@ from langchain.schema import (
     HumanMessage,
     SystemMessage
 )
+from langchain.prompts.chat import (
+    ChatPromptTemplate,
+    SystemMessagePromptTemplate,
+    AIMessagePromptTemplate,
+    HumanMessagePromptTemplate,
+)
 
 from constants import (
     ORGANIC_RESULTS_ASK_TOOL_DESCRIPTION,
@@ -510,6 +516,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     guild_id = interaction.guild_id
     guild_name = interaction.guild
     user_id = interaction.user.id
+    user = interaction.user
     channel_id = interaction.channel.id
     mention = interaction.user.mention
     bot = client.user.display_name
@@ -519,16 +526,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     try:
         
         await interaction.response.defer()
-        
-        if isinstance(interaction.channel, discord.TextChannel):
-            channel = await interaction.channel.create_thread(
-                type=discord.ChannelType.public_thread,
-                name=f"{user_name}'s thread with iva",
-            )
-            channel_id = channel.id
-            
-            followup_message = await interaction.followup.send(content=channel.jump_url)
-            await followup_message.delete()
             
         # fetch the row with the given id
         result = await fetch_key(user_id)
@@ -541,6 +538,28 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} Use `/setup` to register API key first or `/help` for more info. You can find your API key at [openai.com](https://beta.openai.com).', color=discord.Color.dark_theme())
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
+        
+        if isinstance(interaction.channel, discord.TextChannel):
+            
+            thread_namer = ChatOpenAI(temperature=1, openai_api_key=openai_key)
+            template=f"{user_name} and Iva are having a conversation. Come up with a helpful, short, and creative name for their discussion based on the following opening prompt by {user_name}:"
+            system_message_prompt = SystemMessagePromptTemplate.from_template(template)
+            human_template=f"{user_name}: {{text}}"
+            human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
+            chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
+            thread_namer_chain = LLMChain(llm=thread_namer, prompt=chat_prompt)
+            
+            thread_name = await thread_namer_chain.arun(prompt)
+            
+            channel = await interaction.channel.create_thread(
+                type=discord.ChannelType.public_thread,
+                name=thread_name,
+            )
+            channel.add_user(user=user)
+            channel_id = channel.id
+            
+            followup_message = await interaction.followup.send(content=channel.jump_url)
+            await followup_message.delete()
         
         default_user_data = {
             "last_message_id": None,
