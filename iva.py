@@ -515,7 +515,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     bot = client.user.display_name
     user_name = interaction.user.name
     channel = interaction.channel
-
+    message_id = interaction.message.id
+    
     try:
         
         await interaction.response.defer()
@@ -526,9 +527,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 name=f"{user_name}'s thread with iva",
             )
             channel_id = channel.id
-            await interaction.followup.send(content=channel.jump_url)
-            await interaction.followup.delete()
-
+            
+            followup_message = await interaction.followup.send(content=channel.jump_url)
+            message_id = followup_message.id
+            logging.debug(message_id)
+            
         # fetch the row with the given id
         result = await fetch_key(user_id)
         openai_key = ""
