@@ -571,6 +571,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
             followup_message = await interaction.followup.send(content=channel.jump_url)
             await followup_message.delete()
+            thinking_message = await channel.send(content="<a:ivaloading:1102305649246867561>  iva is thinking...")
         
         default_user_data = {
             "last_message_id": None,
@@ -585,7 +586,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         chat_model = user_settings.get(user_id, {}).get('model', 'gpt-3.5-turbo')
         temperature = user_settings.get(user_id, {}).get('temperature', 0.5)
-            
+        
         max_tokens = 4096
         
         if chat_model == "gpt-4":
@@ -719,7 +720,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 except:
                     embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} the attachment\'s file type is unknown. consider converting it to plain text such as `.txt`.', color=discord.Color.dark_theme())
                     if isinstance(interaction.channel, discord.TextChannel):
-                        await channel.send(embed=embed, ephemeral=True)
+                        await thinking_message.edit(content=None, embed=embed, ephemeral=True)
                     else:
                         await interaction.followup.send(embed=embed, ephemeral=True)
                     return
@@ -730,7 +731,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
 
                 embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} this file is too large at {file_tokens} tokens. try shortening the file length. you can also send unlimited length files as URLs to Iva to perform simple summary and question-answer if you are willing to compromise exact information.', color=discord.Color.dark_theme())
                 if isinstance(interaction.channel, discord.TextChannel):
-                    await channel.send(embed=embed, ephemeral=True)
+                    await thinking_message.edit(content=None, embed=embed, ephemeral=True)
                 else:
                     await interaction.followup.send(embed=embed, ephemeral=True)
                 return
@@ -849,7 +850,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 logging.error(e)
                 embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
                 if isinstance(interaction.channel, discord.TextChannel):
-                    await channel.send(embed=embed, ephemeral=True)
+                    await thinking_message.edit(content=None, embed=embed, ephemeral=True)
                 else:
                     await interaction.followup.send(embed=embed, ephemeral=True)
                 return
@@ -982,7 +983,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 except:                   
                     embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{mention} 4096 character response limit reached. Response contains {len(reply)} characters. Use `/reset`.**', color=discord.Color.dark_theme())
                     if isinstance(interaction.channel, discord.TextChannel):
-                        await channel.send(embed=embed, ephemeral=True)
+                        await thinking_message.edit(content=None, embed=embed, ephemeral=True)
                     else:
                         await interaction.followup.send(embed=embed, ephemeral=True)
             else:
@@ -991,6 +992,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         try:
             
             if isinstance(interaction.channel, discord.TextChannel):
+                await thinking_message.delete()
                 initial_message = await channel.send(files=files, embeds=embeds, view=view)
                 message_id = initial_message.id
 
