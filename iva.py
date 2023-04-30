@@ -553,9 +553,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 thread_namer_chain = LLMChain(llm=thread_namer, prompt=chat_prompt)
                 
                 thread_name = await thread_namer_chain.arun(prompt)
-                thread_name = thread_name.strip('"')
-                thread_name = thread_name.strip("'")
-                thread_name = thread_name.strip('.')
+                thread_name = thread_name.strip("'") | thread_name.replace('.', '') | thread_name.replace('"', '')
+
             except Exception as e:
                 logging.error(e)
                 embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
