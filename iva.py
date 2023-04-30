@@ -542,7 +542,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         if isinstance(interaction.channel, discord.TextChannel):
             
             thread_namer = ChatOpenAI(temperature=1, openai_api_key=openai_key)
-            template=f"{user_name} and Iva are having a conversation. Solely return an informative title for their discussion including {user_name}'s name based on the following opening prompt by {user_name}:"
+            template=f"{user_name} and Iva are having a conversation. Solely return an informative title in title case for their discussion including {user_name}'s name based on the following opening prompt by {user_name}:"
             system_message_prompt = SystemMessagePromptTemplate.from_template(template)
             human_template=f"{user_name}: {{text}}"
             human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
@@ -550,6 +550,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             thread_namer_chain = LLMChain(llm=thread_namer, prompt=chat_prompt)
             
             thread_name = await thread_namer_chain.arun(prompt)
+            thread_name.strip(".\"'")
             
             channel = await interaction.channel.create_thread(
                 type=discord.ChannelType.public_thread,
@@ -970,7 +971,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             if isinstance(interaction.channel, discord.TextChannel):
                 initial_message = await channel.send(files=files, embeds=embeds, view=view)
                 message_id = initial_message.id
-                logging.info(message_id)
+
             else:
                 followup_message = await interaction.followup.send(files=files, embeds=embeds, view=view)
                 message_id = followup_message.id
