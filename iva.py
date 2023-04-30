@@ -515,7 +515,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
     bot = client.user.display_name
     user_name = interaction.user.name
     channel = interaction.channel
-    message_id = interaction.message.id
     
     try:
         
