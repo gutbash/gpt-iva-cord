@@ -441,12 +441,12 @@ class Menu(discord.ui.View):
             original_interaction = last_response[channel_id][user_id]
         else:
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} You do not own this context line', color=discord.Color.dark_theme())
-            await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=10)
+            await interaction.response.send_message(embed=embed, ephemeral=True, delete_after=10)
             return
         
         if original_interaction.user.id != user_id:
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} You do not own this context line', color=discord.Color.dark_theme())
-            await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=10)
+            await interaction.response.send_message(embed=embed, ephemeral=True, delete_after=10)
             return
         else:
             try:
@@ -477,15 +477,15 @@ class Menu(discord.ui.View):
         ask_mems = await load_pickle_from_redis('ask_mems')
         
         if channel_id in last_response and user_id in last_response[channel_id] and last_response[channel_id][user_id] is not None:
-            original_interaction = last_response[channel_id][user_id]
+            original_interaction_message = interaction.channel.fetch_message(last_response[channel_id][user_id])
         else:
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} You do not own this context line', color=discord.Color.dark_theme())
-            await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=10)
+            await interaction.response.send_message(embed=embed, ephemeral=True, delete_after=10)
             return
 
-        if original_interaction.user.id != user_id:
+        if original_interaction_message.user.id != user_id:
             embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} You do not own this context line', color=discord.Color.dark_theme())
-            await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=10)
+            await interaction.response.send_message(embed=embed, ephemeral=True, delete_after=10)
             return
         else:
             if channel_id in ask_mems and user_id in ask_mems[channel_id] and ask_mems[channel_id][user_id] is not None:
@@ -1004,7 +1004,7 @@ async def reset(interaction):
     await save_pickle_to_redis('chat_mems', chat_mems)
     
     embed = discord.Embed(description="<:ivareset:1051691297443950612>", color=discord.Color.dark_theme())
-    await interaction.response.send_message(embed=embed, ephemeral=False)
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
     
 @tree.command(name = "help", description="get started")
@@ -1026,7 +1026,7 @@ async def help(interaction):
     embed2.set_image(url="https://media.discordapp.net/attachments/1053423931979218944/1055535478817947668/Screenshot_2022-12-21_234629.png?width=960&height=606")
     embed3.set_image(url="https://media.discordapp.net/attachments/1053423931979218944/1055535478507585578/Screenshot_2022-12-21_234900.png")
     
-    await interaction.response.send_message(embeds=[embed, embed1, embed2, embed3], ephemeral=False)
+    await interaction.response.send_message(embeds=[embed, embed1, embed2, embed3], ephemeral=True)
 
 @tree.command(name = "tutorial", description="how to talk with iva")
 async def tutorial(interaction):
@@ -1143,7 +1143,7 @@ async def model(interaction, choices: app_commands.Choice[str] = None):
             
         embed = discord.Embed(description=f"<:ivamodel:1096498759040520223> **Current Model:** `{current_model}`", color=discord.Color.dark_theme())
     
-    await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=30)
+    await interaction.response.send_message(embed=embed, ephemeral=True, delete_after=30)
     
     return
     
@@ -1162,7 +1162,7 @@ async def temperature(interaction, temperature: float = None):
             
             embed = discord.Embed(description=f"<:ivaerror:1051918443840020531> **{mention} `temperature` must be a float value from 0.0-2.0.**", color=discord.Color.dark_theme())
             
-            await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=30)
+            await interaction.response.send_message(embed=embed, ephemeral=True, delete_after=30)
             
             return
         
@@ -1181,7 +1181,7 @@ async def temperature(interaction, temperature: float = None):
         
         embed = discord.Embed(description=f"<:ivatemp:1097754157747818546>**Current Temperature:** `{temperature}`", color=discord.Color.dark_theme())
     
-    await interaction.response.send_message(embed=embed, ephemeral=False, delete_after=30)
+    await interaction.response.send_message(embed=embed, ephemeral=True, delete_after=30)
     
     return
     
