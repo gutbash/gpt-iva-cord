@@ -527,6 +527,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             )
             channel_id = channel.id
             await interaction.followup.send(content=channel.jump_url)
+            await interaction.followup.delete()
 
         # fetch the row with the given id
         result = await fetch_key(user_id)
@@ -940,6 +941,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
             if isinstance(interaction.channel, discord.TextChannel):
                 initial_message = await channel.send(files=files, embeds=embeds, view=view)
+                message_id = initial_message.id
             else:
                 await interaction.followup.send(files=files, embeds=embeds, view=view)
             
