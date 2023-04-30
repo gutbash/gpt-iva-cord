@@ -825,9 +825,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         try:
             
             with get_openai_callback() as cb:
-                logging.info(agent_chain.json())
                 logging.info(agent_chain.dict())
-                logging.info(agent_chain.schema_json())
                 reply = await agent_chain.arun(input=f"{prompt}{blip_text}{attachment_text}")
                 total_cost = cb.total_cost
                 
