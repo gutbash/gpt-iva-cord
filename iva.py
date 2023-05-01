@@ -748,7 +748,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 model_name=chat_model,
                 openai_api_key=openai_key,
                 request_timeout=600,
-                verbose=False,
+                verbose=True,
                 #callback_manager=manager,
                 #max_tokens=max_tokens,
                 )
@@ -758,7 +758,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 model_name=chat_model,
                 openai_api_key=openai_key,
                 request_timeout=600,
-                verbose=False,
+                verbose=True,
             )
         
         k_limit = 3
@@ -797,6 +797,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         agent = ConversationalChatAgent(
             llm_chain=llm_chain,
             allowed_tools=tool_names,
+            verbose=True
         )
         
         agent_chain = AgentExecutor.from_agent_and_tools(
