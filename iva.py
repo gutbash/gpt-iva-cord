@@ -801,7 +801,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             llm=ask_llm,
             verbose=True,
             prompt=guild_prompt,
-            verbose=True,
         )
             
         agent = ConversationalAgent(
@@ -833,6 +832,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 
         except Exception as e:
             if str(e).startswith("Could not parse LLM output:"):
+                logging.error(e)
                 reply = str(e).replace("Could not parse LLM output: `", "")
                 reply = reply.replace("Thought: Do I need to use a tool? No", "")
                 reply = reply.strip("`")
