@@ -333,8 +333,8 @@ async def on_message(message):
                     tools=tools,
                     verbose=False,
                     memory=guild_memory,
-                    #ai_prefix=f"Iva",
-                    #llm_prefix=f"Iva",
+                    ai_prefix=f"Iva",
+                    llm_prefix=f"Iva",
                     max_execution_time=600,
                     #max_iterations=3,
                     #early_stopping_method="generate",
@@ -344,8 +344,6 @@ async def on_message(message):
                 try:
 
                     reply = await agent_chain.arun(input=f"{user_name} ({user_mention}): {prompt}{caption}")
-                    reply = reply.replace("Iva: ", "")
-                    reply = reply.replace("Do I need to use a tool? No", "")
 
                 except Exception as e:
                     if str(e).startswith("Could not parse LLM output:"):
@@ -369,6 +367,9 @@ async def on_message(message):
                         embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {user_mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek https://discord.com/channels/1053335631159377950/1053336180692897943 if the issue persists.')
                         await message.channel.send(embed=embed)
                         return
+                    
+                reply = reply.replace("Iva: ", "")
+                reply = reply.replace("Do I need to use a tool? No", "")
                 
                 if len(reply) > 2000:
                     embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
