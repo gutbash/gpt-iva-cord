@@ -569,7 +569,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             await channel.add_user(user)
             channel_id = channel.id
             
-            thinking_message = await channel.send(content="thinking...")
+            thinking_message = await channel.send(content="<a:ivaloading:1102305649246867561>  iva is thinking...")
             
         
         default_user_data = {
