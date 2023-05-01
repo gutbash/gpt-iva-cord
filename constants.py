@@ -102,15 +102,15 @@ Use this if you want to respond directly to me. Markdown code snippet formatted 
 
 SUFFIX = """TOOLS
 ------
-Ask me to use a tool only if you absolutely need it to look up information that may be helpful in answering the original question. Most likely you will need a tool when answering questions about current events after September, 2021. Otherwise you probably know the answer already. The tools I can use are:
+Ask me to use a tool only if you absolutely need it to look up information that may be helpful in answering the original USER INPUT. The tools I can use are:
 
 {{tools}}
 
 {format_instructions}
 
 USER INPUT
-Here is my input prompt (remember to respond with a markdown code snippet of a json blob with a single action, and NOTHING else):
 --------------------
+Here is my input prompt (remember to respond with a markdown code snippet of a json blob with a single action, and NOTHING else):
 
 {{{{input}}}}"""
 
@@ -119,8 +119,8 @@ TEMPLATE_TOOL_RESPONSE = """TOOL RESPONSE:
 {observation}
 
 USER INPUT
-Okay, now please respond to my original USER INPUT, preferably with the Final Answer. If using information obtained from the tools you must mention it explicitly and cite any references of webpages as a clickable markdown hyperlink without mentioning the tool names - I have forgotten all TOOL RESPONSES! Remember to respond with a markdown code snippet of a json blob with a single action (preferably Final Answer), and NOTHING else:
---------------------"""
+--------------------
+Okay, now please respond to my original USER INPUT, preferably with the Final Answer action. You must mention any info from tools explicitly and cite any references of webpages as a clickable markdown hyperlink - I have forgotten all TOOL RESPONSES! Remember to respond with a markdown code snippet of a json blob with a single action (preferably Final Answer action), and NOTHING else:"""
 
 ### ASK PROMPT COMPONENTS ###
 
