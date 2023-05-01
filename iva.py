@@ -786,7 +786,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             tools=tools,
             system_message=textwrap.dedent(system_message).strip(),
             human_message=textwrap.dedent(human_message).strip(),
-            input_variables=["input"],
         )
             
         llm_chain = LLMChain(
