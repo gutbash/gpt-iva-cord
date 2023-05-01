@@ -30,8 +30,8 @@ IMAGE_SEARCH_CHAT_TOOL_DESCRIPTION = "A wrapper around Google Images. Input shou
 
 ### CONVERSATIONALCHATAGENT ###
 
-async def get_human_message(tool_names):
-    human_message = f"""
+async def get_human_message():
+    human_message = """
     TOOLS
     ------
     Assistant can ask the user to use tools to look up information that may be helpful in answering the users original question. The tools the human can use are:
@@ -80,8 +80,7 @@ TEMPLATE_TOOL_RESPONSE = """TOOL RESPONSE:
 
 USER'S INPUT
 --------------------
-
-Based on the TOOL RESPONSE, respond to my original input. If using information obtained from the tools you must mention it explicitly without mentioning the tool names - I have forgotten all TOOL RESPONSES! Remember to respond with a markdown code snippet of a json blob with a single action, and NOTHING else."""
+Respond based on the first USER'S INPUT and TOOL RESPONSE. If using information obtained from the tools you must mention it explicitly without mentioning the tool names - I have forgotten all TOOL RESPONSES! Remember to respond with a markdown code snippet of a json blob with a single action, and NOTHING else:"""
 
 ### ASK PROMPT COMPONENTS ###
 
