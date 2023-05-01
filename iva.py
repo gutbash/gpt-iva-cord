@@ -286,8 +286,6 @@ async def on_message(message):
                     tools=tools,
                     system_message=textwrap.dedent(system_message).strip(),
                     input_variables=["input", "chat_history", "agent_scratchpad"],
-                    ai_prefix = f"Iva",
-                    human_prefix = f"",
                 )
                 
                 if chat_mems[channel_id] != None:
