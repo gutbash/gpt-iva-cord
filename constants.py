@@ -72,15 +72,55 @@ async def get_human_message():
     """
     return human_message
 
-### TOOL RESPONSE ###
+### CONVERSATIONAL CHAT AGENT ###
+
+FORMAT_INSTRUCTIONS = """RESPONSE FORMAT INSTRUCTIONS
+----------------------------
+
+When responding to me, please output a response in one of two formats:
+
+**Option 1:**
+Use this if you want me to use a tool.
+Markdown code snippet formatted in the following schema:
+
+```json
+{{{{
+    "action": string \\ The action to take. Must be one of {tool_names}
+    "action_input": string \\ The input to the action
+}}}}
+```
+
+**Option #2:**
+Use this if you want to respond directly to me. Markdown code snippet formatted in the following schema:
+
+```json
+{{{{
+    "action": "Final Answer",
+    "action_input": string \\ You should put what you want to return to use here
+}}}}
+```"""
+
+SUFFIX = """TOOLS
+------
+You can ask me to use tools to look up information that may be helpful in answering the original question. The tools I can use are:
+
+{{tools}}
+
+{format_instructions}
+
+USER INPUT
+--------------------
+Here is my input (remember to respond with a markdown code snippet of a json blob with a single action, and NOTHING else):
+
+{{{{input}}}}"""
 
 TEMPLATE_TOOL_RESPONSE = """TOOL RESPONSE: 
 ---------------------
 {observation}
 
-USER'S INPUT
+USER INPUT
 --------------------
-Respond based on the first USER'S INPUT and TOOL RESPONSE. If using information obtained from the tools you must mention it explicitly without mentioning the tool names - I have forgotten all TOOL RESPONSES! Remember to respond with a markdown code snippet of a json blob with a single action, and NOTHING else:"""
+Respond based on my first USER INPUT and TOOL RESPONSE. If using information obtained from the tools you must mention it explicitly without mentioning the tool names - I have forgotten all TOOL RESPONSES! Remember to respond with a markdown code snippet of a json blob with a single action, and NOTHING else:"""
 
 ### ASK PROMPT COMPONENTS ###
 
