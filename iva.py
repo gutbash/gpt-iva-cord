@@ -779,10 +779,32 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
             ask_mems[channel_id][user_id]["memory"] = None
         
+        system_message = await get_ask_prefix(itis)
+        human_message = await get_human_message(tool_names)
+        
+        guild_prompt = ConversationalChatAgent.create_prompt(
+            tools=tools,
+            system_message=textwrap.dedent(system_message).strip(),
+            human_message=textwrap.dedent(human_message).strip(),
+            input_variables=["input", "tools"],
+        )
+            
+        llm_chain = LLMChain(
+            memory=memory,
+            llm=ask_llm,
+            verbose=True,
+            prompt=guild_prompt,
+        )
+            
+        agent = ConversationalChatAgent(
+            llm_chain=llm_chain,
+            allowed_tools=tool_names,
+        )
+        
         agent_chain = initialize_agent(
             tools=tools,
             llm=ask_llm,
-            agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION,
+            agent=agent,
             verbose=True,
             memory=memory,
         )
