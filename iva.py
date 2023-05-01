@@ -35,12 +35,15 @@ import logging
 
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import OpenAI
-from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
+from langchain.chains.llm import LLMChain
 from langchain.callbacks import get_openai_callback
 from langchain.chains.conversation.memory import ConversationSummaryBufferMemory
-from langchain.memory import ConversationBufferWindowMemory, ConversationTokenBufferMemory
-from langchain.agents import Tool, AgentExecutor, load_tools, ConversationalAgent, initialize_agent, AgentType
+from langchain.memory.buffer_window import ConversationBufferWindowMemory
+from langchain.memory.token_buffer import ConversationTokenBufferMemory
+from langchain.agents import Tool
+from langchain.agents.conversational.base import ConversationalAgent
+from langchain.agents.agent import AgentExecutor
+from langchain.agents.conversational.output_parser import ConvoOutputParser
 from langchain.text_splitter import TokenTextSplitter
 from langchain.schema import (
     AIMessage,
@@ -324,6 +327,7 @@ async def on_message(message):
                     verbose=False,
                     ai_prefix=f"Iva",
                     llm_prefix=f"Iva",
+                    output_parser=ConvoOutputParser,
                 )
                 
                 agent_chain = AgentExecutor.from_agent_and_tools(
@@ -809,6 +813,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             verbose=True,
             ai_prefix=f"Iva",
         )
+        
+        agent.l
         
         agent_chain = AgentExecutor.from_agent_and_tools(
             agent=agent,
