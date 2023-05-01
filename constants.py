@@ -66,7 +66,7 @@ async def get_ask_custom_format_instructions(tool_names):
     Iva: [your response here]
     ```
     
-    You must prefix the response with `Iva: ` or else it won't be seen! You must mention any info from tools explicitly and cite any references of webpages as a clickable markdown hyperlink - the user has forgotten all Observations!
+    You must prefix the response with `Iva: ` or else it won't be seen! You must mention any info from tools explicitly and cite any references of webpages as a clickable markdown formatted hyperlink - the user has forgotten all Observations!
     """
     return ask_custom_format_instructions
 
@@ -76,11 +76,11 @@ async def get_ask_suffix():
     
     {{chat_history}}
     
-    NEW MESSAGE
+    USER'S INPUT:
     
     User: {{input}}
     
-    YOUR RESPONSE
+    YOUR RESPONSE:
     You must put EXACTLY `Thought: Do I need to use a tool? No` followed by your prefix `Iva: ` before your formatted response or else it won't be seen!
     
     Start responding below...
