@@ -361,7 +361,7 @@ async def on_message(message):
                         mem_list.extend(extend_mems_list)
                     else:
                         logging.error(e)
-                        embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {user_mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
+                        embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {user_mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek https://discord.com/channels/1053335631159377950/1053336180692897943 if the issue persists.')
                         await message.channel.send(embed=embed)
                         return
                 
@@ -462,7 +462,7 @@ class Menu(discord.ui.View):
                     await save_pickle_to_redis('ask_mems', ask_mems)
                     
             except Exception as e:
-                embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
+                embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek https://discord.com/channels/1053335631159377950/1053336180692897943 if the issue persists.')
                 await interaction.channel.send(content=None, embed=embed)
         
         embed = discord.Embed(description=f'<:ivadelete:1095559772754952232>', color=discord.Color.dark_theme())
@@ -556,12 +556,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 thread_namer_chain = LLMChain(llm=thread_namer, prompt=chat_prompt)
                 
                 thread_name = await thread_namer_chain.arun(prompt)
-                thread_name = thread_name.strip('"')
-                thread_name = thread_name.strip("'")
-                thread_name = thread_name.strip('.')
+                thread_name = thread_name.strip("'").replace('.', '').replace('"', '')
+
             except Exception as e:
                 logging.error(e)
-                embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
+                embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek https://discord.com/channels/1053335631159377950/1053336180692897943 if the issue persists.')
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
 
@@ -588,7 +587,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         chat_model = user_settings.get(user_id, {}).get('model', 'gpt-3.5-turbo')
         temperature = user_settings.get(user_id, {}).get('temperature', 0.5)
-            
+        
         max_tokens = 4096
         
         if chat_model == "gpt-4":
@@ -722,7 +721,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 except:
                     embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} the attachment\'s file type is unknown. consider converting it to plain text such as `.txt`.', color=discord.Color.dark_theme())
                     if isinstance(interaction.channel, discord.TextChannel):
-                        await channel.send(embed=embed, ephemeral=True)
+                        await thinking_message.edit(content=None, embed=embed, ephemeral=True)
                     else:
                         await interaction.followup.send(embed=embed, ephemeral=True)
                     return
@@ -733,7 +732,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
 
                 embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} this file is too large at {file_tokens} tokens. try shortening the file length. you can also send unlimited length files as URLs to Iva to perform simple summary and question-answer if you are willing to compromise exact information.', color=discord.Color.dark_theme())
                 if isinstance(interaction.channel, discord.TextChannel):
-                    await channel.send(embed=embed, ephemeral=True)
+                    await thinking_message.edit(content=None, embed=embed, ephemeral=True)
                 else:
                     await interaction.followup.send(embed=embed, ephemeral=True)
                 return
@@ -828,7 +827,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         try:
             
             with get_openai_callback() as cb:
-            
                 reply = await agent_chain.arun(input=f"{prompt}{blip_text}{attachment_text}")
                 total_cost = cb.total_cost
                 
@@ -850,9 +848,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 mem_list.extend(extend_mems_list)
             else:
                 logging.error(e)
-                embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek `#help` in the [iva server](https://discord.gg/gGkwfrWAzt) if the issue persists.')
+                embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek https://discord.com/channels/1053335631159377950/1053336180692897943 if the issue persists.')
                 if isinstance(interaction.channel, discord.TextChannel):
-                    await channel.send(embed=embed, ephemeral=True)
+                    await thinking_message.edit(content=None, embed=embed, ephemeral=True)
                 else:
                     await interaction.followup.send(embed=embed, ephemeral=True)
                 return
@@ -985,7 +983,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 except:                   
                     embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{mention} 4096 character response limit reached. Response contains {len(reply)} characters. Use `/reset`.**', color=discord.Color.dark_theme())
                     if isinstance(interaction.channel, discord.TextChannel):
-                        await channel.send(embed=embed, ephemeral=True)
+                        await thinking_message.edit(content=None, embed=embed, ephemeral=True)
                     else:
                         await interaction.followup.send(embed=embed, ephemeral=True)
             else:
@@ -994,6 +992,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         try:
             
             if isinstance(interaction.channel, discord.TextChannel):
+                await thinking_message.delete()
                 initial_message = await channel.send(files=files, embeds=embeds, view=view)
                 message_id = initial_message.id
 
