@@ -801,6 +801,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             llm=ask_llm,
             verbose=True,
             prompt=guild_prompt,
+            verbose=True,
         )
             
         agent = ConversationalAgent(
