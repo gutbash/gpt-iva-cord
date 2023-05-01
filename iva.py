@@ -40,7 +40,7 @@ from langchain.chains import LLMChain
 from langchain.callbacks import get_openai_callback
 from langchain.chains.conversation.memory import ConversationSummaryBufferMemory
 from langchain.memory import ConversationBufferWindowMemory
-from langchain.agents import Tool, AgentExecutor, load_tools, ConversationalAgent, ConversationalChatAgent
+from langchain.agents import Tool, AgentExecutor, load_tools, ConversationalAgent, ConversationalChatAgent, initialize_agent, AgentType
 from langchain.text_splitter import TokenTextSplitter
 from langchain.schema import (
     AIMessage,
@@ -809,7 +809,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         llm_chain = LLMChain(
             llm=ask_llm,
-            verbose=False,
+            verbose=True,
             prompt=guild_prompt,
             #callback_manager=manager
         )
@@ -817,7 +817,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         agent = ConversationalAgent(
             llm_chain=llm_chain,
             tools=tools,
-            verbose=False,
+            verbose=True,
             ai_prefix=f"Iva",
             llm_prefix=f"Iva",
             )
@@ -831,7 +831,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         agent_chain = AgentExecutor.from_agent_and_tools(
             agent=agent,
             tools=tools,
-            verbose=False,
+            verbose=True,
             memory=memory,
             ai_prefix=f"Iva",
             llm_prefix=f"Iva",
@@ -840,6 +840,14 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             #max_iterations=3,
             #early_stopping_method="generate",
             #return_intermediate_steps=False
+        )
+        
+        agent_chain = initialize_agent(
+            tools=tools,
+            llm=ask_llm,
+            agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION,
+            verbose=True,
+            memory=memory,
         )
         
         try:

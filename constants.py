@@ -30,7 +30,23 @@ IMAGE_SEARCH_CHAT_TOOL_DESCRIPTION = "A wrapper around Google Images. Input shou
 
 ### CONVERSATIONALCHATAGENT ###
 
-async def get_human_message()
+async def get_human_message():
+    human_message = f"""
+    TOOLS:
+    You can ask the user to use tools to look up information that may be helpful in answering the users original question. The tools the user can use are:
+    
+    {{tools}}
+    
+    PREVIOUS MESSAGES:
+    
+    {{chat_history}}
+    
+    USER'S INPUT
+    --------------------
+    Here is the user's input (remember to respond with a markdown code snippet of a json blob with a single action, and NOTHING else):
+    
+    {{{{input}}}}
+    """
 
 ### ASK PROMPT COMPONENTS ###
 
