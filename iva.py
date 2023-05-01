@@ -278,18 +278,12 @@ async def on_message(message):
                 ))
                 
                 tool_names = [tool.name for tool in tools]
-
-                prefix = await get_chat_prefix(active_names=active_names.get(channel_id, ''), itis=itis)
                 
-                custom_format_instructions = await get_chat_custom_format_instructions(tool_names=tool_names, user_name=user_name)
+                system_message = await get_chat_prefix(active_names=active_names.get(channel_id, ''), itis=itis)
                 
-                suffix = await get_chat_suffix()
-                
-                guild_prompt = ConversationalAgent.create_prompt(
+                guild_prompt = ConversationalChatAgent.create_prompt(
                     tools=tools,
-                    prefix=textwrap.dedent(prefix).strip(),
-                    suffix=textwrap.dedent(suffix).strip(),
-                    format_instructions=textwrap.dedent(custom_format_instructions).strip(),
+                    system_message=textwrap.dedent(system_message).strip(),
                     input_variables=["input", "chat_history", "agent_scratchpad"],
                     ai_prefix = f"Iva",
                     human_prefix = f"",
@@ -319,25 +313,18 @@ async def on_message(message):
                     prompt=guild_prompt,
                 )
                 
-                agent = ConversationalAgent(
+                agent = ConversationalChatAgent(
                     llm_chain=llm_chain,
-                    tools=tools,
-                    verbose=False,
-                    ai_prefix=f"Iva",
-                    llm_prefix=f"Iva",
-                    )
+                    allowed_tools=tool_names,
+                    verbose=True,
+                )
                 
                 agent_chain = AgentExecutor.from_agent_and_tools(
                     agent=agent,
                     tools=tools,
-                    verbose=False,
                     memory=guild_memory,
-                    ai_prefix=f"Iva",
-                    llm_prefix=f"Iva",
                     max_execution_time=600,
-                    #max_iterations=3,
-                    #early_stopping_method="generate",
-                    #return_intermediate_steps=False,
+                    verbose=True,
                 )
                 
                 try:
@@ -775,12 +762,13 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 #return_messages=True,
                 memory_key="chat_history",
                 return_messages=True,
+                human_prefix="User",
+                ai_prefix="Iva"
             )
             
             ask_mems[channel_id][user_id]["memory"] = None
         
         system_message = await get_ask_prefix(itis)
-        human_message = await get_human_message(tool_names)
         
         guild_prompt = ConversationalChatAgent.create_prompt(
             tools=tools,
@@ -797,7 +785,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         agent = ConversationalChatAgent(
             llm_chain=llm_chain,
             allowed_tools=tool_names,
-            verbose=True
+            verbose=True,
         )
         
         agent_chain = AgentExecutor.from_agent_and_tools(
