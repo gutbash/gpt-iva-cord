@@ -321,13 +321,17 @@ async def on_message(message):
                     prompt=guild_prompt,
                 )
                 
+                output_parser = ConvoOutputParser(
+                    ai_prefix="Iva",
+                )
+                
                 agent = ConversationalAgent(
                     llm_chain=llm_chain,
                     tools=tools,
                     verbose=False,
                     ai_prefix=f"Iva",
                     llm_prefix=f"Iva",
-                    output_parser=ConvoOutputParser,
+                    output_parser=output_parser,
                 )
                 
                 agent_chain = AgentExecutor.from_agent_and_tools(
@@ -806,13 +810,17 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             verbose=True,
             prompt=guild_prompt,
         )
+        
+        output_parser = ConvoOutputParser(
+            ai_prefix="Iva",
+        )
             
         agent = ConversationalAgent(
             llm_chain=llm_chain,
             tools=tools,
             verbose=True,
             ai_prefix=f"Iva",
-            output_parser=ConvoOutputParser,
+            output_parser=output_parser,
         )
         
         agent_chain = AgentExecutor.from_agent_and_tools(
