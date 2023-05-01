@@ -1,7 +1,7 @@
 ### THREAD NAMER ###
 
 async def get_thread_namer_prompt(user_name):
-    thread_namer_prompt = f"The following is the start of a discussion between {user_name} and Iva.\n\nSolely return a simple yet informative title in title case (do not put subtitle or parentheses) for the discussion and a relevant emoji based on the following opening prompt by {user_name}:"
+    thread_namer_prompt = f"The following is the start of a discussion between {user_name} and Iva.\n\nReturn only a simple yet informative title in title case for the discussion with a relevant emoji based on the following opening prompt by {user_name} (do not put subtitle or parentheses):"
     return thread_namer_prompt
 
 ### ASK TOOL DESCRIPTIONS ###

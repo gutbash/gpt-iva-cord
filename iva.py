@@ -84,7 +84,6 @@ from constants import (
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_TOKEN")
 GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
-os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN") # load discord app token
 GUILD_ID = os.getenv("GUILD_ID") # load dev guild
 SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
@@ -673,14 +672,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         tool_names = [tool.name for tool in tools]
         #tool_names = str(tool_names)[1:-2]
         
-        prefix = await get_ask_prefix(itis=itis)
-        
-        custom_format_instructions = await get_ask_custom_format_instructions(tool_names=tool_names)
-        
-        suffix = await get_ask_suffix()
-        
-        human_message_guild_prompt = await get_human_message()
-        
         blip_text = ""
         
         if file != None:
@@ -730,7 +721,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                         await interaction.followup.send(embed=embed, ephemeral=True)
                     return
 
-            file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + attachment_text, truncation=True, max_length=12000)['input_ids'])
+            #file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + attachment_text, truncation=True, max_length=12000)['input_ids'])
+            file_tokens = len(tokenizer(attachment_text, truncation=True, max_length=12000)['input_ids'])
 
             if file_tokens >= max_tokens:
 
@@ -769,24 +761,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 verbose=False,
             )
         
-        guild_prompt = ConversationalAgent.create_prompt(
-            tools=tools,
-            prefix=textwrap.dedent(prefix).strip(),
-            suffix=textwrap.dedent(suffix).strip(),
-            format_instructions=textwrap.dedent(custom_format_instructions).strip(),
-            input_variables=["input", "chat_history", "agent_scratchpad"],
-            ai_prefix = f"Iva",
-            human_prefix = f"User",
-        )
-        
-
-        guild_prompt = ConversationalChatAgent.create_prompt(
-            system_message=textwrap.dedent(prefix).strip(),
-            human_message=textwrap.dedent(human_message_guild_prompt).strip(),
-            tools=tools,
-            input_variables=["input", "chat_history"],
-        )
-        
         k_limit = 3
         total_cost = None
         
@@ -800,54 +774,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 k=k_limit,
                 #return_messages=True,
                 memory_key="chat_history",
-                input_key="input",
-                ai_prefix=f"Iva",
-                human_prefix = f"User",
-            )
-            
-            memory = ConversationBufferWindowMemory(
-                k=k_limit,
-                #return_messages=True,
-                memory_key="chat_history",
                 return_messages=True,
             )
             
             ask_mems[channel_id][user_id]["memory"] = None
-        
-        llm_chain = LLMChain(
-            llm=ask_llm,
-            verbose=True,
-            prompt=guild_prompt,
-            #callback_manager=manager
-        )
-        
-        agent = ConversationalAgent(
-            llm_chain=llm_chain,
-            tools=tools,
-            verbose=True,
-            ai_prefix=f"Iva",
-            llm_prefix=f"Iva",
-            )
-        
-        agent = ConversationalChatAgent(
-            llm_chain=llm_chain,
-            allowed_tools=tool_names,
-            verbose=True,
-            )
-        
-        agent_chain = AgentExecutor.from_agent_and_tools(
-            agent=agent,
-            tools=tools,
-            verbose=True,
-            memory=memory,
-            ai_prefix=f"Iva",
-            llm_prefix=f"Iva",
-            max_execution_time=600,
-            #callback_manager=manager,
-            #max_iterations=3,
-            #early_stopping_method="generate",
-            #return_intermediate_steps=False
-        )
         
         agent_chain = initialize_agent(
             tools=tools,
