@@ -799,12 +799,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             allowed_tools=tool_names,
         )
         
-        agent_chain = initialize_agent(
-            tools=tools,
-            llm=ask_llm,
+        agent_chain = AgentExecutor.from_agent_and_tools(
             agent=agent,
+            tools=tools,
+            max_execution_time=600,
             verbose=True,
-            memory=memory,
         )
         
         try:
