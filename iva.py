@@ -805,6 +805,13 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 human_prefix = f"User",
             )
             
+            memory = ConversationBufferWindowMemory(
+                k=k_limit,
+                #return_messages=True,
+                memory_key="chat_history",
+                return_messages=True,
+            )
+            
             ask_mems[channel_id][user_id]["memory"] = None
         
         llm_chain = LLMChain(
