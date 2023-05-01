@@ -787,7 +787,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             ask_mems[channel_id][user_id]["memory"] = None
         
         system_message = await get_ask_prefix(itis)
-        human_message = await get_human_message()
+        #human_message = await get_human_message()
         
         guild_prompt = ConversationalChatAgent.create_prompt(
             tools=tools,
