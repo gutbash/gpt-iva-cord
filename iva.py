@@ -280,6 +280,22 @@ async def on_message(message):
                 
                 tool_names = [tool.name for tool in tools]
                 
+                prefix = await get_chat_prefix(active_names=active_names.get(channel_id, ''), itis=itis)
+                
+                custom_format_instructions = await get_chat_custom_format_instructions(tool_names=tool_names, user_name=user_name)
+                
+                suffix = await get_chat_suffix()
+                
+                guild_prompt = ConversationalAgent.create_prompt(
+                    tools=tools,
+                    prefix=textwrap.dedent(prefix).strip(),
+                    suffix=textwrap.dedent(suffix).strip(),
+                    format_instructions=textwrap.dedent(custom_format_instructions).strip(),
+                    input_variables=["input", "chat_history", "agent_scratchpad"],
+                    ai_prefix = f"Iva",
+                    human_prefix = f"",
+                )
+                
                 if chat_mems[channel_id] != None:
                     
                     guild_memory = chat_mems[channel_id]
@@ -294,14 +310,6 @@ async def on_message(message):
                         memory_key="chat_history",
                         max_token_limit=2000,
                     )
-                    
-                system_message = await get_chat_prefix(active_names=active_names.get(channel_id, ''), itis=itis)
-                
-                guild_prompt = ConversationalChatAgent.create_prompt(
-                    tools=tools,
-                    system_message=textwrap.dedent(system_message).strip(),
-                    input_variables=["input", "chat_history", "agent_scratchpad"],
-                )
                 
                 llm_chain = LLMChain(
                     llm=chat_llm,
@@ -309,18 +317,25 @@ async def on_message(message):
                     prompt=guild_prompt,
                 )
                 
-                agent = ConversationalChatAgent(
+                agent = ConversationalAgent(
                     llm_chain=llm_chain,
-                    allowed_tools=tool_names,
-                    verbose=True,
+                    tools=tools,
+                    verbose=False,
+                    ai_prefix=f"Iva",
+                    llm_prefix=f"Iva",
                 )
                 
                 agent_chain = AgentExecutor.from_agent_and_tools(
                     agent=agent,
                     tools=tools,
+                    verbose=False,
                     memory=guild_memory,
+                    ai_prefix=f"Iva",
+                    llm_prefix=f"Iva",
                     max_execution_time=600,
-                    verbose=True,
+                    #max_iterations=3,
+                    #early_stopping_method="generate",
+                    #return_intermediate_steps=False,
                 )
                 
                 try:
