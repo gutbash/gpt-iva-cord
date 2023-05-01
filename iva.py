@@ -39,7 +39,7 @@ from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from langchain.callbacks import get_openai_callback
 from langchain.chains.conversation.memory import ConversationSummaryBufferMemory
-from langchain.memory import ConversationBufferWindowMemory
+from langchain.memory import ConversationBufferWindowMemory, ConversationTokenBufferMemory
 from langchain.agents import Tool, AgentExecutor, load_tools, ConversationalAgent, ConversationalChatAgent, initialize_agent, AgentType
 from langchain.text_splitter import TokenTextSplitter
 from langchain.schema import (
@@ -280,6 +280,21 @@ async def on_message(message):
                 
                 tool_names = [tool.name for tool in tools]
                 
+                if chat_mems[channel_id] != None:
+                    
+                    guild_memory = chat_mems[channel_id]
+                    
+                else:
+                    
+                    guild_memory = ConversationTokenBufferMemory(
+                        return_messages=True,
+                        human_prefix="User",
+                        ai_prefix="Iva",
+                        llm=chat_llm,
+                        memory_key="chat_history",
+                        max_token_limit=2000,
+                    )
+                    
                 system_message = await get_chat_prefix(active_names=active_names.get(channel_id, ''), itis=itis)
                 
                 guild_prompt = ConversationalChatAgent.create_prompt(
@@ -288,27 +303,9 @@ async def on_message(message):
                     input_variables=["input", "chat_history", "agent_scratchpad"],
                 )
                 
-                if chat_mems[channel_id] != None:
-                    
-                    guild_memory = chat_mems[channel_id]
-                    guild_memory.max_token_limit = 256
-                    guild_memory.ai_prefix = f"Iva"
-                    guild_memory.human_prefix = f""
-                    
-                else:
-
-                    guild_memory = ConversationSummaryBufferMemory(
-                        llm=chat_llm,
-                        max_token_limit=256,
-                        memory_key="chat_history",
-                        input_key="input",
-                        ai_prefix = f"Iva",
-                        human_prefix = f"",
-                    )
-                
                 llm_chain = LLMChain(
                     llm=chat_llm,
-                    verbose=False,
+                    verbose=True,
                     prompt=guild_prompt,
                 )
                 
@@ -755,13 +752,13 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
         else:
             
-            memory = ConversationBufferWindowMemory(
-                k=k_limit,
-                #return_messages=True,
-                memory_key="chat_history",
+            memory = ConversationTokenBufferMemory(
                 return_messages=True,
                 human_prefix="User",
-                ai_prefix="Iva"
+                ai_prefix="Iva",
+                llm=ask_llm,
+                memory_key="chat_history",
+                max_token_limit=2000,
             )
             
             ask_mems[channel_id][user_id]["memory"] = None
