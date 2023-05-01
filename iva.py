@@ -98,6 +98,8 @@ tokenizer = GPT2TokenizerFast.from_pretrained("gpt2") # initialize tokenizer
 
 intents = discord.Intents.default() # declare intents
 intents.message_content = True
+intents.presences = False
+intents.members = False
 
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
