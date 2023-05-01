@@ -808,7 +808,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             tools=tools,
             verbose=True,
             ai_prefix=f"Iva",
-            llm_prefix=f"Iva",
         )
         
         agent_chain = AgentExecutor.from_agent_and_tools(
