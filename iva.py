@@ -344,7 +344,8 @@ async def on_message(message):
                 try:
 
                     reply = await agent_chain.arun(input=f"{user_name} ({user_mention}): {prompt}{caption}")
-                    reply = reply.replace("Do I need to use a tool? No", "").replace("Iva: ", "")
+                    reply = reply.replace("Iva: ", "")
+                    reply = reply.replace("Do I need to use a tool? No", "")
 
                 except Exception as e:
                     if str(e).startswith("Could not parse LLM output:"):
