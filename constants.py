@@ -102,7 +102,7 @@ Use this if you want to respond directly to me. Markdown code snippet formatted 
 
 SUFFIX = """TOOLS
 ------
-You can ask me to use tools to look up information that may be helpful in answering the original question. The tools I can use are:
+Do not ask me to use a tool unless you absolutely need it to look up information that may be helpful in answering the original question. Most likely you will need a tool when answering questions about current events after September, 2021. Otherwise you probably know the answer already. The tools I can use are:
 
 {{tools}}
 
