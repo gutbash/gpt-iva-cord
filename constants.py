@@ -120,11 +120,11 @@ TEMPLATE_TOOL_RESPONSE = """TOOL RESPONSE:
 
 USER INPUT
 --------------------
-Okay, now please respond to my original USER INPUT, preferably with a final answer if you have one.
+Okay, now please respond to my original USER INPUT, preferably with the Final Answer.
 
 If using information obtained from the tools you must mention it explicitly and cite any references of webpages as a clickable markdown hyperlink without mentioning the tool names - I have forgotten all TOOL RESPONSES!
 
-Remember to respond with a markdown code snippet of a json blob with a single action, and NOTHING else:"""
+Remember to respond with a markdown code snippet of a json blob with a single action (preferably Final Answer), and NOTHING else:"""
 
 ### ASK PROMPT COMPONENTS ###
 
