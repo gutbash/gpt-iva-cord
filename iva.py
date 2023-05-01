@@ -227,6 +227,7 @@ async def on_message(message):
                         model_name=chat_model,
                         openai_api_key=openai_key,
                         request_timeout=600,
+                        verbose=True,
                         )
                 else:
                     chat_llm = OpenAI(
@@ -234,7 +235,7 @@ async def on_message(message):
                         model_name=chat_model,
                         openai_api_key=openai_key,
                         request_timeout=600,
-                        verbose=False,
+                        verbose=True,
                     )
 
                 tools = []
@@ -1003,8 +1004,8 @@ async def reset(interaction):
     user_id = interaction.user.id
     
     active_users = await load_pickle_from_redis('active_users')
-    chat_mems = await load_pickle_from_redis('chat_mems')
     ask_mems = await load_pickle_from_redis('ask_mems')
+    chat_mems = await load_pickle_from_redis('chat_mems')
     
     try:
         if channel_id in ask_mems and user_id in ask_mems[channel_id] and ask_mems[channel_id][user_id]["last_message_id"] is not None:
