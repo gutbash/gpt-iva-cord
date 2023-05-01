@@ -28,100 +28,6 @@ RECOGNIZE_IMAGE_CHAT_TOOL_DESCRIPTION = "Use this tool to caption or answer ques
 
 IMAGE_SEARCH_CHAT_TOOL_DESCRIPTION = "A wrapper around Google Images. Input should be a caption of the image. Output will be the image link."
 
-### CONVERSATIONALCHATAGENT ###
-
-async def get_human_message():
-    human_message = """
-    TOOLS
-    ------
-    Assistant can ask the user to use tools to look up information that may be helpful in answering the users original question. The tools the human can use are:
-
-    {{tools}}
-
-    RESPONSE FORMAT INSTRUCTIONS
-    ----------------------------
-
-    When responding to me, please output a response in one of two formats:
-
-    **Option 1:**
-    Use this if you want the human to use a tool.
-    Markdown code snippet formatted in the following schema:
-
-    ```json
-    {{{{
-        "action": string \\ The action to take. Must be one of {tool_names}
-        "action_input": string \\ The input to the action
-    }}}}
-    ```
-
-    **Option #2:**
-    Use this if you want to respond directly to the human. Markdown code snippet formatted in the following schema:
-
-    ```json
-    {{{{
-        "action": "Final Answer",
-        "action_input": string \\ You should put what you want to return to use here
-    }}}}
-    ```
-    
-    USER'S INPUT
-    --------------------
-    Here is the user's input (remember to respond with a markdown code snippet of a json blob with a single action, and NOTHING else):
-
-    {{{{input}}}}
-    """
-    return human_message
-
-### CONVERSATIONAL CHAT AGENT ###
-
-FORMAT_INSTRUCTIONS = """RESPONSE FORMAT INSTRUCTIONS
-----------------------------
-
-When responding to me, please output a response in one of two formats:
-
-**Option 1:**
-Use this if you want me to use a tool.
-Markdown code snippet formatted in the following schema:
-
-```json
-{{{{
-    "action": string \\ The action to take. Must be one of {tool_names}
-    "action_input": string \\ The input to the action
-}}}}
-```
-
-**Option #2:**
-Use this if you want to respond directly to me. Markdown code snippet formatted in the following schema:
-
-```json
-{{{{
-    "action": "Final Answer",
-    "action_input": string \\ You should put what you want to return to use here
-}}}}
-```"""
-
-SUFFIX = """TOOLS
-------
-Ask me to use a tool only if you absolutely need it to look up information that may be helpful in answering the original USER INPUT. The tools I can use are:
-
-{{tools}}
-
-{format_instructions}
-
-USER INPUT
---------------------
-Here is my input prompt (remember to respond with a markdown code snippet of a json blob with a single action, and NOTHING else):
-
-{{{{input}}}}"""
-
-TEMPLATE_TOOL_RESPONSE = """TOOL RESPONSE:
----------------------
-{observation}
-
-USER INPUT
---------------------
-Okay, now please respond to my original USER INPUT, preferably with the Final Answer action. You must mention any info from tools explicitly and cite any references of webpages as a clickable markdown hyperlink - I have forgotten all TOOL RESPONSES! Remember to respond with a markdown code snippet of a json blob with a single action (preferably Final Answer action), and NOTHING else:"""
-
 ### ASK PROMPT COMPONENTS ###
 
 async def get_ask_prefix(itis):
@@ -139,7 +45,7 @@ async def get_ask_prefix(itis):
 async def get_ask_custom_format_instructions(tool_names):
     
     ask_custom_format_instructions = f"""
-    TOOLS:
+    TOOLS
     You have access to the following tools:
     
     To use a tool, please use the following format. Replace the bracket placeholders with your input without brackets:
@@ -158,21 +64,21 @@ async def get_ask_custom_format_instructions(tool_names):
     Iva: [your response here]
     ```
     
-    You must prefix the response with `Iva: ` or else it won't be seen!
+    You must prefix the response with `Iva: ` or else it won't be seen! You must mention any info from tools explicitly and cite any references of webpages as a clickable markdown hyperlink - the user has forgotten all Observations!
     """
     return ask_custom_format_instructions
 
 async def get_ask_suffix():
     ask_suffix = f"""
-    PREVIOUS MESSAGES:
+    PREVIOUS MESSAGES
     
     {{chat_history}}
     
-    NEW MESSAGE:
+    NEW MESSAGE
     
     User: {{input}}
     
-    YOUR RESPONSE:
+    YOUR RESPONSE
     You must put `Thought: Do I need to use a tool? No` followed by your prefix `Iva: ` before your formatted response or else it won't be seen!
     
     Start responding below...

@@ -676,9 +676,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         tool_names = [tool.name for tool in tools]
 
-        prefix = await get_ask_prefix(active_names=active_names.get(channel_id, ''), itis=itis)
+        prefix = await get_ask_prefix(itis=itis)
         
-        custom_format_instructions = await get_ask_custom_format_instructions(tool_names=tool_names, user_name=user_name)
+        custom_format_instructions = await get_ask_custom_format_instructions(tool_names=tool_names)
         
         suffix = await get_ask_suffix()
         
