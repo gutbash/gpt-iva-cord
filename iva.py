@@ -557,13 +557,13 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 thread_namer = ChatOpenAI(temperature=0.7, openai_api_key=openai_key)
                 template = await get_thread_namer_prompt(user_name)
                 system_message_prompt = SystemMessagePromptTemplate.from_template(template)
-                human_template = f"{{text}}"
+                human_template = f"{user_name}: {{text}}"
                 human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
                 chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
                 thread_namer_chain = LLMChain(llm=thread_namer, prompt=chat_prompt)
                 
                 thread_name = await thread_namer_chain.arun(f"{prompt}")
-                thread_name = thread_name.strip("'").replace('.', '').replace('"', '')
+                thread_name = thread_name.strip("'").replace('.', '').replace('"', '').replace("Title: ", "")
             except Exception as e:
                 logging.error(e)
                 embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek https://discord.com/channels/1053335631159377950/1053336180692897943 if the issue persists.')
