@@ -120,7 +120,7 @@ TEMPLATE_TOOL_RESPONSE = """TOOL RESPONSE:
 
 USER INPUT
 --------------------
-Okay, now please respond to my previous prompt. If using information obtained from the tools you must mention it explicitly without mentioning the tool names - I have forgotten all TOOL RESPONSES! You must cite any references of webpages from TOOL RESPONSE as a numbered clickable markdown hyperlink. Remember to respond with a markdown code snippet of a json blob with a single action, and NOTHING else:"""
+Okay, now please respond to my previous prompt, preferably with a final answer if you have one. If using information obtained from the tools you must mention it explicitly without mentioning the tool names - I have forgotten all TOOL RESPONSES! You must cite any references of webpages from TOOL RESPONSE as a numbered clickable markdown hyperlink. Remember to respond with a markdown code snippet of a json blob with a single action, and NOTHING else:"""
 
 ### ASK PROMPT COMPONENTS ###
 
