@@ -59,7 +59,7 @@ async def get_ask_custom_format_instructions(tool_names):
     Observation: the result of the action
     ```
     
-    When you do not need to use a tool and you have a final response to say, you MUST use the format:
+    When you do not need to use a tool and you have a final response to say, you must use the format:
     
     ```
     Thought: Do I need to use a tool? No
