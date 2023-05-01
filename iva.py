@@ -786,10 +786,12 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             ask_mems[channel_id][user_id]["memory"] = None
         
         system_message = await get_ask_prefix(itis)
+        human_message = await get_human_message(tool_names)
         
         guild_prompt = ConversationalChatAgent.create_prompt(
             tools=tools,
             system_message=textwrap.dedent(system_message).strip(),
+            human_message=textwrap.dedent(human_message).strip(),
             input_variables=["input", "chat_history", "agent_scratchpad"],
         )
             
@@ -1184,6 +1186,8 @@ async def model(interaction, choices: app_commands.Choice[str] = None):
             current_model = user_settings.get(id)["model"]
         except KeyError:
             current_model = "gpt-3.5-turbo"
+        except TypeError:
+            current_model = "gpt-3.5-turbo"
             
         embed = discord.Embed(description=f"<:ivamodel:1096498759040520223> **Current Model:** `{current_model}`", color=discord.Color.dark_theme())
     
@@ -1221,6 +1225,8 @@ async def temperature(interaction, temperature: float = None):
         try:
             temperature = user_settings.get(id)["temperature"]
         except KeyError:
+            temperature = "0.5"
+        except TypeError:
             temperature = "0.5"
         
         embed = discord.Embed(description=f"<:ivatemp:1097754157747818546>**Current Temperature:** `{temperature}`", color=discord.Color.dark_theme())
