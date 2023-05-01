@@ -109,7 +109,7 @@ Ask me to use a tool only if you absolutely need it to look up information that 
 {format_instructions}
 
 USER INPUT
-Here is my prompt (remember to respond with a markdown code snippet of a json blob with a single action, and NOTHING else):
+Here is my input prompt (remember to respond with a markdown code snippet of a json blob with a single action, and NOTHING else):
 --------------------
 
 {{{{input}}}}"""
@@ -120,7 +120,7 @@ TEMPLATE_TOOL_RESPONSE = """TOOL RESPONSE:
 
 USER INPUT
 --------------------
-Okay, now please respond to my previous prompt, preferably with a final answer if you have one.
+Okay, now please respond to my original USER INPUT, preferably with a final answer if you have one.
 
 If using information obtained from the tools you must mention it explicitly and cite any references of webpages as a clickable markdown hyperlink without mentioning the tool names - I have forgotten all TOOL RESPONSES!
 
