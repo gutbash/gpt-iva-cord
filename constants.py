@@ -6,11 +6,11 @@ async def get_thread_namer_prompt(user_name):
 
 ### ASK TOOL DESCRIPTIONS ###
 
-ORGANIC_RESULTS_ASK_TOOL_DESCRIPTION = "Wrapper around Google Search. Input should be the query in question. Do not input the same query twice. Do not search for personal or unrelated queries. Do not input URL links. Output returns the top webpage result. You must cite the webpage as a numbered hyperlink."
+ORGANIC_RESULTS_ASK_TOOL_DESCRIPTION = "Wrapper around Google Search. Input should be the query in question. Do not input the same query twice. Do not search for personal or unrelated queries. Do not input URL links. Output returns the top webpage result. You must cite the webpage as a clickable hyperlink."
 
-SUMMARIZE_WEBPAGE_ASK_TOOL_DESCRIPTION = "Use this sparingly to to summarize the content of a webpage. Input should be the given url webpage. Output will be a summary of the contents of the webpage. You must cite the webpage as a numbered hyperlink."
+SUMMARIZE_WEBPAGE_ASK_TOOL_DESCRIPTION = "Use this sparingly to to summarize the content of a webpage. Input should be the given url webpage. Output will be a summary of the contents of the webpage. You must cite the webpage as a clickable hyperlink."
 
-QA_WEBPAGE_ASK_TOOL_DESCRIPTION = "Use this to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like `url,question`. Output will be an answer to the input question from the webpage. You must cite the webpage as a numbered hyperlink."
+QA_WEBPAGE_ASK_TOOL_DESCRIPTION = "Use this to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like `url,question`. Output will be an answer to the input question from the webpage. You must cite the webpage as a clickable hyperlink."
 
 RECOGNIZE_IMAGE_ASK_TOOL_DESCRIPTION = "Use this tool to caption or answer questions about a given image url. Input should be a comma separated list of length two, with the first entry being the image url, and the second input being the question, like 'image_url,question'. Output will be a caption of the image with the answer to the question."
 
@@ -18,11 +18,11 @@ IMAGE_SEARCH_ASK_TOOL_DESCRIPTION = "A wrapper around Google Images. Input shoul
 
 ### CHAT TOOL DESCRIPTIONS ###
 
-ORGANIC_RESULTS_CHAT_TOOL_DESCRIPTION = "Wrapper around Google Search. Input should be the query in question. Do not input the same query twice. Do not search for personal or unrelated queries. Do not input URL links. Output returns the top webpage result. You must cite the webpage as a numbered hyperlink."
+ORGANIC_RESULTS_CHAT_TOOL_DESCRIPTION = "Wrapper around Google Search. Input should be the query in question. Do not input the same query twice. Do not search for personal or unrelated queries. Do not input URL links. Output returns the top webpage result. You must cite the webpage as a clickable hyperlink."
 
-SUMMARIZE_WEBPAGE_CHAT_TOOL_DESCRIPTION = "Use this sparingly to to summarize the content of a webpage. Input should be the given url webpage. Output will be a summary of the contents of the webpage. You must cite the webpage as a numbered hyperlink."
+SUMMARIZE_WEBPAGE_CHAT_TOOL_DESCRIPTION = "Use this sparingly to to summarize the content of a webpage. Input should be the given url webpage. Output will be a summary of the contents of the webpage. You must cite the webpage as a clickable hyperlink."
 
-QA_WEBPAGE_CHAT_TOOL_DESCRIPTION = "Use this to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like `url,question`. Output will be an answer to the input question from the webpage. You must cite the webpage as a numbered hyperlink."
+QA_WEBPAGE_CHAT_TOOL_DESCRIPTION = "Use this to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like `url,question`. Output will be an answer to the input question from the webpage. You must cite the webpage as a clickable hyperlink."
 
 RECOGNIZE_IMAGE_CHAT_TOOL_DESCRIPTION = "Use this tool to caption or answer questions about a given image url. Input should be a comma separated list of length two, with the first entry being the image url, and the second input being the question, like 'image_url,question'. Output will be a caption of the image with the answer to the question."
 
@@ -39,16 +39,18 @@ async def get_ask_prefix(itis):
     
     Current Date - {itis}
     Knowledge Cutoff - September, 2021
+    
+    TOOLS:
+    ------
+    
+    You have access to the following tools:
     """
     return ask_prefix
 
 async def get_ask_custom_format_instructions(tool_names):
     
-    ask_custom_format_instructions = f"""
-    TOOLS
-    You have access to the following tools:
-    
-    To use a tool, please use the following format. Replace the bracket placeholders with your input without brackets:
+    ask_custom_format_instructions = f"""    
+    To use a tool, please use the following format (Replace the bracket placeholders with your input without brackets):
     
     ```
     Thought: Do I need to use a tool? Yes
@@ -70,7 +72,7 @@ async def get_ask_custom_format_instructions(tool_names):
 
 async def get_ask_suffix():
     ask_suffix = f"""
-    PREVIOUS MESSAGES
+    PREVIOUS MESSAGES:
     
     {{chat_history}}
     
@@ -79,7 +81,7 @@ async def get_ask_suffix():
     User: {{input}}
     
     YOUR RESPONSE
-    You must put `Thought: Do I need to use a tool? No` followed by your prefix `Iva: ` before your formatted response or else it won't be seen!
+    You must put EXACTLY `Thought: Do I need to use a tool? No` followed by your prefix `Iva: ` before your formatted response or else it won't be seen!
     
     Start responding below...
     --------------------
