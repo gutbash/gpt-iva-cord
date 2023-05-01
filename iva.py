@@ -546,7 +546,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 
                 thread_name = await thread_namer_chain.arun(prompt)
                 thread_name = thread_name.strip("'").replace('.', '').replace('"', '')
-
             except Exception as e:
                 logging.error(e)
                 embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek https://discord.com/channels/1053335631159377950/1053336180692897943 if the issue persists.')
