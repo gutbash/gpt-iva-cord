@@ -543,11 +543,14 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         if isinstance(interaction.channel, discord.TextChannel):
             
+            followup_message = await interaction.followup.send(content=channel.jump_url)
+            await followup_message.delete()
+            
             try:
                 thread_namer = ChatOpenAI(temperature=0.7, openai_api_key=openai_key)
-                template= await get_thread_namer_prompt(user_name)
+                template = await get_thread_namer_prompt(user_name)
                 system_message_prompt = SystemMessagePromptTemplate.from_template(template)
-                human_template=f"{user_name}: {{text}}"
+                human_template = f"{user_name}: {{text}}"
                 human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
                 chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
                 thread_namer_chain = LLMChain(llm=thread_namer, prompt=chat_prompt)
@@ -569,8 +572,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             await channel.add_user(user)
             channel_id = channel.id
             
-            followup_message = await interaction.followup.send(content=channel.jump_url)
-            await followup_message.delete()
+            thinking_message = channel.send(content="thinking...")
+            
         
         default_user_data = {
             "last_message_id": None,
