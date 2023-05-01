@@ -557,12 +557,12 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 thread_namer = ChatOpenAI(temperature=0.7, openai_api_key=openai_key)
                 template = await get_thread_namer_prompt(user_name)
                 system_message_prompt = SystemMessagePromptTemplate.from_template(template)
-                human_template = f"{user_name}: {{text}}"
+                human_template = f"{{text}}"
                 human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
                 chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
                 thread_namer_chain = LLMChain(llm=thread_namer, prompt=chat_prompt)
                 
-                thread_name = await thread_namer_chain.arun(prompt)
+                thread_name = await thread_namer_chain.arun(f"{prompt}")
                 thread_name = thread_name.strip("'").replace('.', '').replace('"', '')
             except Exception as e:
                 logging.error(e)
