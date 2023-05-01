@@ -812,7 +812,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             memory=memory,
             max_execution_time=600,
             verbose=True,
-            max_iterations=10,
+            max_iterations=5,
             early_stopping_method="generate",
         )
         
