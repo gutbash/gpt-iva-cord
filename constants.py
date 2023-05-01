@@ -81,7 +81,7 @@ async def get_ask_suffix():
     User: {{input}}
     
     YOUR RESPONSE:
-    Respond to the USER'S INPUT. You must put EXACTLY `Thought: Do I need to use a tool? No` followed by your prefix `Iva: ` before your formatted response or else it won't be seen!
+    Respond to the USER'S INPUT. You must put exactly `Thought: Do I need to use a tool? No` followed by your prefix `Iva: ` before your formatted response or else it won't be seen!
     
     Start responding below...
     --------------------
