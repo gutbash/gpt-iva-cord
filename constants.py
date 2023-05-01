@@ -47,6 +47,7 @@ async def get_human_message():
     
     {{{{input}}}}
     """
+    return human_message
 
 ### ASK PROMPT COMPONENTS ###
 
