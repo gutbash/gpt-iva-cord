@@ -15,6 +15,7 @@ from tools import (
     summarize_webpage,
     get_full_blip,
 )
+from agents import ConversationalChatAgent
 
 import asyncio
 import os
@@ -40,7 +41,7 @@ from langchain.chains import LLMChain
 from langchain.callbacks import get_openai_callback
 from langchain.chains.conversation.memory import ConversationSummaryBufferMemory
 from langchain.memory import ConversationBufferWindowMemory, ConversationTokenBufferMemory
-from langchain.agents import Tool, AgentExecutor, load_tools, ConversationalAgent, ConversationalChatAgent, initialize_agent, AgentType
+from langchain.agents import Tool, AgentExecutor, load_tools, ConversationalAgent, initialize_agent, AgentType
 from langchain.text_splitter import TokenTextSplitter
 from langchain.schema import (
     AIMessage,

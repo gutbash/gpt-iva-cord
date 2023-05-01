@@ -36,7 +36,7 @@ async def get_human_message(tool_names):
     ------
     Assistant can ask the user to use tools to look up information that may be helpful in answering the users original question. The tools the human can use are:
 
-    {{tools}}    
+    {{tools}}
 
     RESPONSE FORMAT INSTRUCTIONS
     ----------------------------
@@ -71,6 +71,17 @@ async def get_human_message(tool_names):
     {{{{input}}}}
     """
     return human_message
+
+### TOOL RESPONSE ###
+
+TEMPLATE_TOOL_RESPONSE = """TOOL RESPONSE: 
+---------------------
+{observation}
+
+USER'S INPUT
+--------------------
+
+Based on the TOOL RESPONSE, respond to my original input. If using information obtained from the tools you must mention it explicitly without mentioning the tool names - I have forgotten all TOOL RESPONSES! Remember to respond with a markdown code snippet of a json blob with a single action, and NOTHING else."""
 
 ### ASK PROMPT COMPONENTS ###
 

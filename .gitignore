@@ -2,3 +2,4 @@ env
 .env
 __pycache__/
 tempCodeRunnerFile.py
+test_chat_agent.py
