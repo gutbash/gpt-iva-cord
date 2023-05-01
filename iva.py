@@ -785,6 +785,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         guild_prompt = ConversationalChatAgent.create_prompt(
             tools=tools,
             system_message=textwrap.dedent(system_message).strip(),
+            input_variables=["input", "chat_history", "agent_scratchpad"],
         )
             
         llm_chain = LLMChain(
