@@ -1,7 +1,7 @@
 ### THREAD NAMER ###
 
 async def get_thread_namer_prompt(user_name):
-    thread_namer_prompt = f"The following is the start of a discussion between {user_name} and Iva. Solely return a simple yet informative title in title case (do not put subtitle or parentheses) for the discussion including {user_name}'s name and 1-2 relevant emojis based on the following opening prompt by {user_name}:"
+    thread_namer_prompt = f"The following is the start of a discussion between {user_name} and Iva.\n\nSolely return a simple yet informative title in title case (do not put subtitle or parentheses) for the discussion and a relevant emoji based on the following opening prompt by {user_name}:"
     return thread_namer_prompt
 
 ### ASK TOOL DESCRIPTIONS ###
@@ -28,6 +28,10 @@ RECOGNIZE_IMAGE_CHAT_TOOL_DESCRIPTION = "Use this tool to caption or answer ques
 
 IMAGE_SEARCH_CHAT_TOOL_DESCRIPTION = "A wrapper around Google Images. Input should be a caption of the image. Output will be the image link."
 
+### CONVERSATIONALCHATAGENT ###
+
+async def get_human_message()
+
 ### ASK PROMPT COMPONENTS ###
 
 async def get_ask_prefix(itis):
@@ -40,15 +44,15 @@ async def get_ask_prefix(itis):
     
     Current Date - {itis}
     Knowledge Cutoff - September, 2021
-    
-    TOOLS:
-    You have access to the following tools:
     """
     return ask_prefix
 
 async def get_ask_custom_format_instructions(tool_names):
     
     ask_custom_format_instructions = f"""
+    TOOLS:
+    You have access to the following tools:
+    
     To use a tool, please use the following format. Replace the bracket placeholders with your input without brackets:
     
     ```

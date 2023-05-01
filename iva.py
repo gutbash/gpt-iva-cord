@@ -40,7 +40,7 @@ from langchain.chains import LLMChain
 from langchain.callbacks import get_openai_callback
 from langchain.chains.conversation.memory import ConversationSummaryBufferMemory
 from langchain.memory import ConversationBufferWindowMemory
-from langchain.agents import Tool, AgentExecutor, load_tools, ConversationalAgent
+from langchain.agents import Tool, AgentExecutor, load_tools, ConversationalAgent, ConversationalChatAgent
 from langchain.text_splitter import TokenTextSplitter
 from langchain.schema import (
     AIMessage,
@@ -74,6 +74,8 @@ from constants import (
     get_chat_prefix,
     get_chat_custom_format_instructions,
     get_chat_suffix,
+    
+    get_human_message,
     
     get_thread_namer_prompt,
     
@@ -677,6 +679,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         suffix = await get_ask_suffix()
         
+        human_message_guild_prompt = await get_human_message()
+        
         blip_text = ""
         
         if file != None:
@@ -775,6 +779,14 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             human_prefix = f"User",
         )
         
+
+        guild_prompt = ConversationalChatAgent.create_prompt(
+            system_message=textwrap.dedent(prefix).strip(),
+            human_message=textwrap.dedent(human_message_guild_prompt).strip(),
+            tools=tools,
+            input_variables=["input", "chat_history"],
+        )
+        
         k_limit = 3
         total_cost = None
         
@@ -808,6 +820,12 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             verbose=False,
             ai_prefix=f"Iva",
             llm_prefix=f"Iva",
+            )
+        
+        agent = ConversationalChatAgent(
+            llm_chain=llm_chain,
+            allowed_tools=tool_names,
+            verbose=True,
             )
         
         agent_chain = AgentExecutor.from_agent_and_tools(
