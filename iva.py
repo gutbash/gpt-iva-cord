@@ -332,7 +332,7 @@ async def on_message(message):
                 agent_chain = AgentExecutor.from_agent_and_tools(
                     agent=agent,
                     tools=tools,
-                    verbose=False,
+                    verbose=True,
                     memory=guild_memory,
                     ai_prefix=f"Iva",
                     llm_prefix=f"Iva",
@@ -675,7 +675,12 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         ))
         
         tool_names = [tool.name for tool in tools]
-        #tool_names = str(tool_names)[1:-2]
+
+        prefix = await get_ask_prefix(active_names=active_names.get(channel_id, ''), itis=itis)
+        
+        custom_format_instructions = await get_ask_custom_format_instructions(tool_names=tool_names, user_name=user_name)
+        
+        suffix = await get_ask_suffix()
         
         blip_text = ""
         
@@ -726,8 +731,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                         await interaction.followup.send(embed=embed, ephemeral=True)
                     return
 
-            #file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + attachment_text, truncation=True, max_length=12000)['input_ids'])
-            file_tokens = len(tokenizer(attachment_text, truncation=True, max_length=12000)['input_ids'])
+            file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + attachment_text, truncation=True, max_length=12000)['input_ids'])
 
             if file_tokens >= max_tokens:
 
@@ -786,12 +790,14 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
             ask_mems[channel_id][user_id]["memory"] = None
         
-        system_message = await get_ask_prefix(itis)
-        
-        guild_prompt = ConversationalChatAgent.create_prompt(
+        guild_prompt = ConversationalAgent.create_prompt(
             tools=tools,
-            system_message=textwrap.dedent(system_message).strip(),
+            prefix=textwrap.dedent(prefix).strip(),
+            suffix=textwrap.dedent(suffix).strip(),
+            format_instructions=textwrap.dedent(custom_format_instructions).strip(),
             input_variables=["input", "chat_history", "agent_scratchpad"],
+            ai_prefix = f"Iva",
+            human_prefix = f"User",
         )
             
         llm_chain = LLMChain(
@@ -800,18 +806,25 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             prompt=guild_prompt,
         )
             
-        agent = ConversationalChatAgent(
+        agent = ConversationalAgent(
             llm_chain=llm_chain,
-            allowed_tools=tool_names,
+            tools=tools,
             verbose=True,
+            ai_prefix=f"Iva",
+            llm_prefix=f"Iva",
         )
         
         agent_chain = AgentExecutor.from_agent_and_tools(
             agent=agent,
             tools=tools,
-            memory=memory,
-            max_execution_time=600,
             verbose=True,
+            memory=memory,
+            ai_prefix=f"Iva",
+            llm_prefix=f"Iva",
+            max_execution_time=600,
+            #max_iterations=3,
+            #early_stopping_method="generate",
+            #return_intermediate_steps=False,
         )
         
         try:
@@ -844,6 +857,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 else:
                     await interaction.followup.send(embed=embed, ephemeral=True)
                 return
+            
+        reply = reply.replace("Iva: ", "")
+        reply = reply.replace("Do I need to use a tool? No", "")
+        reply = reply.replace("```C#", "```cs")
         
         dash_count = ""
         interaction_count = (len(memory.buffer)//2)-1
@@ -858,9 +875,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}`  `{temperature}`  `{round(total_cost, 3)}`")
         else:
             prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}`  `{temperature}`")
-        
-        reply = reply.replace("```C#", "```cs")
-        
+
         embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
         
         embeds.append(prompt_embed)
