@@ -363,6 +363,7 @@ async def on_message(message):
                                 additional_kwargs={},
                             )]
                         mem_list.extend(extend_mems_list)
+                        
                     else:
                         logging.error(e)
                         embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {user_mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek https://discord.com/channels/1053335631159377950/1053336180692897943 if the issue persists.')
