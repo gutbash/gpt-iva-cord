@@ -160,17 +160,54 @@ async def on_message(message):
         id = message.author.id
         user_mention = message.author.mention
         prompt = message.content
-        images = message.attachments
-        caption = ""
+        attachments = message.attachments
         openai_key = ""
         
         prompt = prompt.replace("<@1050437164367880202>", "")
         prompt = prompt.strip()
         
-        # RECOGNIZE IMAGES
-        if images != []:
-            for image_index in range(len(images)):
-                prompt += f"\n\nimage {image_index} (use Recognize Image tool): {images[image_index].url}"
+        attachment_text = ''
+        
+        if attachments != []:
+            for file in attachments:
+                
+                file_type = file.content_type
+                
+                if file_type in ('image/jpeg', 'image/jpg', 'image/png'):
+                    attachment_text += f"\n\nimage attached: (use Recognize Image tool): {file.url}"
+                
+                elif file_type == "text/plain": #txt
+                    attachment_bytes = await file.read()
+                    # Detect encoding
+                    detected = chardet.detect(attachment_bytes)
+                    encoding = detected['encoding']
+                    # Decode using the detected encoding
+                    attachment_text += f"\n\n{attachment_bytes.decode(encoding)}"
+                    
+                elif file_type == "application/pdf": #pdf
+
+                    pdf_file = io.BytesIO(attachment_bytes)
+                    pdf_reader = PyPDF2.PdfReader(pdf_file)
+                    pdf_content = ""
+                    for page in range(len(pdf_reader.pages)):
+                        page_text = pdf_reader.pages[page].extract_text()
+                        # Replace multiple newlines with a single space
+                        page_text = re.sub(r'\n+', ' ', page_text)
+                        pdf_content += page_text
+                    attachment_text += f"\n\n{pdf_content}"
+                    
+                else:
+                    try:
+                        # Detect encoding
+                        detected = chardet.detect(attachment_bytes)
+                        encoding = detected['encoding']
+                        # Decode using the detected encoding
+                        attachment_text += f"\n\n{attachment_bytes.decode(encoding)}"
+                        
+                    except:
+                        embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {user_mention} the attachment\'s file type is unknown. consider converting it to plain text such as `.txt`.', color=discord.Color.dark_theme())
+                        await message.channel.send(embed=embed)
+                        return
             
         async with message.channel.typing():
             
@@ -351,7 +388,7 @@ async def on_message(message):
                 
                 try:
 
-                    reply = await agent_chain.arun(input=f"{user_name} ({user_mention}): {prompt}{caption}")
+                    reply = await agent_chain.arun(input=f"{user_name} ({user_mention}): {prompt}{attachment_text}")
 
                 except Exception as e:
                     if str(e).startswith("Could not parse LLM output:"):
@@ -712,7 +749,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 attachment_text = f"\n\n{attachment_bytes.decode(encoding)}"
                 file_placeholder = f"\n\n:page_facing_up: **{file_name}**"
             
-            if file_type == "application/pdf": #pdf
+            elif file_type == "application/pdf": #pdf
 
                 pdf_file = io.BytesIO(attachment_bytes)
                 pdf_reader = PyPDF2.PdfReader(pdf_file)
