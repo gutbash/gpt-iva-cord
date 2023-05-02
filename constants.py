@@ -86,7 +86,7 @@ async def get_ask_suffix():
     Respond to the USER'S INPUT. You must put exactly `Thought: Do I need to use a tool? No` followed by your prefix `Iva: ` before your formatted response or else it won't be seen!
     
     Start responding below...
-    --------------------
+    ------
     {{agent_scratchpad}}
     """
     return ask_suffix
