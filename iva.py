@@ -1056,7 +1056,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             elapsed_time_format = f"{int(minutes)}:{int(seconds)}"
             
             if total_cost is not None:
-                prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}`  `{temperature}`  `{elapsed_time_format}`  `{round(total_cost, 3)}`")
+                prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}`  `{temperature}`  `{round(total_cost, 3)}`  `{elapsed_time_format}`")
             else:
                 prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}`  `{temperature}`  `{elapsed_time_format}`")
                 
