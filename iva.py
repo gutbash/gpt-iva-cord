@@ -1097,7 +1097,7 @@ async def help(interaction):
     embed2.set_image(url="https://media.discordapp.net/attachments/1053423931979218944/1055535478817947668/Screenshot_2022-12-21_234629.png?width=960&height=606")
     embed3.set_image(url="https://media.discordapp.net/attachments/1053423931979218944/1055535478507585578/Screenshot_2022-12-21_234900.png")
     
-    await interaction.response.send_message(embeds=[embed, embed1, embed2, embed3], ephemeral=False)
+    await interaction.response.send_message(embeds=[embed, embed1, embed2, embed3], ephemeral=True)
 
 @tree.command(name = "tutorial", description="how to talk with iva")
 async def tutorial(interaction):
@@ -1122,7 +1122,7 @@ async def tutorial(interaction):
     embed_other.add_field(inline=True, name="`/help`", value="show instructions for setup.")
     embed_other.add_field(inline=True, name="`/setup`", value="enter your key. `/help` for more info.")
     
-    await interaction.response.send_message(embeds=[embed_main, embed_chat, embed_ask, embed_other], ephemeral=False)
+    await interaction.response.send_message(embeds=[embed_main, embed_chat, embed_ask, embed_other], ephemeral=True)
     
 @tree.command(name = "features", description="learn all the features iva has to offer")
 async def tutorial(interaction):
@@ -1139,7 +1139,7 @@ async def tutorial(interaction):
         feature_list,
     ]
     
-    await interaction.response.send_message(embeds=embeds, ephemeral=False)
+    await interaction.response.send_message(embeds=embeds, ephemeral=True)
     
 @tree.command(name = "setup", description="register your key")
 @app_commands.describe(key = "key")
