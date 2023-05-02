@@ -16,6 +16,7 @@ from tools import (
     get_full_blip,
 )
 
+import time
 import asyncio
 import os
 import openai
@@ -566,6 +567,8 @@ class Menu(discord.ui.View):
 @app_commands.describe(prompt = "prompt", file = "file")
 async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attachment = None):
     
+    start_time = time.monotonic()
+    
     guild_id = interaction.guild_id
     guild_name = interaction.guild
     user_id = interaction.user.id
@@ -926,15 +929,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         for i in range(interaction_count):
             dash_count += "-"
-            
-        if total_cost is not None:
-            prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}`  `{temperature}`  `{round(total_cost, 3)}`")
-        else:
-            prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}`  `{temperature}`")
 
         embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
         
-        embeds.append(prompt_embed)
         file_count += 1
         
         if '$$' in reply or '```dot' in reply:
@@ -1051,6 +1048,19 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
                 embeds.append(embed)
             
         try:
+            
+            end_time = time.monotonic()
+            
+            elapsed_time = end_time - start_time
+            minutes, seconds = divmod(elapsed_time, 60)
+            elapsed_time_format = f"{int(minutes)}:{int(seconds)}"
+            
+            if total_cost is not None:
+                prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}`  `{temperature}`  `{elapsed_time_format}`  `{round(total_cost, 3)}`")
+            else:
+                prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}`  `{temperature}`  `{elapsed_time_format}`")
+                
+            embeds.insert(0, prompt_embed)
             
             if isinstance(interaction.channel, discord.TextChannel):
                 await thinking_message.delete()
