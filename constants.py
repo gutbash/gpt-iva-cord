@@ -38,7 +38,7 @@ async def get_ask_prefix(itis):
     
     FORMAT:
     - You must format your response with basic markdown syntax even if unnecessary.
-    - You must add a language for fenced code blocks directly after the first three backticks (```).
+    - You must add a language to fenced code blocks directly after the first three backticks (```) for syntax highlighting.
     - You must use $$[latex]$$ (no single $'s, start on new line) for math.
     
     Current Date - {itis}
