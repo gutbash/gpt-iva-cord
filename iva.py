@@ -561,7 +561,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             await followup_message.delete()
             
             try:
-                thread_namer = ChatOpenAI(temperature=0.5, openai_api_key=openai_key)
+                thread_namer = ChatOpenAI(temperature=0.9, openai_api_key=openai_key)
                 template = await get_thread_namer_prompt(user_name)
                 system_message_prompt = SystemMessagePromptTemplate.from_template(template)
                 human_template = f"{user_name}: {{text}}"
