@@ -561,7 +561,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             await followup_message.delete()
             
             try:
-                thread_namer = ChatOpenAI(temperature=0.7, openai_api_key=openai_key)
+                thread_namer = ChatOpenAI(temperature=0.5, openai_api_key=openai_key)
                 template = await get_thread_namer_prompt(user_name)
                 system_message_prompt = SystemMessagePromptTemplate.from_template(template)
                 human_template = f"{user_name}: {{text}}"
@@ -703,6 +703,14 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             files.append(discord.File(f"{file_name}"))
 
             file_count += 1
+            
+            if file_type == "text/plain": #txt
+                # Detect encoding
+                detected = chardet.detect(attachment_bytes)
+                encoding = detected['encoding']
+                # Decode using the detected encoding
+                attachment_text = f"\n\n{attachment_bytes.decode(encoding)}"
+                file_placeholder = f"\n\n:page_facing_up: **{file_name}**"
             
             if file_type == "application/pdf": #pdf
 
@@ -1075,7 +1083,7 @@ async def reset(interaction):
     await save_pickle_to_redis('chat_mems', chat_mems)
     
     embed = discord.Embed(description="<:ivareset:1051691297443950612>", color=discord.Color.dark_theme())
-    await interaction.response.send_message(embed=embed, ephemeral=True)
+    await interaction.response.send_message(embed=embed, ephemeral=False)
 
     
 @tree.command(name = "help", description="get started")
