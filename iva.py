@@ -97,7 +97,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 tokenizer = GPT2TokenizerFast.from_pretrained("gpt2") # initialize tokenizer
 
 intents = discord.Intents.default() # declare intents
-intents.message_content = True
+intents.message_content = False
 intents.presences = False
 intents.members = False
 
