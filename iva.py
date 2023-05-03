@@ -1026,19 +1026,18 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             except Exception as e:
                 logging.error(e)
         else:
-            if len(reply) > 4000:
+            if len(reply) > 4096:
                 try:
                     embeds = []
-                    embeds.append(prompt_embed)
                     substrings = []
                     for i in range(0, len(reply), 4096):
                         substring = reply[i:i+4096]
                         substrings.append(substring)
-                        
                     for string in substrings:
                         embed_string = discord.Embed(description=string, color=discord.Color.dark_theme())
                         embeds.append(embed_string)
-                except:                   
+                except Exception as e:
+                    logging.error(e)
                     embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{mention} 4096 character response limit reached. Response contains {len(reply)} characters. Use `/reset`.**', color=discord.Color.dark_theme())
                     if isinstance(interaction.channel, discord.TextChannel):
                         await thinking_message.edit(content=None, embed=embed)
