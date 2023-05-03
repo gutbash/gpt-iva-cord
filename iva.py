@@ -1050,14 +1050,15 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             
             end_time = time.monotonic()
             
+            word_count = len(reply.split())
             elapsed_time = end_time - start_time
             minutes, seconds = divmod(elapsed_time, 60)
-            elapsed_time_format = f"{int(minutes)}:{int(seconds)}"
+            elapsed_time_format = f"{int(minutes):02}:{int(seconds):02}"
             
             if total_cost is not None:
-                prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}`  `{temperature}`  `{round(total_cost, 3)}`  `{elapsed_time_format}`")
+                prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}`  `{temperature}`  `{round(total_cost, 3)}`  `{elapsed_time_format}`  `{word_count}`")
             else:
-                prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}`  `{temperature}`  `{elapsed_time_format}`")
+                prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}`  `{temperature}`  `{elapsed_time_format}`  `{word_count}`")
                 
             embeds.insert(0, prompt_embed)
             
