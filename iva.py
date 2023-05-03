@@ -689,14 +689,14 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             coroutine=get_organic_results,
             description=ORGANIC_RESULTS_ASK_TOOL_DESCRIPTION,
         ))
-        
+        """
         tools.append(Tool(
             name = "Summarize Webpage",
             func=dummy_sync_function,
             coroutine=parse_summary_webpage_input,
             description=SUMMARIZE_WEBPAGE_ASK_TOOL_DESCRIPTION,
         ))
-        
+        """
         tools.append(Tool(
             name = "Q&A Webpage",
             func=dummy_sync_function,
