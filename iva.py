@@ -564,8 +564,8 @@ class Menu(discord.ui.View):
         #await interaction.channel.send(embed=embed)
 
 @tree.command(name = "iva", description="write a prompt")
-@app_commands.describe(prompt = "prompt", file = "file")
-async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attachment = None):
+@app_commands.describe(prompt = "prompt", file_one = "file one", file_two = "file two", file_three = "file three")
+async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.Attachment = None, file_two: discord.Attachment = None, file_three: discord.Attachment = None):
     
     start_time = time.monotonic()
     
@@ -674,9 +674,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             a, b = url_comma_question.split(",")
             output = await get_full_blip(image_url=a, question=b)
             return output
-
-        attachment_text = ""
-        file_placeholder = ""
         
         tools = []
         
@@ -731,71 +728,78 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         
         blip_text = ""
         
-        if file != None:
-            
-            attachment_bytes = await file.read()
-            file_type = file.content_type
-            file_name = file.filename
-            
-            with open(f'{file_name}', 'wb') as f:
-                f.write(attachment_bytes)
+        attached_files = [file_one, file_two, file_three]
+        
+        attachment_text = ""
+        file_placeholder = ""
+        
+        for file in attached_files:
+        
+            if file != None:
                 
-            files.append(discord.File(f"{file_name}"))
+                attachment_bytes = await file.read()
+                file_type = file.content_type
+                file_name = file.filename
+                
+                with open(f'{file_name}', 'wb') as f:
+                    f.write(attachment_bytes)
+                    
+                files.append(discord.File(f"{file_name}"))
 
-            file_count += 1
-            
-            if file_type == "text/plain": #txt
-                # Detect encoding
-                detected = chardet.detect(attachment_bytes)
-                encoding = detected['encoding']
-                # Decode using the detected encoding
-                attachment_text = f"\n\n{attachment_bytes.decode(encoding)}"
-                file_placeholder = f"\n\n:page_facing_up: **{file_name}**"
-            
-            elif file_type == "application/pdf": #pdf
-
-                pdf_file = io.BytesIO(attachment_bytes)
-                pdf_reader = PyPDF2.PdfReader(pdf_file)
-                pdf_content = ""
-                for page in range(len(pdf_reader.pages)):
-                    page_text = pdf_reader.pages[page].extract_text()
-                    # Replace multiple newlines with a single space
-                    page_text = re.sub(r'\n+', ' ', page_text)
-                    pdf_content += page_text
-                attachment_text = f"\n\n--- {file_name} ---\n\n{pdf_content}"
-                file_placeholder = f"\n\n:page_facing_up: **{file_name}**"
+                file_count += 1
                 
-            elif file_type in ('image/jpeg', 'image/jpg', 'image/png'):
-                blip_text = f"\n\nimage attached: (use Recognize Image tool): {file.url}"
-                file_placeholder = f"\n\n:frame_photo: **{file_name}**"
+                if file_type in ('image/jpeg', 'image/jpg', 'image/png'):
+                    blip_text += f"\n\nimage attached: (use Recognize Image tool): {file.url}"
+                    file_placeholder += f"\n\n:frame_photo: **{file_name}**"
                 
-            else:
-                try:
+                elif file_type == "text/plain": #txt
                     # Detect encoding
                     detected = chardet.detect(attachment_bytes)
                     encoding = detected['encoding']
                     # Decode using the detected encoding
-                    attachment_text = f"\n\n--- {file_name} ---\n\n{attachment_bytes.decode(encoding)}"
-                    file_placeholder = f"\n\n:page_facing_up: **{file_name}**"
+                    attachment_text += f"\n\n{attachment_bytes.decode(encoding)}"
+                    file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
+                
+                elif file_type == "application/pdf": #pdf
+
+                    pdf_file = io.BytesIO(attachment_bytes)
+                    pdf_reader = PyPDF2.PdfReader(pdf_file)
+                    pdf_content = ""
+                    for page in range(len(pdf_reader.pages)):
+                        page_text = pdf_reader.pages[page].extract_text()
+                        # Replace multiple newlines with a single space
+                        page_text = re.sub(r'\n+', ' ', page_text)
+                        pdf_content += page_text
+                    attachment_text += f"\n\n--- {file_name} ---\n\n{pdf_content}"
+                    file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
                     
-                except:
-                    embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} the attachment\'s file type is unknown. consider converting it to plain text such as `.txt`.', color=discord.Color.dark_theme())
+                else:
+                    try:
+                        # Detect encoding
+                        detected = chardet.detect(attachment_bytes)
+                        encoding = detected['encoding']
+                        # Decode using the detected encoding
+                        attachment_text += f"\n\n--- {file_name} ---\n\n{attachment_bytes.decode(encoding)}"
+                        file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
+                        
+                    except:
+                        embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} the attachment\'s file type is unknown. consider converting it to plain text such as `.txt`.', color=discord.Color.dark_theme())
+                        if isinstance(interaction.channel, discord.TextChannel):
+                            await thinking_message.edit(content=None, embed=embed)
+                        else:
+                            await interaction.followup.send(embed=embed, ephemeral=True)
+                        return
+
+                file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + attachment_text, truncation=True, max_length=12000)['input_ids'])
+
+                if file_tokens >= max_tokens:
+
+                    embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} this file is too large at {file_tokens} tokens. try shortening the file length. you can also send unlimited length files as URLs to Iva to perform simple summary and question-answer if you are willing to compromise exact information.', color=discord.Color.dark_theme())
                     if isinstance(interaction.channel, discord.TextChannel):
                         await thinking_message.edit(content=None, embed=embed)
                     else:
                         await interaction.followup.send(embed=embed, ephemeral=True)
                     return
-
-            file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + attachment_text, truncation=True, max_length=12000)['input_ids'])
-
-            if file_tokens >= max_tokens:
-
-                embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} this file is too large at {file_tokens} tokens. try shortening the file length. you can also send unlimited length files as URLs to Iva to perform simple summary and question-answer if you are willing to compromise exact information.', color=discord.Color.dark_theme())
-                if isinstance(interaction.channel, discord.TextChannel):
-                    await thinking_message.edit(content=None, embed=embed)
-                else:
-                    await interaction.followup.send(embed=embed, ephemeral=True)
-                return
             
         try:
             if channel_id in ask_mems and user_id in ask_mems[channel_id] and ask_mems[channel_id][user_id]["last_message_id"] is not None:
