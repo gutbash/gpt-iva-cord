@@ -27,7 +27,7 @@ async def get_sublinks(url):
 
     soup = BeautifulSoup(content, 'html.parser')
 
-    sublinks = "Links Within the Webpage:"
+    sublinks = "\n\nLINKS WITHIN WEBPAGE:\n------\n\n"
     for link in soup.find_all('a'):
         href = link.get('href')
         text = link.text.strip()
