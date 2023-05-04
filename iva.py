@@ -290,14 +290,14 @@ async def on_message(message):
                     coroutine=get_organic_results,
                     description=ORGANIC_RESULTS_CHAT_TOOL_DESCRIPTION,
                 ))
-                
+                """
                 tools.append(Tool(
                     name = "Summarize Webpage",
                     func=dummy_sync_function,
                     coroutine=parse_summary_webpage_input,
                     description=SUMMARIZE_WEBPAGE_CHAT_TOOL_DESCRIPTION,
                 ))
-                
+                """
                 tools.append(Tool(
                     name = "Q&A Webpage",
                     func=dummy_sync_function,
