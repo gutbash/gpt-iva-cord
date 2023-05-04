@@ -29,7 +29,6 @@ import pydot
 import PyPDF2
 import io
 import textwrap
-from bs4 import BeautifulSoup
 import chardet
 import aiohttp
 import logging
