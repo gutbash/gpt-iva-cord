@@ -148,7 +148,8 @@ async def get_organic_results(query: str) -> str:
         organic_results = "\n".join(organic_results)
         
         first_result = organic_results_raw[0]
-        await get_sublinks(first_result["link"])
+        sublinks = await get_sublinks(first_result["link"])
+        organic_results += sublinks
         
     if knowledge_graph_raw is not None:
         
