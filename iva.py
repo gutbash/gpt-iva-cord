@@ -927,9 +927,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         dash_count = ""
         interaction_count = (len(memory.buffer)//2)-1
         
-        if interaction_count + 1 > k_limit:
-            interaction_count = k_limit
-        
         for i in range(interaction_count):
             dash_count += "-"
 
