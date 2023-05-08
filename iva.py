@@ -14,7 +14,14 @@ from tools import (
     question_answer_webpage,
     summarize_webpage,
     get_full_blip,
+    PythonREPL,
 )
+
+import sys
+import asyncio
+from io import StringIO
+from typing import Dict, Optional
+from pydantic import BaseModel, Field
 
 import asyncio
 import os
@@ -63,6 +70,7 @@ from constants import (
     IMAGE_SEARCH_ASK_TOOL_DESCRIPTION,
     RECOGNIZE_IMAGE_ASK_TOOL_DESCRIPTION,
     SUMMARIZE_WEBPAGE_ASK_TOOL_DESCRIPTION,
+    PYTHON_REPL_ASK_TOOL_DESCRIPTION,
     
     QA_WEBPAGE_CHAT_TOOL_DESCRIPTION,
     IMAGE_SEARCH_CHAT_TOOL_DESCRIPTION,
@@ -644,6 +652,71 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
         files_overflow = []
         file_count=0
         
+        class PythonREPL(BaseModel):
+            """Simulates a standalone Python REPL."""
+            globals: Optional[Dict] = Field(default_factory=dict, alias="_globals")
+            locals: Optional[Dict] = Field(default_factory=dict, alias="_locals")
+
+            def run(self, command: str) -> str:
+                """Run command with own globals/locals and returns anything printed."""
+                old_stdout = sys.stdout
+                sys.stdout = mystdout = StringIO()
+                try:
+                    exec(command, self.globals, self.locals)
+                    sys.stdout = old_stdout
+                    output = mystdout.getvalue()
+                except Exception as e:
+                    sys.stdout = old_stdout
+                    output = str(e)
+                return output
+
+            async def arun(self, command: str) -> str:
+                """Run command (sync or async) with own globals/locals and returns anything printed."""
+                old_stdout = sys.stdout
+                sys.stdout = mystdout = StringIO()
+                
+                # Get the list of files before running the command
+                before_files = set(os.listdir())
+
+                async def run_sync_code():
+                    loop = asyncio.get_running_loop()
+                    return await loop.run_in_executor(None, self.run, command)
+
+                async def run_async_code():
+                    exec(
+                        f"async def __arun_inner(scope):\n"
+                        f"    async with scope:\n"
+                        f"        {command}\n",
+                        self.globals,
+                        self.locals,
+                    )
+                    coroutine = self.locals["__arun_inner"](asyncio.get_event_loop())
+                    await coroutine
+
+                try:
+                    if "async " in command:
+                        await run_async_code()
+                    else:
+                        await run_sync_code()
+                    sys.stdout = old_stdout
+                    output = mystdout.getvalue()
+                except Exception as e:
+                    sys.stdout = old_stdout
+                    output = str(e)
+                    
+                # Get the list of files after running the command
+                after_files = set(os.listdir())
+                    
+                # Get the list of created files
+                created_files = list(after_files - before_files)
+                
+                for file in created_files:
+                    files.append(discord.File(filename=file))
+
+                return output
+        
+        repl = PythonREPL()
+        
         tools.append(Tool(
             name = "Organic Results",
             func=dummy_sync_function,
@@ -663,6 +736,13 @@ async def iva(interaction: discord.Interaction, prompt: str, file: discord.Attac
             func=dummy_sync_function,
             coroutine=parse_qa_webpage_input,
             description=QA_WEBPAGE_ASK_TOOL_DESCRIPTION,
+        ))
+        
+        tools.append(Tool(
+            name = "Code Interpreter",
+            func=dummy_sync_function,
+            coroutine=repl.arun,
+            description=PYTHON_REPL_ASK_TOOL_DESCRIPTION,
         ))
         
         tools.append(Tool(
