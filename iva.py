@@ -697,7 +697,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
 
             def run(self, command: str) -> str:
                 
-                command = autopep8.fix_code(command.strip().strip("```"), options={"aggressive": 2})
+                logging.info("using sync run repl")
+                
+                command = command.strip().strip("```")
+                command = autopep8.fix_code(command, options={"aggressive": 2})
                 
                 logging.info(command)
                 
@@ -715,7 +718,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
 
             async def arun(self, command: str) -> str:
                 
-                command = autopep8.fix_code(command.strip().strip("```"), options={"aggressive": 2})
+                command = command.strip().strip("```")
+                command = autopep8.fix_code(command, options={"aggressive": 2})
                 
                 logging.info(command)
                 
