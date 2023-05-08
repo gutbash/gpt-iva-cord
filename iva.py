@@ -238,7 +238,7 @@ async def on_message(message):
             logical_llm = ChatOpenAI(
                 openai_api_key=openai_key,
                 temperature=0,
-                verbose=False,
+                verbose=True,
                 #callback_manager=manager,
                 request_timeout=600,
                 )
@@ -374,7 +374,7 @@ async def on_message(message):
                 agent = ConversationalAgent(
                     llm_chain=llm_chain,
                     tools=tools,
-                    verbose=False,
+                    verbose=True,
                     ai_prefix=f"Iva",
                     llm_prefix=f"Iva",
                     output_parser=output_parser,
@@ -661,7 +661,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         logical_llm = ChatOpenAI(
             openai_api_key=openai_key,
             temperature=0,
-            verbose=False,
+            verbose=True,
             #model_name=chat_model,
             #callback_manager=manager,
             request_timeout=600,
@@ -748,6 +748,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                 created_files = list(after_files - before_files)
                 
                 for file in created_files:
+                    logging.info(file)
                     files.append(discord.File(filename=file))
 
                 return output
