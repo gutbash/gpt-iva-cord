@@ -744,6 +744,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                     sys.stdout = old_stdout
                     output = mystdout.getvalue()
                 except Exception as e:
+                    logging.error(e)
                     sys.stdout = old_stdout
                     output = str(e)
                     
@@ -755,7 +756,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                 
                 for file in created_files:
                     logging.info(file)
-                    files.append(discord.File(filename=file))
+                    files.append(discord.File(fp=file))
 
                 return output
         
