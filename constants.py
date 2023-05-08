@@ -16,6 +16,8 @@ RECOGNIZE_IMAGE_ASK_TOOL_DESCRIPTION = "Use this tool to caption or answer quest
 
 IMAGE_SEARCH_ASK_TOOL_DESCRIPTION = "A wrapper around Google Images. Input should be a caption of the image. Output will be the image link."
 
+PYTHON_REPL_ASK_TOOL_DESCRIPTION = "A Python shell. Use this to execute python commands. Input should be a valid python command. If you expect output it should be printed out."
+
 ### CHAT TOOL DESCRIPTIONS ###
 
 ORGANIC_RESULTS_CHAT_TOOL_DESCRIPTION = "Wrapper around Google Search. Input should be the query in question. Do not input the same query twice. Do not search for personal or unrelated queries. Do not input URL links. Output returns the top webpage result. You must cite the webpage as a clickable hyperlink."

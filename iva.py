@@ -16,6 +16,13 @@ from tools import (
     get_full_blip,
 )
 
+import sys
+import asyncio
+from io import StringIO
+from typing import Dict, Optional
+from pydantic import BaseModel, Field
+import autopep8
+
 import time
 import asyncio
 import os
@@ -63,6 +70,7 @@ from constants import (
     IMAGE_SEARCH_ASK_TOOL_DESCRIPTION,
     RECOGNIZE_IMAGE_ASK_TOOL_DESCRIPTION,
     SUMMARIZE_WEBPAGE_ASK_TOOL_DESCRIPTION,
+    PYTHON_REPL_ASK_TOOL_DESCRIPTION,
     
     QA_WEBPAGE_CHAT_TOOL_DESCRIPTION,
     IMAGE_SEARCH_CHAT_TOOL_DESCRIPTION,
@@ -231,7 +239,7 @@ async def on_message(message):
             logical_llm = ChatOpenAI(
                 openai_api_key=openai_key,
                 temperature=0,
-                verbose=False,
+                verbose=True,
                 #callback_manager=manager,
                 request_timeout=600,
                 )
@@ -367,7 +375,7 @@ async def on_message(message):
                 agent = ConversationalAgent(
                     llm_chain=llm_chain,
                     tools=tools,
-                    verbose=False,
+                    verbose=True,
                     ai_prefix=f"Iva",
                     llm_prefix=f"Iva",
                     output_parser=output_parser,
@@ -654,7 +662,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         logical_llm = ChatOpenAI(
             openai_api_key=openai_key,
             temperature=0,
-            verbose=False,
+            verbose=True,
             #model_name=chat_model,
             #callback_manager=manager,
             request_timeout=600,
@@ -681,6 +689,93 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         files_overflow = []
         file_count=0
         
+        class PythonREPL(BaseModel):
+            """Simulates a standalone Python REPL."""
+            globals: Optional[Dict] = Field(default_factory=dict, alias="_globals")
+            locals: Optional[Dict] = Field(default_factory=dict, alias="_locals")
+
+            def run(self, command: str) -> str:
+                
+                logging.info("using sync run repl")
+                
+                command = command.strip().strip("```")
+                command = autopep8.fix_code(command, options={"aggressive": 2})
+                
+                logging.info(command)
+                
+                """Run command with own globals/locals and returns anything printed."""
+                old_stdout = sys.stdout
+                sys.stdout = mystdout = StringIO()
+                try:
+                    exec(command, self.globals, self.locals)
+                    sys.stdout = old_stdout
+                    output = mystdout.getvalue()
+                except Exception as e:
+                    sys.stdout = old_stdout
+                    output = str(e)
+                return output
+
+            async def arun(self, command: str) -> str:
+                
+                logging.info("using async run repl")
+                
+                command = command.strip().strip("```")
+                command = autopep8.fix_code(command, options={"aggressive": 2})
+                
+                logging.info(command)
+                
+                """Run command (sync or async) with own globals/locals and returns anything printed."""
+                old_stdout = sys.stdout
+                sys.stdout = mystdout = StringIO()
+                
+                # Get the list of files before running the command
+                before_files = set(os.listdir())
+
+                async def run_sync_code():
+                    loop = asyncio.get_running_loop()
+                    return await loop.run_in_executor(None, self.run, command)
+
+                async def run_async_code():
+                    exec(
+                        f"async def __arun_inner(scope):\n"
+                        f"    async with scope:\n"
+                        f"        {command}\n",
+                        self.globals,
+                        self.locals,
+                    )
+                    coroutine = self.locals["__arun_inner"](asyncio.get_event_loop())
+                    await coroutine
+
+                try:
+                    if "async " in command:
+                        await run_async_code()
+                    else:
+                        await run_sync_code()
+                    sys.stdout = old_stdout
+                    output = mystdout.getvalue()
+                except Exception as e:
+                    logging.error(e)
+                    sys.stdout = old_stdout
+                    output = str(e)
+                    
+                # Get the list of files after running the command
+                after_files = set(os.listdir())
+                    
+                # Get the list of created files
+                created_files = list(after_files - before_files)
+                
+                for file in created_files:
+                    logging.info(file)
+                    files.append(discord.File(fp=file))
+
+                return output
+        
+        repl = PythonREPL()
+        
+        async def python_repl(command):
+            output = await repl.arun(command)
+            return output
+            
         tools.append(Tool(
             name = "Organic Results",
             func=dummy_sync_function,
@@ -701,7 +796,14 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             coroutine=parse_qa_webpage_input,
             description=QA_WEBPAGE_ASK_TOOL_DESCRIPTION,
         ))
-        
+        """
+        tools.append(Tool(
+            name = "Python REPL",
+            func=dummy_sync_function,
+            coroutine=python_repl,
+            description=PYTHON_REPL_ASK_TOOL_DESCRIPTION,
+        ))
+        """
         tools.append(Tool(
             name = "Recognize Image",
             func=dummy_sync_function,
