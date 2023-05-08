@@ -750,7 +750,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         repl = PythonREPL()
         
         async def python_repl(command):
-            output = await repl.arun()
+            output = await repl.arun(command)
             return output
             
         tools.append(Tool(
