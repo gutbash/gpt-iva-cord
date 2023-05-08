@@ -697,7 +697,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
 
             def run(self, command: str) -> str:
                 
-                command = autopep8.fix_code(command.strip().strip("```"), options={"aggressive": 1})
+                command = autopep8.fix_code(command.strip().strip("```").replace(":\n", ":\n    "), options={"aggressive": 1})
                 
                 """Run command with own globals/locals and returns anything printed."""
                 old_stdout = sys.stdout
@@ -713,7 +713,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
 
             async def arun(self, command: str) -> str:
                 
-                command = autopep8.fix_code(command.strip().strip("```"), options={"aggressive": 1})
+                command = autopep8.fix_code(command.strip().strip("```").replace(":\n", ":\n    "), options={"aggressive": 1})
                 
                 """Run command (sync or async) with own globals/locals and returns anything printed."""
                 old_stdout = sys.stdout
