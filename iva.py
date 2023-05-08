@@ -749,6 +749,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         
         repl = PythonREPL()
         
+        async def python_repl(command):
+            output = await repl.arun()
+            return output
+            
         tools.append(Tool(
             name = "Organic Results",
             func=dummy_sync_function,
@@ -773,7 +777,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         tools.append(Tool(
             name = "Python REPL",
             func=dummy_sync_function,
-            coroutine=repl.arun,
+            coroutine=python_repl,
             description=PYTHON_REPL_ASK_TOOL_DESCRIPTION,
         ))
         
