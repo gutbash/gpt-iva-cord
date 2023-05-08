@@ -237,7 +237,7 @@ async def on_message(message):
                 )
             
             async def parse_qa_webpage_input(url_comma_question):
-                a, b = url_comma_question.split(",")
+                a, b = url_comma_question.split(",", maxsplit=1)
                 answer = await question_answer_webpage(a, b, llm=logical_llm)
                 return f"{answer}\n"
             
@@ -246,7 +246,7 @@ async def on_message(message):
                 return summary
             
             async def parse_blip_recognition(url_comma_question):
-                a, b = url_comma_question.split(",")
+                a, b = url_comma_question.split(",", maxsplit=1)
                 output = await get_full_blip(image_url=a, question=b)
                 return output
             
@@ -661,7 +661,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             )
         
         async def parse_qa_webpage_input(url_comma_question):
-            a, b = url_comma_question.split(",")
+            a, b = url_comma_question.split(",", maxsplit=1)
             answer = await question_answer_webpage(a, b, llm=logical_llm)
             return f"{answer}\n"
         
@@ -670,12 +670,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             return summary
         
         async def parse_blip_recognition(url_comma_question):
-            a, b = url_comma_question.split(",")
+            a, b = url_comma_question.split(",", maxsplit=1)
             output = await get_full_blip(image_url=a, question=b)
             return output
         
         tools = []
-        
         embeds = []
         files = []
         embeds_overflow = []
