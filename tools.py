@@ -4,6 +4,7 @@ import aiohttp
 import os
 import asyncio
 import json
+from bs4 import BeautifulSoup
 
 import sys
 import asyncio
@@ -24,6 +25,34 @@ SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
 REPLICATE_API_TOKEN = os.getenv("REPLICATE_API_TOKEN")
 
 text_splitter = TokenTextSplitter()
+
+async def get_sublinks(url):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            content = await response.text()
+
+    soup = BeautifulSoup(content, 'html.parser')
+
+    sublinks = "\n\nLINKS WITHIN WEBPAGE:\n------\n\n"
+    for link in soup.find_all('a'):
+        href = link.get('href')
+        text = link.text.strip()
+
+        # Ignore empty text or href
+        if not text or not href:
+            continue
+
+        # Ignore external links (optional)
+        if not href.startswith(url) and not href.startswith('/') and not href.startswith('#'):
+            continue
+
+        # Append the base URL to relative links
+        if href.startswith('/'):
+            href = url.rstrip('/') + href
+
+        sublinks += f"{text}: {href}\n"
+
+    return sublinks
         
 async def question_answer_webpage(url, question, llm):
     
@@ -124,6 +153,10 @@ async def get_organic_results(query: str) -> str:
         
         organic_results = "\n".join(organic_results)
         
+        #first_result = organic_results_raw[0]
+        #sublinks = await get_sublinks(first_result["link"])
+        #organic_results += sublinks
+        
     if knowledge_graph_raw is not None:
         
         knowledge_graph_keys = [
@@ -135,9 +168,9 @@ async def get_organic_results(query: str) -> str:
         ]
         
         knowledge_graph = await get_formatted_key_values(knowledge_graph_keys, knowledge_graph_raw)
-        knowledge_graph = f"\n\n{knowledge_graph}"
+        knowledge_graph = f"{knowledge_graph}"
         
-    final_results = f"\n\n{organic_results}{knowledge_graph}\n"
+    final_results = f"\n\n{organic_results}\n\n{knowledge_graph}\n"
     
     return final_results
 

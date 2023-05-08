@@ -20,8 +20,12 @@ async def fetch_keys_table():
         # check if the keys table exists
         table_exists = await conn.fetchval("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'keys')")
         logging.info("Fetched existing 'keys' table.")
+        if table_exists:
+            # log the number of key entries in the keys table if it exists
+            key_count = await conn.fetchval("SELECT COUNT(*) FROM keys")
+            logging.info(f"{key_count} entries in the 'keys' table.")
         # create the keys table if it does not exist
-        if not table_exists:
+        elif not table_exists:
             await conn.execute("CREATE TABLE keys (id TEXT PRIMARY KEY, key bytea)")
             logging.info("Created new 'keys' table.")
     finally:
