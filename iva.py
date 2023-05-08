@@ -695,6 +695,24 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             globals: Optional[Dict] = Field(default_factory=dict, alias="_globals")
             locals: Optional[Dict] = Field(default_factory=dict, alias="_locals")
 
+            def run(self, command: str) -> str:
+                
+                command = autopep8.fix_code(command.strip().strip("```"), options={"aggressive": 2})
+                
+                logging.info(command)
+                
+                """Run command with own globals/locals and returns anything printed."""
+                old_stdout = sys.stdout
+                sys.stdout = mystdout = StringIO()
+                try:
+                    exec(command, self.globals, self.locals)
+                    sys.stdout = old_stdout
+                    output = mystdout.getvalue()
+                except Exception as e:
+                    sys.stdout = old_stdout
+                    output = str(e)
+                return output
+
             async def arun(self, command: str) -> str:
                 
                 command = autopep8.fix_code(command.strip().strip("```"), options={"aggressive": 2})
