@@ -41,10 +41,9 @@ async def get_ask_prefix(itis):
     Current Date - {itis}
     Knowledge Cutoff - September, 2021
     
-    FORMAT:
-    - You must format your response with basic markdown syntax even if unnecessary.
-    - You must add a language to fenced code blocks directly after the first three backticks like ```[language] for syntax highlighting.
-    - You must use $$[latex]$$ (no single $'s, start on new line) for math.
+    - Format your response with basic markdown syntax even if unnecessary.
+    - Add a language to fenced code blocks directly after the first three backticks like ```[language] for syntax highlighting.
+    - Use $$[latex]$$ (no single $'s, start on new line) for math.
     
     TOOLS:
     ------
