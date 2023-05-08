@@ -21,6 +21,7 @@ import asyncio
 from io import StringIO
 from typing import Dict, Optional
 from pydantic import BaseModel, Field
+import autopep8
 
 import time
 import asyncio
@@ -696,7 +697,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
 
             def run(self, command: str) -> str:
                 
-                command = command.strip("```")
+                command = autopep8.fix_code(command.strip().strip("```"), options={"aggressive": 1})
                 
                 """Run command with own globals/locals and returns anything printed."""
                 old_stdout = sys.stdout
@@ -712,7 +713,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
 
             async def arun(self, command: str) -> str:
                 
-                command = command.strip("```")
+                command = autopep8.fix_code(command.strip().strip("```"), options={"aggressive": 1})
                 
                 """Run command (sync or async) with own globals/locals and returns anything printed."""
                 old_stdout = sys.stdout
@@ -784,7 +785,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         ))
         
         tools.append(Tool(
-            name = "Code Interpreter",
+            name = "Python REPL",
             func=dummy_sync_function,
             coroutine=repl.arun,
             description=PYTHON_REPL_ASK_TOOL_DESCRIPTION,
