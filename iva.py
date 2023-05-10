@@ -618,21 +618,22 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                 
                 thread_name = await thread_namer_chain.arun(f"{prompt}")
                 thread_name = thread_name.strip("'").replace('.', '').replace('"', '').replace("Title: ", "")
+                thread_name = thread_name[:100] #s lice if larger than 100 chars
+                
+                channel = await interaction.channel.create_thread(
+                    type=discord.ChannelType.public_thread,
+                    name=thread_name,
+                )
+                await channel.add_user(user)
+                channel_id = channel.id
+                
+                thinking_message = await channel.send(content="<a:ivaloading:1102305649246867561>  iva is thinking...")
+                
             except Exception as e:
                 logging.error(e)
                 embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek https://discord.com/channels/1053335631159377950/1053336180692897943 if the issue persists.')
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
-
-            channel = await interaction.channel.create_thread(
-                type=discord.ChannelType.public_thread,
-                name=thread_name,
-            )
-            await channel.add_user(user)
-            channel_id = channel.id
-            
-            thinking_message = await channel.send(content="<a:ivaloading:1102305649246867561>  iva is thinking...")
-            
         
         default_user_data = {
             "last_message_id": None,
