@@ -16,7 +16,7 @@ RECOGNIZE_IMAGE_ASK_TOOL_DESCRIPTION = "Use this tool to caption or answer quest
 
 IMAGE_SEARCH_ASK_TOOL_DESCRIPTION = "A wrapper around Google Images. Input should be a caption of the image. Output will be the image link."
 
-PYTHON_REPL_ASK_TOOL_DESCRIPTION = "A Python shell. Use this to execute python commands. Input should be a valid python command. If you expect output it should be printed out."
+PYTHON_REPL_ASK_TOOL_DESCRIPTION = "A Python shell. Use this to execute python commands. Input should be a valid python command. If you want to see the output of a value, you should print it out with `print(...)`."
 
 ### CHAT TOOL DESCRIPTIONS ###
 
@@ -41,10 +41,9 @@ async def get_ask_prefix(itis):
     Current Date - {itis}
     Knowledge Cutoff - September, 2021
     
-    FORMAT:
-    - You must format your response with basic markdown syntax even if unnecessary.
-    - You must add a language to fenced code blocks directly after the first three backticks like ```[language] for syntax highlighting.
-    - You must use $$[latex]$$ (no single $'s, start on new line) for math.
+    - Format your response with basic markdown syntax even if unnecessary.
+    - Add a language to fenced code blocks directly after the first three backticks like ```[language] for syntax highlighting.
+    - Use $$[latex]$$ (no single $'s, start on new line) for math.
     
     TOOLS:
     ------

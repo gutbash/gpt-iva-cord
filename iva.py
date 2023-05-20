@@ -245,7 +245,7 @@ async def on_message(message):
                 )
             
             async def parse_qa_webpage_input(url_comma_question):
-                a, b = url_comma_question.split(",")
+                a, b = url_comma_question.split(",", maxsplit=1)
                 answer = await question_answer_webpage(a, b, llm=logical_llm)
                 return f"{answer}\n"
             
@@ -254,7 +254,7 @@ async def on_message(message):
                 return summary
             
             async def parse_blip_recognition(url_comma_question):
-                a, b = url_comma_question.split(",")
+                a, b = url_comma_question.split(",", maxsplit=1)
                 output = await get_full_blip(image_url=a, question=b)
                 return output
             
@@ -618,21 +618,22 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                 
                 thread_name = await thread_namer_chain.arun(f"{prompt}")
                 thread_name = thread_name.strip("'").replace('.', '').replace('"', '').replace("Title: ", "")
+                thread_name = thread_name[:100] #s lice if larger than 100 chars
+                
+                channel = await interaction.channel.create_thread(
+                    type=discord.ChannelType.public_thread,
+                    name=thread_name,
+                )
+                await channel.add_user(user)
+                channel_id = channel.id
+                
+                thinking_message = await channel.send(content="<a:ivaloading:1102305649246867561>  iva is thinking...")
+                
             except Exception as e:
                 logging.error(e)
                 embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek https://discord.com/channels/1053335631159377950/1053336180692897943 if the issue persists.')
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
-
-            channel = await interaction.channel.create_thread(
-                type=discord.ChannelType.public_thread,
-                name=thread_name,
-            )
-            await channel.add_user(user)
-            channel_id = channel.id
-            
-            thinking_message = await channel.send(content="<a:ivaloading:1102305649246867561>  iva is thinking...")
-            
         
         default_user_data = {
             "last_message_id": None,
@@ -669,7 +670,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             )
         
         async def parse_qa_webpage_input(url_comma_question):
-            a, b = url_comma_question.split(",")
+            a, b = url_comma_question.split(",", maxsplit=1)
             answer = await question_answer_webpage(a, b, llm=logical_llm)
             return f"{answer}\n"
         
@@ -678,12 +679,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             return summary
         
         async def parse_blip_recognition(url_comma_question):
-            a, b = url_comma_question.split(",")
+            a, b = url_comma_question.split(",", maxsplit=1)
             output = await get_full_blip(image_url=a, question=b)
             return output
         
         tools = []
-        
         embeds = []
         files = []
         embeds_overflow = []
@@ -700,7 +700,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                 logging.info("using sync run repl")
                 
                 command = command.strip().strip("```")
-                command = autopep8.fix_code(command, options={"aggressive": 2})
+                #command = autopep8.fix_code(command, options={"aggressive": 2})
                 
                 logging.info(command)
                 
@@ -721,7 +721,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                 logging.info("using async run repl")
                 
                 command = command.strip().strip("```")
-                command = autopep8.fix_code(command, options={"aggressive": 2})
+                #command = autopep8.fix_code(command, options={"aggressive": 2})
                 
                 logging.info(command)
                 
@@ -797,14 +797,14 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             coroutine=parse_qa_webpage_input,
             description=QA_WEBPAGE_ASK_TOOL_DESCRIPTION,
         ))
-        """
+        
         tools.append(Tool(
             name = "Python REPL",
             func=dummy_sync_function,
             coroutine=python_repl,
             description=PYTHON_REPL_ASK_TOOL_DESCRIPTION,
         ))
-        """
+        
         tools.append(Tool(
             name = "Recognize Image",
             func=dummy_sync_function,
