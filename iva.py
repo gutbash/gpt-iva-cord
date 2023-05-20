@@ -990,9 +990,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             #return_intermediate_steps=False,
         )
         
-        agent_json = agent_chain.json()
-        logging.info(agent_json)
-        
         try:
             
             with get_openai_callback() as cb:
