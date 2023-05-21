@@ -41,7 +41,7 @@ async def get_ask_prefix(itis):
     Current Date - {itis}
     Knowledge Cutoff - September, 2021
     
-    - Format your response with basic markdown syntax even if unnecessary.
+    - Format your response with full markdown syntax even if unnecessary.
     - Add a language to fenced code blocks directly after the first three backticks like ```[language] for syntax highlighting.
     - Use $$[latex]$$ (no single $'s, start on new line) for math.
     
@@ -106,6 +106,7 @@ async def get_chat_prefix(active_names, itis):
     Knowledge Cutoff - September, 2021
     
     FORMAT:
+    - Format your response with full markdown syntax even if unnecessary.
     - Write only in lowercase letters
     - Refer to users in the format, <@[username]>
     - Use emojis to express emotion
