@@ -944,6 +944,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                 human_prefix="User",
                 ai_prefix="Iva",
                 llm=ask_llm,
+                input_key="chat_history",
                 memory_key="chat_history",
                 max_token_limit=2000,
             )
