@@ -51,8 +51,46 @@ from langchain.prompts.chat import (
     ChatPromptTemplate,
     SystemMessagePromptTemplate,
     AIMessagePromptTemplate,
+    MessagesPlaceholder,
     HumanMessagePromptTemplate,
 )
+
+from langchain.schema import (
+    AgentAction,
+    AIMessage,
+    BaseMessage,
+    BaseOutputParser,
+    HumanMessage,
+)
+
+from typing import Any, List, Optional, Sequence, Tuple
+from pydantic import Field
+from langchain.agents.agent import Agent, AgentOutputParser
+from langchain.agents.conversational_chat.output_parser import ConvoOutputParser
+from langchain.agents.conversational_chat.prompt import (
+    PREFIX,
+    SUFFIX,
+    TEMPLATE_TOOL_RESPONSE,
+)
+from langchain.agents.utils import validate_tools_single_input
+from langchain.base_language import BaseLanguageModel
+from langchain.callbacks.base import BaseCallbackManager
+from langchain.chains import LLMChain
+from langchain.prompts.base import BasePromptTemplate
+from langchain.prompts.chat import (
+    ChatPromptTemplate,
+    HumanMessagePromptTemplate,
+    MessagesPlaceholder,
+    SystemMessagePromptTemplate,
+)
+from langchain.schema import (
+    AgentAction,
+    AIMessage,
+    BaseMessage,
+    BaseOutputParser,
+    HumanMessage,
+)
+from langchain.tools.base import BaseTool
 
 from constants import (
     ORGANIC_RESULTS_ASK_TOOL_DESCRIPTION,
@@ -74,8 +112,6 @@ from constants import (
     get_chat_prefix,
     get_chat_custom_format_instructions,
     get_chat_suffix,
-    
-    get_human_message,
     
     get_thread_namer_prompt,
     
@@ -170,6 +206,104 @@ class CustomOutputParser(AgentOutputParser):
         # Return the action and action input
         return AgentAction(tool=action, tool_input=action_input.strip(" ").strip('"'), log=llm_output)
     
+class CustomConversationalChatAgent(Agent):
+    """An agent designed to hold a conversation in addition to using tools."""
+    output_parser: AgentOutputParser = Field(default_factory=ConvoOutputParser)
+    template_tool_response: str = TEMPLATE_TOOL_RESPONSE
+    @classmethod
+    def _get_default_output_parser(cls, **kwargs: Any) -> AgentOutputParser:
+        return ConvoOutputParser()
+    @property
+    def _agent_type(self) -> str:
+        raise NotImplementedError
+    @property
+    def observation_prefix(self) -> str:
+        """Prefix to append the observation with."""
+        return "Observation: "
+    @property
+    def llm_prefix(self) -> str:
+        """Prefix to append the llm call with."""
+        return "Thought:"
+    @classmethod
+    def _validate_tools(cls, tools: Sequence[BaseTool]) -> None:
+        super()._validate_tools(tools)
+        validate_tools_single_input(cls.__name__, tools)
+    @classmethod
+    def create_prompt(
+        cls,
+        tools: Sequence[BaseTool],
+        system_message: str = PREFIX,
+        human_message: str = SUFFIX,
+        input_variables: Optional[List[str]] = None,
+        output_parser: Optional[BaseOutputParser] = None,
+    ) -> BasePromptTemplate:
+        tool_strings = "\n".join(
+            [f"> {tool.name}: {tool.description}" for tool in tools]
+        )
+        tool_names = ", ".join([tool.name for tool in tools])
+        _output_parser = output_parser or cls._get_default_output_parser()
+        format_instructions = human_message.format(
+            format_instructions=_output_parser.get_format_instructions()
+        )
+        final_prompt = format_instructions.format(
+            tool_names=tool_names, tools=tool_strings
+        )
+        if input_variables is None:
+            input_variables = ["input", "chat_history", "agent_scratchpad"]
+        messages = [
+            SystemMessagePromptTemplate.from_template(system_message),
+            MessagesPlaceholder(variable_name="chat_history"),
+            HumanMessagePromptTemplate.from_template(final_prompt),
+            MessagesPlaceholder(variable_name="agent_scratchpad"),
+        ]
+        return ChatPromptTemplate(input_variables=input_variables, messages=messages)
+    def _construct_scratchpad(
+        self, intermediate_steps: List[Tuple[AgentAction, str]]
+    ) -> List[BaseMessage]:
+        """Construct the scratchpad that lets the agent continue its thought process."""
+        thoughts: List[BaseMessage] = []
+        for action, observation in intermediate_steps:
+            thoughts.append(AIMessage(content=action.log))
+            human_message = HumanMessage(
+                content=self.template_tool_response.format(observation=observation)
+            )
+            thoughts.append(human_message)
+        return thoughts
+    @classmethod
+    def from_llm_and_tools(
+        cls,
+        llm: BaseLanguageModel,
+        tools: Sequence[BaseTool],
+        callback_manager: Optional[BaseCallbackManager] = None,
+        output_parser: Optional[AgentOutputParser] = None,
+        system_message: str = PREFIX,
+        human_message: str = SUFFIX,
+        input_variables: Optional[List[str]] = None,
+        **kwargs: Any,
+    ) -> Agent:
+        """Construct an agent from an LLM and tools."""
+        cls._validate_tools(tools)
+        _output_parser = output_parser or cls._get_default_output_parser()
+        prompt = cls.create_prompt(
+            tools,
+            system_message=system_message,
+            human_message=human_message,
+            input_variables=input_variables,
+            output_parser=_output_parser,
+        )
+        llm_chain = LLMChain(
+            llm=llm,
+            prompt=prompt,
+            callback_manager=callback_manager,
+        )
+        tool_names = [tool.name for tool in tools]
+        return cls(
+            llm_chain=llm_chain,
+            allowed_tools=tool_names,
+            output_parser=_output_parser,
+            **kwargs,
+        )
+    
 output_parser = CustomOutputParser()
 
 logical_llm = ChatOpenAI(
@@ -208,7 +342,7 @@ ask_llm = ChatOpenAI(
     #callback_manager=manager,
     #max_tokens=max_tokens,
     )
-
+"""
 tools.append(Tool(
     name = "Organic Results",
     func=dummy_sync_function,
@@ -243,7 +377,7 @@ tools.append(Tool(
     coroutine=get_image_from_search,
     description=IMAGE_SEARCH_ASK_TOOL_DESCRIPTION,
 ))
-
+"""
 k_limit = 3
 
 memory = ConversationBufferWindowMemory(
@@ -258,21 +392,25 @@ prompt = CustomPromptTemplate(
     tools=tools,
     # This omits the `agent_scratchpad`, `tools`, and `tool_names` variables because those are generated dynamically
     # This includes the `intermediate_steps` variable because that is needed
-    input_variables=["input", "intermediate_steps"]
+    input_variables=["input", "intermediate_steps", "agent_scratchpad"]
 )
 
 # LLM chain consisting of the LLM and a prompt
 llm_chain = LLMChain(llm=ask_llm, prompt=prompt)
 
-agent_chain = initialize_agent(
+agent = CustomConversationalChatAgent(
+    llm_chain=llm_chain,
+    output_parser=output_parser,
+    allowed_tools=tools,
+)
+
+agent_executor = AgentExecutor.from_agent_and_tools(
+    agent=agent,
     tools=tools,
-    llm=ask_llm,
-    agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION,
-    verbose=True,
-    memory=memory,
+    verbose=True
 )
 
 while True:
     prompt = input("User: ")
-    reply = agent_chain.run(prompt)
+    reply = agent_executor.run(prompt)
     print(f"Agent: {reply}")

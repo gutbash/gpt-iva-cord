@@ -961,9 +961,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         )
             
         llm_chain = LLMChain(
+            memory=memory,
             llm=ask_llm,
-            verbose=True,
             prompt=guild_prompt,
+            verbose=True
         )
         
         output_parser = ConvoOutputParser(
@@ -972,8 +973,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             
         agent = ConversationalAgent(
             llm_chain=llm_chain,
-            tools=tools,
-            verbose=True,
+            allowed_tools=tool_names
             ai_prefix=f"Iva",
             output_parser=output_parser,
         )
@@ -982,7 +982,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             agent=agent,
             tools=tools,
             verbose=True,
-            memory=memory,
             ai_prefix=f"Iva",
             max_execution_time=600,
             #max_iterations=3,
