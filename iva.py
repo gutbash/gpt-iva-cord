@@ -973,7 +973,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             
         agent = ConversationalAgent(
             llm_chain=llm_chain,
-            allowed_tools=tool_names
+            allowed_tools=tool_names,
             ai_prefix=f"Iva",
             output_parser=output_parser,
         )
