@@ -944,7 +944,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                 human_prefix="User",
                 ai_prefix="Iva",
                 llm=ask_llm,
-                input_key="chat_history",
                 memory_key="chat_history",
                 max_token_limit=2000,
             )
@@ -962,7 +961,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         )
             
         llm_chain = LLMChain(
-            memory=memory,
             llm=ask_llm,
             prompt=guild_prompt,
             verbose=True
@@ -980,6 +978,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         )
         
         agent_chain = AgentExecutor.from_agent_and_tools(
+            memory=memory,
             agent=agent,
             tools=tools,
             verbose=True,
