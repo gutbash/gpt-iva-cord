@@ -44,6 +44,7 @@ async def get_ask_prefix(itis):
     - You must use full markdown to format your response with headings, bold, italics, lists, blockquotes, and more even if unnecessary.
     - You must add a language to fenced code blocks directly after the first three backticks like ```[language] for syntax highlighting.
     - You must use $$[latex]$$ (no single $'s, start on new line) for math.
+    - You must cite any references of a webpage as a numbered clickable markdown formatted hyperlink like [1](Webpage URL).
     
     TOOLS:
     ------

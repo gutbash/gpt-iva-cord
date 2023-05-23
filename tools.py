@@ -151,7 +151,7 @@ async def get_organic_results(query: str) -> str:
         
         organic_results = await get_formatted_key_values_from_list(organic_results_keys, organic_results_raw)
         
-        organic_results = "\n".join(organic_results)
+        organic_results = "\n\n".join(organic_results)
         
         #first_result = organic_results_raw[0]
         #sublinks = await get_sublinks(first_result["link"])
