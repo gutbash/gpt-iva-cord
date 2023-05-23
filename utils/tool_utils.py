@@ -9,7 +9,7 @@ def dummy_sync_function(tool_input: str) -> str:
 async def get_formatted_key_values_from_list(keys: list, list_of_dictionaries: list) -> list:
     all_results = []
 
-    for dictionary_index in range(1):
+    for dictionary_index in range(3):
         formatted_str = await get_formatted_key_values(keys, list_of_dictionaries[dictionary_index])
         all_results.append(formatted_str)
 
