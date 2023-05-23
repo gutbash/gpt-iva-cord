@@ -42,7 +42,6 @@ import logging
 
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import OpenAI
-from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.chains.llm import LLMChain
 from langchain.callbacks import get_openai_callback
 from langchain.chains.conversation.memory import ConversationSummaryBufferMemory
@@ -919,8 +918,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                 openai_api_key=openai_key,
                 request_timeout=600,
                 verbose=True,
-                streaming=True,
-                callbacks=[StreamingStdOutCallbackHandler()],
                 #callback_manager=manager,
                 #max_tokens=max_tokens,
                 )
@@ -994,190 +991,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         
         try:
             
-            reply = await agent_chain.acall(inputs=f"{prompt}{blip_text}{attachment_text}")
-            
-            while True:
-                try:
-                    response = await asyncio.wait_for(reply.__anext__(), timeout=1.0)
-                    print(response)
-                except asyncio.TimeoutError:
-                    # handle the case where no data has been received for a while
-                    continue
-                except StopAsyncIteration:
-                    # handle end of the stream
-                    break
-        
-            reply = reply.replace("Iva: ", "")
-            reply = reply.replace("Do I need to use a tool? No", "")
-            reply = reply.replace("```C#", "```cs")
-            
-            dash_count = ""
-            interaction_count = (len(memory.buffer)//2)-1
-            
-            for i in range(interaction_count):
-                dash_count += "-"
-
-            embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
-            
-            file_count += 1
-            
-            if '$$' in reply or '```dot' in reply:
-
-                # Use the findall() method of the re module to find all occurrences of content between $$
-                dpi = "{200}"
-                color = "{white}"
+            with get_openai_callback() as cb:
+                reply = await agent_chain.arun(input=f"{prompt}{blip_text}{attachment_text}")
+                total_cost = cb.total_cost
                 
-                tex_pattern = re.compile(r"\$\$(.*?)\$\$", re.DOTALL)
-                dot_pattern = re.compile(r'```dot\s*([\s\S]*?)\s*```', re.DOTALL)
-                
-                tex_matches = tex_pattern.findall(reply)
-                dot_matches = dot_pattern.finditer(reply)
-                dot_matches = [match.group(1).strip() for match in dot_matches]
-                
-                non_matches = re.sub(r"```dot\s*[\s\S]*?\s*```|(\$\$|\%\%|\@\@).*?(\@\@|\%\%|\$\$)", "~~", reply, flags=re.DOTALL)
-
-                non_matches = non_matches.split("~~")
-                
-                try:
-                    
-                    for (tex_match, dot_match, non_match) in itertools.zip_longest(tex_matches, dot_matches, non_matches):
-                        
-                        if non_match != None and non_match != "" and non_match != "\n" and non_match != "." and non_match != "\n\n" and non_match != " " and non_match != "\n> " and non_match.isspace() != True and non_match.startswith("![") != True:
-                            
-                            non_match = non_match.replace("$", "`")
-                            non_match_embed = discord.Embed(description=non_match, color=discord.Color.dark_theme())
-                            
-                            if len(embeds) >= 9:
-                                embeds_overflow.append(non_match_embed)
-                            else:
-                                embeds.append(non_match_embed)
-                            
-                        if tex_match != None and tex_match != "" and tex_match != "\n" and tex_match != " " and tex_match.isspace() != True:
-                            
-                            tex_match = tex_match.strip()
-                            tex_match = tex_match.replace("\n", "")
-                            tex_match = tex_match.strip("$")
-                            tex_match = tex_match.split()
-                            tex_match = "%20".join(tex_match)
-                            match_embed = discord.Embed(color=discord.Color.dark_theme())
-
-                            image_url = f"https://latex.codecogs.com/png.image?\dpi{dpi}\color{color}{tex_match}"
-
-                            img_data = requests.get(image_url, verify=False).content
-                            subfolder = 'tex'
-                            if not os.path.exists(subfolder):
-                                os.makedirs(subfolder)
-                            with open(f'{subfolder}/latex{file_count}.png', 'wb') as handler:
-                                handler.write(img_data)
-                            tex_file = discord.File(f'{subfolder}/latex{file_count}.png')
-                            match_embed.set_image(url=f"attachment://latex{file_count}.png")
-
-                            file_count += 1
-                            
-                            if len(embeds) >= 9:
-                                embeds_overflow.append(match_embed)
-                                files_overflow.append(tex_file)
-                            else:
-                                embeds.append(match_embed)
-                                files.append(tex_file)
-                                
-                        if dot_match != None and dot_match != "" and dot_match != "\n" and dot_match.isspace() != True:
-                            
-                            pattern = r'((di)?graph\s+[^{]*\{)'
-                            replacement = r'\1\nbgcolor="#36393f";\nnode [fontcolor=white, color=white];\nedge [fontcolor=white, color=white];\n'
-                            dot_match = re.sub(pattern, replacement, dot_match)
-                            
-                            graphs = pydot.graph_from_dot_data(dot_match)
-                            
-                            graph = graphs[0]
-                            subfolder = 'graphviz'
-
-                            if not os.path.exists(subfolder):
-                                os.makedirs(subfolder)
-
-                            graph.write_png(f'{subfolder}/graphviz{file_count}.png')
-                            
-                            dot_file = discord.File(f'{subfolder}/graphviz{file_count}.png')
-                            match_embed = discord.Embed(color=discord.Color.dark_theme())
-                            match_embed.set_image(url=f"attachment://graphviz{file_count}.png")
-                            
-                            file_count += 1
-
-                            if len(embeds) >= 9:
-                                embeds_overflow.append(match_embed)
-                                files_overflow.append(dot_file)
-                            else:
-                                embeds.append(match_embed)
-                                files.append(dot_file)
-                        
-                except Exception as e:
-                    logging.error(e)
-            elif len(reply) > 4096:
-                try:
-                    embeds = []
-                    substrings = []
-                    for i in range(0, len(reply), 4096):
-                        substring = reply[i:i+4096]
-                        substrings.append(substring)
-                    for string in substrings:
-                        embed_string = discord.Embed(description=string, color=discord.Color.dark_theme())
-                        embeds.append(embed_string)
-                except Exception as e:
-                    logging.error(e)
-                    embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{mention} 4096 character response limit reached. Response contains {len(reply)} characters. Use `/reset`.**', color=discord.Color.dark_theme())
-                    if isinstance(interaction.channel, discord.TextChannel):
-                        await thinking_message.edit(content=None, embed=embed)
-                    else:
-                        await interaction.followup.send(embed=embed, ephemeral=True)
-            else:
-                embeds.append(embed)
-                
-            try:
-                
-                end_time = time.monotonic()
-                
-                word_count = len(reply.split())
-                elapsed_time = end_time - start_time
-                minutes, seconds = divmod(elapsed_time, 60)
-                elapsed_time_format = f"{int(minutes):02}:{int(seconds):02}"
-                
-                if total_cost is not None:
-                    prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}`  `{temperature}`  `{round(total_cost, 3)}`  `{elapsed_time_format}`  `{word_count}`")
-                else:
-                    prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}`  `{temperature}`  `{elapsed_time_format}`  `{word_count}`")
-                    
-                embeds.insert(0, prompt_embed)
-                
-                if isinstance(interaction.channel, discord.TextChannel):
-                    await thinking_message.delete()
-                    initial_message = await channel.send(files=files, embeds=embeds, view=view)
-                    message_id = initial_message.id
-
-                else:
-                    followup_message = await interaction.followup.send(files=files, embeds=embeds, view=view)
-                    message_id = followup_message.id
-                
-                if len(embeds_overflow) > 0:
-                    await channel.send(files = files_overflow, embeds=embeds_overflow)
-                
-                url_pattern = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
-                links = url_pattern.findall(reply)
-                stripped_links = [link.rstrip(',.:)]') for link in links]
-                
-                if len(stripped_links) > 0:
-                    stripped_links = list(set(stripped_links))
-                    formatted_links = "\n".join(stripped_links)
-                    await channel.send(content=formatted_links)
-                
-                ask_mems[channel_id][user_id]["last_message_id"] = message_id
-                ask_mems[channel_id][user_id]["user_id"] = user_id
-                ask_mems[channel_id][user_id]["memory"] = memory
-                await save_pickle_to_redis('ask_mems', ask_mems)
-                    
-                return
-            except Exception as e:
-                logging.error(e, stack_info=True)
-            
         except Exception as e:
             if str(e).startswith("Could not parse LLM output:"):
                 logging.error(e)
@@ -1203,7 +1020,178 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                 else:
                     await interaction.followup.send(embed=embed, ephemeral=True)
                 return
+            
+        reply = reply.replace("Iva: ", "")
+        reply = reply.replace("Do I need to use a tool? No", "")
+        reply = reply.replace("```C#", "```cs")
         
+        dash_count = ""
+        interaction_count = (len(memory.buffer)//2)-1
+        
+        for i in range(interaction_count):
+            dash_count += "-"
+
+        embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
+        
+        file_count += 1
+        
+        if '$$' in reply or '```dot' in reply:
+
+            # Use the findall() method of the re module to find all occurrences of content between $$
+            dpi = "{200}"
+            color = "{white}"
+            
+            tex_pattern = re.compile(r"\$\$(.*?)\$\$", re.DOTALL)
+            dot_pattern = re.compile(r'```dot\s*([\s\S]*?)\s*```', re.DOTALL)
+            
+            tex_matches = tex_pattern.findall(reply)
+            dot_matches = dot_pattern.finditer(reply)
+            dot_matches = [match.group(1).strip() for match in dot_matches]
+            
+            non_matches = re.sub(r"```dot\s*[\s\S]*?\s*```|(\$\$|\%\%|\@\@).*?(\@\@|\%\%|\$\$)", "~~", reply, flags=re.DOTALL)
+
+            non_matches = non_matches.split("~~")
+            
+            try:
+                
+                for (tex_match, dot_match, non_match) in itertools.zip_longest(tex_matches, dot_matches, non_matches):
+                    
+                    if non_match != None and non_match != "" and non_match != "\n" and non_match != "." and non_match != "\n\n" and non_match != " " and non_match != "\n> " and non_match.isspace() != True and non_match.startswith("![") != True:
+                        
+                        non_match = non_match.replace("$", "`")
+                        non_match_embed = discord.Embed(description=non_match, color=discord.Color.dark_theme())
+                        
+                        if len(embeds) >= 9:
+                            embeds_overflow.append(non_match_embed)
+                        else:
+                            embeds.append(non_match_embed)
+                        
+                    if tex_match != None and tex_match != "" and tex_match != "\n" and tex_match != " " and tex_match.isspace() != True:
+                        
+                        tex_match = tex_match.strip()
+                        tex_match = tex_match.replace("\n", "")
+                        tex_match = tex_match.strip("$")
+                        tex_match = tex_match.split()
+                        tex_match = "%20".join(tex_match)
+                        match_embed = discord.Embed(color=discord.Color.dark_theme())
+
+                        image_url = f"https://latex.codecogs.com/png.image?\dpi{dpi}\color{color}{tex_match}"
+
+                        img_data = requests.get(image_url, verify=False).content
+                        subfolder = 'tex'
+                        if not os.path.exists(subfolder):
+                            os.makedirs(subfolder)
+                        with open(f'{subfolder}/latex{file_count}.png', 'wb') as handler:
+                            handler.write(img_data)
+                        tex_file = discord.File(f'{subfolder}/latex{file_count}.png')
+                        match_embed.set_image(url=f"attachment://latex{file_count}.png")
+
+                        file_count += 1
+                        
+                        if len(embeds) >= 9:
+                            embeds_overflow.append(match_embed)
+                            files_overflow.append(tex_file)
+                        else:
+                            embeds.append(match_embed)
+                            files.append(tex_file)
+                            
+                    if dot_match != None and dot_match != "" and dot_match != "\n" and dot_match.isspace() != True:
+                        
+                        pattern = r'((di)?graph\s+[^{]*\{)'
+                        replacement = r'\1\nbgcolor="#36393f";\nnode [fontcolor=white, color=white];\nedge [fontcolor=white, color=white];\n'
+                        dot_match = re.sub(pattern, replacement, dot_match)
+                        
+                        graphs = pydot.graph_from_dot_data(dot_match)
+                        
+                        graph = graphs[0]
+                        subfolder = 'graphviz'
+
+                        if not os.path.exists(subfolder):
+                            os.makedirs(subfolder)
+
+                        graph.write_png(f'{subfolder}/graphviz{file_count}.png')
+                        
+                        dot_file = discord.File(f'{subfolder}/graphviz{file_count}.png')
+                        match_embed = discord.Embed(color=discord.Color.dark_theme())
+                        match_embed.set_image(url=f"attachment://graphviz{file_count}.png")
+                        
+                        file_count += 1
+
+                        if len(embeds) >= 9:
+                            embeds_overflow.append(match_embed)
+                            files_overflow.append(dot_file)
+                        else:
+                            embeds.append(match_embed)
+                            files.append(dot_file)
+                    
+            except Exception as e:
+                logging.error(e)
+        else:
+            if len(reply) > 4096:
+                try:
+                    embeds = []
+                    substrings = []
+                    for i in range(0, len(reply), 4096):
+                        substring = reply[i:i+4096]
+                        substrings.append(substring)
+                    for string in substrings:
+                        embed_string = discord.Embed(description=string, color=discord.Color.dark_theme())
+                        embeds.append(embed_string)
+                except Exception as e:
+                    logging.error(e)
+                    embed = discord.Embed(description=f'<:ivaerror:1051918443840020531> **{mention} 4096 character response limit reached. Response contains {len(reply)} characters. Use `/reset`.**', color=discord.Color.dark_theme())
+                    if isinstance(interaction.channel, discord.TextChannel):
+                        await thinking_message.edit(content=None, embed=embed)
+                    else:
+                        await interaction.followup.send(embed=embed, ephemeral=True)
+            else:
+                embeds.append(embed)
+            
+        try:
+            
+            end_time = time.monotonic()
+            
+            word_count = len(reply.split())
+            elapsed_time = end_time - start_time
+            minutes, seconds = divmod(elapsed_time, 60)
+            elapsed_time_format = f"{int(minutes):02}:{int(seconds):02}"
+            
+            if total_cost is not None:
+                prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}`  `{temperature}`  `{round(total_cost, 3)}`  `{elapsed_time_format}`  `{word_count}`")
+            else:
+                prompt_embed = discord.Embed(description=f"{dash_count}→ {prompt}{file_placeholder}\n\n`{chat_model}`  `{temperature}`  `{elapsed_time_format}`  `{word_count}`")
+                
+            embeds.insert(0, prompt_embed)
+            
+            if isinstance(interaction.channel, discord.TextChannel):
+                await thinking_message.delete()
+                initial_message = await channel.send(files=files, embeds=embeds, view=view)
+                message_id = initial_message.id
+
+            else:
+                followup_message = await interaction.followup.send(files=files, embeds=embeds, view=view)
+                message_id = followup_message.id
+            
+            if len(embeds_overflow) > 0:
+                await channel.send(files = files_overflow, embeds=embeds_overflow)
+            
+            url_pattern = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+            links = url_pattern.findall(reply)
+            stripped_links = [link.rstrip(',.:)]') for link in links]
+            
+            if len(stripped_links) > 0:
+                stripped_links = list(set(stripped_links))
+                formatted_links = "\n".join(stripped_links)
+                await channel.send(content=formatted_links)
+            
+            ask_mems[channel_id][user_id]["last_message_id"] = message_id
+            ask_mems[channel_id][user_id]["user_id"] = user_id
+            ask_mems[channel_id][user_id]["memory"] = memory
+            await save_pickle_to_redis('ask_mems', ask_mems)
+                
+            return
+        except Exception as e:
+            logging.error(e, stack_info=True)
     except discord.errors.NotFound as e:
         logging.error(e, stack_info=True)
 
