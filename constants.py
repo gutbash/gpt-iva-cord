@@ -41,7 +41,7 @@ async def get_ask_prefix(itis):
     Current Date - {itis}
     Knowledge Cutoff - September, 2021
     
-    - Format your response with markdown headings, bold, italics, lists, and more even if unnecessary.
+    - Use full markdown to format your response with headings, bold, italics, lists, and more even if unnecessary.
     - Add a language to fenced code blocks directly after the first three backticks like ```[language] for syntax highlighting.
     - Use $$[latex]$$ (no single $'s, start on new line) for math.
     
@@ -86,7 +86,7 @@ async def get_ask_suffix():
     {{input}}
     
     RESPONSE:
-    You must put exactly `Thought: Do I need to use a tool? No` followed by your prefix `Iva: ` before your formatted response or else it won't be seen!
+    You must put exactly `Thought: Do I need to use a tool? No` followed by your prefix `Iva: ` before your formatted response or else it won't be seen! Use full markdown to format your response with headings, bold, italics, lists, and more even if unnecessary.
     
     Start responding below...
     ------
