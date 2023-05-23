@@ -995,6 +995,17 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         try:
             
             reply = await agent_chain.arun(input=f"{prompt}{blip_text}{attachment_text}")
+            
+            while True:
+                try:
+                    response = await asyncio.wait_for(reply.__anext__(), timeout=1.0)
+                    print(response)
+                except asyncio.TimeoutError:
+                    # handle the case where no data has been received for a while
+                    continue
+                except StopAsyncIteration:
+                    # handle end of the stream
+                    break
         
             reply = reply.replace("Iva: ", "")
             reply = reply.replace("Do I need to use a tool? No", "")
