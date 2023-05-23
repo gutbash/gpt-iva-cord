@@ -441,4 +441,13 @@ from langchain.schema import (
 
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 chat = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], temperature=0, openai_api_key="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")
-resp = chat([HumanMessage(content="Write me a song about sparkling water.")])
+
+async def print_stream():
+    resp = await  (["Tell me a joke."])
+    for response in resp:
+        print(response)
+        
+    print("Stream has ended.")
+
+# Run the async function
+asyncio.run(print_stream())

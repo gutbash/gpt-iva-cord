@@ -994,7 +994,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         
         try:
             
-            async for reply in agent_chain.arun(input=f"{prompt}{blip_text}{attachment_text}"):
+            response = await agent_chain.arun(input=f"{prompt}{blip_text}{attachment_text}")
+            
+            for reply in response:
             
                 reply = reply.replace("Iva: ", "")
                 reply = reply.replace("Do I need to use a tool? No", "")
