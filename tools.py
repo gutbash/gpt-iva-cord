@@ -170,7 +170,7 @@ async def get_organic_results(query: str) -> str:
         knowledge_graph = await get_formatted_key_values(knowledge_graph_keys, knowledge_graph_raw)
         knowledge_graph = f"{knowledge_graph}"
         
-    final_results = f"\n\n{organic_results}\n\nInvestigate further if this doesn't answer your query adequately. You must cite the URL of any references of a webpage in the form of a clickable markdown formatted hyperlink.\n"
+    final_results = f"\n\n{organic_results}\n\nInvestigate further with tools if this doesn't answer your query adequately. You must cite any of the above URLs referenced in your response in the form of a clickable markdown formatted hyperlink.\n"
     
     return final_results
 
