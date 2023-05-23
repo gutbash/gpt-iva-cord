@@ -994,7 +994,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         
         try:
             
-            reply = await agent_chain.arun(input=f"{prompt}{blip_text}{attachment_text}")
+            reply = await agent_chain.acall(inputs=f"{prompt}{blip_text}{attachment_text}")
             
             while True:
                 try:
