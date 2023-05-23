@@ -127,6 +127,24 @@ from langchain.schema import AgentAction, AgentFinish, HumanMessage
 import re
 from getpass import getpass
 
+from langchain.prompts.chat import BaseChatPromptTemplate
+
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from pydantic import Extra
+from langchain.base_language import BaseLanguageModel
+from langchain.callbacks.manager import (
+    AsyncCallbackManager,
+    AsyncCallbackManagerForChainRun,
+    CallbackManager,
+    CallbackManagerForChainRun,
+    Callbacks,
+)
+from langchain.chains.base import Chain
+from langchain.input import get_colored_text
+from langchain.prompts.base import BasePromptTemplate
+from langchain.prompts.prompt import PromptTemplate
+from langchain.schema import LLMResult, PromptValue
+
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_TOKEN")
 GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN") # load discord app token
@@ -135,6 +153,45 @@ SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 WOLFRAM_ALPHA_APPID = os.getenv("WOLFRAM_ALPHA_APPID")
 DATABASE_URL = os.getenv("DATABASE_URL")
+
+tools = []
+
+"""
+tools.append(Tool(
+    name = "Organic Results",
+    func=dummy_sync_function,
+    coroutine=get_organic_results,
+    description=ORGANIC_RESULTS_ASK_TOOL_DESCRIPTION,
+))
+
+tools.append(Tool(
+    name = "Summarize Webpage",
+    func=dummy_sync_function,
+    coroutine=parse_summary_webpage_input,
+    description=SUMMARIZE_WEBPAGE_ASK_TOOL_DESCRIPTION,
+))
+
+tools.append(Tool(
+    name = "Q&A Webpage",
+    func=dummy_sync_function,
+    coroutine=parse_qa_webpage_input,
+    description=QA_WEBPAGE_ASK_TOOL_DESCRIPTION,
+))
+
+tools.append(Tool(
+    name = "Recognize Image",
+    func=dummy_sync_function,
+    coroutine=parse_blip_recognition,
+    description=RECOGNIZE_IMAGE_ASK_TOOL_DESCRIPTION,
+))
+
+tools.append(Tool(
+    name = "Image Search",
+    func=dummy_sync_function,
+    coroutine=get_image_from_search,
+    description=IMAGE_SEARCH_ASK_TOOL_DESCRIPTION,
+))
+"""
 
 # Set up the base template
 template = """Complete the objective as best you can. You have access to the following tools:
@@ -160,6 +217,42 @@ Begin!
 
 Question: {input}
 {agent_scratchpad}"""
+
+logical_llm = ChatOpenAI(
+    openai_api_key="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",
+    temperature=0,
+    verbose=False,
+    #callback_manager=manager,
+    request_timeout=600,
+    )
+
+ask_llm = ChatOpenAI(
+    temperature=0.5,
+    model_name="gpt-3.5-turbo",
+    openai_api_key="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",
+    request_timeout=600,
+    verbose=False,
+    #callback_manager=manager,
+    #max_tokens=max_tokens,
+    )
+
+async def parse_qa_webpage_input(url_comma_question):
+    a, b = url_comma_question.split(",")
+    answer = await question_answer_webpage(a, b, llm=logical_llm)
+    return f"{answer}\n"
+
+async def parse_summary_webpage_input(url):
+    summary = await summarize_webpage(url, llm=logical_llm)
+    return summary
+
+async def parse_blip_recognition(url_comma_question):
+    a, b = url_comma_question.split(",")
+    output = await get_full_blip(image_url=a, question=b)
+    return output
+
+attachment_text = ""
+file_placeholder = ""
+k_limit = 3
 
 # Set up a prompt template
 class CustomPromptTemplate(BaseChatPromptTemplate):
@@ -306,80 +399,6 @@ class CustomConversationalChatAgent(Agent):
     
 output_parser = CustomOutputParser()
 
-logical_llm = ChatOpenAI(
-    openai_api_key="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",
-    temperature=0,
-    verbose=False,
-    #callback_manager=manager,
-    request_timeout=600,
-    )
-
-async def parse_qa_webpage_input(url_comma_question):
-    a, b = url_comma_question.split(",")
-    answer = await question_answer_webpage(a, b, llm=logical_llm)
-    return f"{answer}\n"
-
-async def parse_summary_webpage_input(url):
-    summary = await summarize_webpage(url, llm=logical_llm)
-    return summary
-
-async def parse_blip_recognition(url_comma_question):
-    a, b = url_comma_question.split(",")
-    output = await get_full_blip(image_url=a, question=b)
-    return output
-
-attachment_text = ""
-file_placeholder = ""
-
-tools = []
-
-ask_llm = ChatOpenAI(
-    temperature=0.5,
-    model_name="gpt-3.5-turbo",
-    openai_api_key="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",
-    request_timeout=600,
-    verbose=False,
-    #callback_manager=manager,
-    #max_tokens=max_tokens,
-    )
-"""
-tools.append(Tool(
-    name = "Organic Results",
-    func=dummy_sync_function,
-    coroutine=get_organic_results,
-    description=ORGANIC_RESULTS_ASK_TOOL_DESCRIPTION,
-))
-
-tools.append(Tool(
-    name = "Summarize Webpage",
-    func=dummy_sync_function,
-    coroutine=parse_summary_webpage_input,
-    description=SUMMARIZE_WEBPAGE_ASK_TOOL_DESCRIPTION,
-))
-
-tools.append(Tool(
-    name = "Q&A Webpage",
-    func=dummy_sync_function,
-    coroutine=parse_qa_webpage_input,
-    description=QA_WEBPAGE_ASK_TOOL_DESCRIPTION,
-))
-
-tools.append(Tool(
-    name = "Recognize Image",
-    func=dummy_sync_function,
-    coroutine=parse_blip_recognition,
-    description=RECOGNIZE_IMAGE_ASK_TOOL_DESCRIPTION,
-))
-
-tools.append(Tool(
-    name = "Image Search",
-    func=dummy_sync_function,
-    coroutine=get_image_from_search,
-    description=IMAGE_SEARCH_ASK_TOOL_DESCRIPTION,
-))
-"""
-k_limit = 3
-
 memory = ConversationBufferWindowMemory(
     k=k_limit,
     #return_messages=True,
@@ -396,12 +415,11 @@ prompt = CustomPromptTemplate(
 )
 
 # LLM chain consisting of the LLM and a prompt
-llm_chain = LLMChain(llm=ask_llm, prompt=prompt)
+llm_chain = LLMChain(llm=ask_llm, prompt=prompt, memory=memory)
 
 agent = CustomConversationalChatAgent(
     llm_chain=llm_chain,
     output_parser=output_parser,
-    allowed_tools=tools,
 )
 
 agent_executor = AgentExecutor.from_agent_and_tools(
@@ -409,8 +427,18 @@ agent_executor = AgentExecutor.from_agent_and_tools(
     tools=tools,
     verbose=True
 )
-
+"""
 while True:
     prompt = input("User: ")
     reply = agent_executor.run(prompt)
     print(f"Agent: {reply}")
+"""
+
+from langchain.chat_models import ChatOpenAI
+from langchain.schema import (
+    HumanMessage,
+)
+
+from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+chat = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], temperature=0, openai_api_key="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")
+resp = chat([HumanMessage(content="Write me a song about sparkling water.")])

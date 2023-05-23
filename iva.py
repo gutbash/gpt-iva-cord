@@ -42,6 +42,7 @@ import logging
 
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import OpenAI
+from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.chains.llm import LLMChain
 from langchain.callbacks import get_openai_callback
 from langchain.chains.conversation.memory import ConversationSummaryBufferMemory
@@ -918,6 +919,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                 openai_api_key=openai_key,
                 request_timeout=600,
                 verbose=True,
+                streaming=True,
+                callbacks=[StreamingStdOutCallbackHandler()],
                 #callback_manager=manager,
                 #max_tokens=max_tokens,
                 )
