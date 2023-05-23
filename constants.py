@@ -71,7 +71,7 @@ async def get_ask_custom_format_instructions(tool_names):
     Iva: [your response here]
     ```
     
-    You must prefix the response with `Iva: ` or else it won't be seen! You must mention any info from tools explicitly and cite any references of webpages as a clickable markdown formatted hyperlink!
+    You must prefix the response with `Iva: ` or else it won't be seen!
     """
     return ask_custom_format_instructions
 
