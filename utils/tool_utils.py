@@ -70,7 +70,7 @@ async def get_important_text(url):
                 #print(f"HTML content: {content}")
                 soup = BeautifulSoup(content, 'lxml')
 
-                important_tags = ['p', 'li']
+                important_tags = ['p', 'li', 'div']
                 important_text = ''
 
                 for tag in important_tags:

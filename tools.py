@@ -77,7 +77,7 @@ async def question_answer_webpage(url: str, question: str, llm) -> str:
     answer = await chain.arun(input_documents=docs, question=question)
     #answer = await chain.arun({"input_documents": docs, "question": question}, return_only_outputs=True)
     
-    return f"{answer}\nInvestigate further if this doesn't answer your query adequately. You must cite the URL of any references of a webpage in the form of a clickable markdown formatted hyperlink."
+    return f"{answer}\nInstruction: Investigate further if this doesn't answer your query adequately. You must cite the URL of any references of a webpage in the form of a clickable markdown formatted hyperlink."
 
 async def view_webpage_window(url: str, span_index: int) -> str:
     
