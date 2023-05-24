@@ -76,7 +76,12 @@ async def get_important_text(url):
                 for tag in important_tags:
                     elements = soup.find_all(tag)
                     for element in elements:
-                        important_text += element.get_text(strip=True) + ' '
+                        if tag == 'a':
+                            important_text += '\n\nLink Text: ' + element.get_text(strip=True) + '\nLink: ' + element.get('href', '') + '\n\n'
+                        elif tag in ['h1', 'h2', 'h3']:
+                            important_text += '\n\n' + tag.upper() + ': ' + element.get_text(strip=True) + '\n\n'
+                        else:
+                            important_text += element.get_text(strip=True) + ' '
                         
                 #print(f"Important text: {important_text}")
             else:
