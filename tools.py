@@ -77,7 +77,7 @@ async def question_answer_webpage(url: str, question: str, llm) -> str:
     answer = await chain.arun(input_documents=docs, question=question)
     #answer = await chain.arun({"input_documents": docs, "question": question}, return_only_outputs=True)
     
-    return f"{answer}\nAdvice: If you need more information, use Webpage Window to read the page or use Organic Results to keep searching.\nCitation: Remember that you must cite the URL {url} in your final response as a hyperlink like [title](https://www.example.com)."
+    return f"{answer}\n\nAdvice: If you need more information, use Webpage Window to read the page or use Organic Results to search for something else.\nCitation: Remember that you must cite the URL {url} in your final response as a hyperlink like [title](https://www.example.com)."
 
 async def view_webpage_window(url: str, span_index: int) -> str:
     
@@ -91,7 +91,7 @@ async def view_webpage_window(url: str, span_index: int) -> str:
         spans.append(subspan)
         
     if 0 <= span_index < len(spans):
-        return f"{spans[span_index-1]}\nAdvice: If you need more information, explore pages 1-{len(spans)} or use Organic Results to keep searching.\nCitation: Remember that you must cite the URL {url} in your final response as a hyperlink like [title](https://www.example.com)."
+        return f"{spans[span_index-1]}\n\nAdvice: If you need more information, explore pages 1-{len(spans)} or use Organic Results to search for something else.\nCitation: Remember that you must cite the URL {url} in your final response as a hyperlink like [title](https://www.example.com)."
     else:
         return f"there are only {len(spans)} pages!"
 
@@ -186,7 +186,7 @@ async def get_organic_results(query: str) -> str:
         knowledge_graph = await get_formatted_key_values(knowledge_graph_keys, knowledge_graph_raw)
         knowledge_graph = f"{knowledge_graph}"
         
-    final_results = f"\n\n{organic_results}\n\nAdvice: If you need to answer simple questions about the result, use Q&A Webpage. If you need to read specific information from the result, use Webpage Window. Otherwise, keep searching.\nCitation: Remember that you must cite the observation's URL in your final response as a hyperlink like [title](https://www.example.com)."
+    final_results = f"\n\n{organic_results}\n\nAdvice: If you need to answer simple questions about the result, use Q&A Webpage. If you need to read specific information from the result, use Webpage Window. Otherwise, search for something else.\nCitation: Remember that you must cite the observation's URL in your final response as a hyperlink like [title](https://www.example.com)."
     
     return final_results
 
