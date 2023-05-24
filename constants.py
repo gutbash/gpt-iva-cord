@@ -70,7 +70,7 @@ async def get_ask_custom_format_instructions(tool_names):
     
     ```
     Thought: Do I need to use a tool? No
-    Do I need to cite any sources as superscript numbered hyperlinks? [Yes/No]
+    Do I need to cite any sources as labelled hyperlinks? [Yes/No]
     Iva: [your response here]
     ```
     
