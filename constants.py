@@ -70,7 +70,8 @@ async def get_ask_custom_format_instructions(tool_names):
     
     ```
     Thought: Do I need to use a tool? No
-    Iva: [your response here] [hyperlinks of sources or none]
+    Thought: Do I need to cite any sources? [Yes/No]
+    Iva: [your response here]
     ```
     
     You must prefix the response with `Iva: ` or else it won't be seen!
