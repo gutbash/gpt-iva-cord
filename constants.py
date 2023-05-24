@@ -12,7 +12,7 @@ SUMMARIZE_WEBPAGE_ASK_TOOL_DESCRIPTION = "Use this sparingly to to summarize the
 
 QA_WEBPAGE_ASK_TOOL_DESCRIPTION = "Use this to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like `url,question`. Output will be an answer to the input question from the webpage."
 
-WEBPAGE_WINDOW_ASK_TOOL_DESCRIPTION = "Use this to view part of a given webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the page number, like `url,page`. Output will be the section of text from the webpage."
+WEBPAGE_WINDOW_ASK_TOOL_DESCRIPTION = "Use this to view part of a given webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the page number starting at 1, like `url,page`. Output will be the section of text from the webpage."
 
 RECOGNIZE_IMAGE_ASK_TOOL_DESCRIPTION = "Use this tool to caption or answer questions about a given image url. Input should be a comma separated list of length two, with the first entry being the image url, and the second input being the question, like 'image_url,question'. Output will be a caption of the image with the answer to the question."
 
