@@ -71,6 +71,7 @@ async def get_ask_custom_format_instructions(tool_names):
     ```
     Thought: Do I need to use a tool? No
     Iva: [your response here]
+    Sources: [list of URL sources or None]
     ```
     
     You must prefix the response with `Iva: ` or else it won't be seen!
