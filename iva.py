@@ -687,7 +687,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         
         async def parse_view_webpage_input(url_comma_page_index):
             a, b = url_comma_page_index.split(",", maxsplit=1)
-            output = await view_webpage_window(url=a, span_index=b)
+            output = await view_webpage_window(url=a, span_index=int(b))
             return output
         
         tools = []

@@ -54,7 +54,7 @@ async def get_sublinks(url):
 
     return sublinks
         
-async def question_answer_webpage(url, question, llm):
+async def question_answer_webpage(url: str, question: str, llm) -> str:
     
     url = url.strip("[").strip("]")
     text = await get_important_text(url)
@@ -79,7 +79,7 @@ async def question_answer_webpage(url, question, llm):
     
     return f"{answer}\nInvestigate further if this doesn't answer your query adequately. You must cite the URL of any references of a webpage in the form of a clickable markdown formatted hyperlink."
 
-async def view_webpage_window(url, span_index):
+async def view_webpage_window(url: str, span_index: int) -> str:
     
     url = url.strip("[").strip("]")
     text = await get_important_text(url)
