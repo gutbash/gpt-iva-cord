@@ -73,17 +73,14 @@ async def get_important_text(url):
                 important_tags = ['p', 'li', 'ul', 'a', 'h1', 'h2', 'h3']
                 important_text = ''
 
-                for tag in important_tags:
-                    elements = soup.find_all(tag)
-                    for element in elements:
-                        if tag == 'a':
-                            important_text += '\n\nLink Text: ' + element.get_text(strip=True) + '\nLink: ' + element.get('href', '') + '\n\n'
-                        elif tag in ['h1', 'h2', 'h3']:
-                            important_text += '\n\n' + tag.upper() + ': ' + element.get_text(strip=True) + '\n\n'
+                for element in soup.find_all(recursive=True):
+                    if element.name in important_tags:
+                        if element.name == 'a':
+                            important_text += f"{element.get_text(strip=True)} ({element.get('href', '')}) "
+                        elif element.name in ['h1', 'h2', 'h3']:
+                            important_text += f"\n{element.get_text(strip=True).upper()}\n"
                         else:
-                            important_text += element.get_text(strip=True) + ' '
-                        
-                #print(f"Important text: {important_text}")
+                            important_text += f"{element.get_text(strip=True)} "
             else:
                 print(f"Unknown content type for {url}: {content_type}")
 
