@@ -186,7 +186,7 @@ async def get_organic_results(query: str) -> str:
         knowledge_graph = await get_formatted_key_values(knowledge_graph_keys, knowledge_graph_raw)
         knowledge_graph = f"{knowledge_graph}"
         
-    final_results = f"\n\n{organic_results}\n\nAdvice: If you need more information, use Q&A Webpage or Webpage Window to investigate the observation, or keep searching.\nCitation: Remember that you must cite the observation's URL in your final response as a hyperlink like [title](https://www.example.com)."
+    final_results = f"\n\n{organic_results}\n\nAdvice: If you need to answer simple questions about the result, use Q&A Webpage. If you need to read specific information from the result, use Webpage Window. Otherwise, keep searching.\nCitation: Remember that you must cite the observation's URL in your final response as a hyperlink like [title](https://www.example.com)."
     
     return final_results
 
