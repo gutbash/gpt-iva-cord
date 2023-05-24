@@ -14,6 +14,7 @@ from tools import (
     question_answer_webpage,
     summarize_webpage,
     get_full_blip,
+    view_webpage_window,
 )
 
 import sys
@@ -67,6 +68,7 @@ from langchain.prompts.chat import (
 from constants import (
     ORGANIC_RESULTS_ASK_TOOL_DESCRIPTION,
     QA_WEBPAGE_ASK_TOOL_DESCRIPTION,
+    WEBPAGE_WINDOW_ASK_TOOL_DESCRIPTION,
     IMAGE_SEARCH_ASK_TOOL_DESCRIPTION,
     RECOGNIZE_IMAGE_ASK_TOOL_DESCRIPTION,
     SUMMARIZE_WEBPAGE_ASK_TOOL_DESCRIPTION,
@@ -683,6 +685,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             output = await get_full_blip(image_url=a, question=b)
             return output
         
+        async def parse_view_webpage_input(url_comma_page_index):
+            a, b = url_comma_page_index.split(",", maxsplit=1)
+            output = await view_webpage_window(url=a, span_index=b)
+            return output
+        
         tools = []
         embeds = []
         files = []
@@ -790,14 +797,20 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             coroutine=parse_summary_webpage_input,
             description=SUMMARIZE_WEBPAGE_ASK_TOOL_DESCRIPTION,
         ))
-        """
+        
         tools.append(Tool(
             name = "Q&A Webpage",
             func=dummy_sync_function,
             coroutine=parse_qa_webpage_input,
             description=QA_WEBPAGE_ASK_TOOL_DESCRIPTION,
         ))
-        
+        """
+        tools.append(Tool(
+            name = "Webpage Window",
+            func=dummy_sync_function,
+            coroutine=parse_view_webpage_input,
+            description=WEBPAGE_WINDOW_ASK_TOOL_DESCRIPTION,
+        ))
         tools.append(Tool(
             name = "Python REPL",
             func=dummy_sync_function,
