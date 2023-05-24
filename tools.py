@@ -77,7 +77,7 @@ async def question_answer_webpage(url: str, question: str, llm) -> str:
     answer = await chain.arun(input_documents=docs, question=question)
     #answer = await chain.arun({"input_documents": docs, "question": question}, return_only_outputs=True)
     
-    return f"{answer}\nInstruction: Investigate further if this doesn't answer your query adequately. You must cite the URL of any references of a webpage in the form of a clickable markdown formatted hyperlink."
+    return f"{answer}\nAdvice: Investigate further if this doesn't answer your query adequately."
 
 async def view_webpage_window(url: str, span_index: int) -> str:
     
@@ -90,7 +90,7 @@ async def view_webpage_window(url: str, span_index: int) -> str:
         subspan = text[span:span+4096]
         spans.append(subspan)
         
-    return f"{spans[span_index-1]}\nInstruction: If you haven't found what you're looking for yet, use the Webpage Window tool again to look around pages 1-{len(spans)}."
+    return f"{spans[span_index-1]}\nAdvice: If you haven't found what you're looking for yet, use the Webpage Window tool again to look around pages 1-{len(spans)}."
 
 async def summarize_webpage(url, llm):
     
@@ -183,7 +183,7 @@ async def get_organic_results(query: str) -> str:
         knowledge_graph = await get_formatted_key_values(knowledge_graph_keys, knowledge_graph_raw)
         knowledge_graph = f"{knowledge_graph}"
         
-    final_results = f"\n\n{organic_results}\n\nInstruction: Investigate further with tools if this doesn't answer your query adequately. You must cite the above URLs in the form of a markdown hyperlink.\n"
+    final_results = f"\n\n{organic_results}\n\nAdvise: Investigate further with tools if this doesn't answer your query adequately.\n"
     
     return final_results
 
