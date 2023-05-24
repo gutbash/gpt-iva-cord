@@ -70,19 +70,15 @@ async def get_important_text(url):
                 #print(f"HTML content: {content}")
                 soup = BeautifulSoup(content, 'lxml')
 
-                important_tags = ['p', 'li', 'ul', 'dt', 'h1', 'h2', 'h3']
+                important_tags = ['p', 'li', 'dt', 'h1', 'h2', 'h3']
                 important_text = ''
 
                 for element in soup.find_all(recursive=True):
                     if element.name in important_tags:
-                        if element.name == 'li':
-                            important_text += f"-li {element.get_text(strip=True)}\n"
-                        elif element.name == 'ul':
-                            important_text += f"-ul {element.get_text(strip=True)}\n"
-                        elif element.name in ['h1', 'h2', 'h3']:
+                        if element.name in ['h1', 'h2', 'h3']:
                             important_text += f"\n{element.get_text(strip=True).upper()}\n"
                         else:
-                            important_text += f"{element.get_text(strip=True)} "
+                            important_text += f" {element.get_text(strip=True)} "
             else:
                 print(f"Unknown content type for {url}: {content_type}")
 
