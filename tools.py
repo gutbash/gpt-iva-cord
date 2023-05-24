@@ -90,7 +90,7 @@ async def view_webpage_window(url: str, span_index: int) -> str:
         subspan = text[span:span+1000]
         spans.append(subspan)
         
-    return f"{spans[span_index-1]}\n\nIf you haven't found what you're looking for yet, go to page {span_index+1}."
+    return f"{spans[span_index-1]}\nInstruction: If you haven't found what you're looking for yet, use the Webpage Window tool again to visit page {span_index+1}."
 
 async def summarize_webpage(url, llm):
     
