@@ -70,7 +70,7 @@ async def get_ask_custom_format_instructions(tool_names):
     
     ```
     Thought: Do I need to use a tool? No
-    Do I need to cite any URL sources as hyperlinks? [Yes/No]
+    Do I have any URL sources to cite as hyperlinks? [Yes/No]
     Iva: [your response here]
     ```
     
