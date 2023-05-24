@@ -77,7 +77,7 @@ async def question_answer_webpage(url: str, question: str, llm) -> str:
     answer = await chain.arun(input_documents=docs, question=question)
     #answer = await chain.arun({"input_documents": docs, "question": question}, return_only_outputs=True)
     
-    return f"{answer}\nCitation: Remember that you must cite the URL {url} in your final response as a hyperlink!"
+    return f"{answer}\nCitation: Remember that you must cite the URL {url} in your final response as a hyperlink like [title](https://www.example.com)."
 
 async def view_webpage_window(url: str, span_index: int) -> str:
     
@@ -91,7 +91,7 @@ async def view_webpage_window(url: str, span_index: int) -> str:
         spans.append(subspan)
         
     if 0 <= span_index < len(spans):
-        return f"{spans[span_index-1]}\nCitation: Remember that you must cite the URL {url} in your final response as a hyperlink!"
+        return f"{spans[span_index-1]}\nCitation: Remember that you must cite the URL {url} in your final response as a hyperlink like [title](https://www.example.com)."
     else:
         return f"there are only {len(spans)} pages!"
 
@@ -186,7 +186,7 @@ async def get_organic_results(query: str) -> str:
         knowledge_graph = await get_formatted_key_values(knowledge_graph_keys, knowledge_graph_raw)
         knowledge_graph = f"{knowledge_graph}"
         
-    final_results = f"\n\n{organic_results}\n\nCitation: Remember that you must cite the observation's URL in your final response as a hyperlink!"
+    final_results = f"\n\n{organic_results}\n\nCitation: Remember that you must cite the observation's URL in your final response as a hyperlink like [title](https://www.example.com)."
     
     return final_results
 
