@@ -77,7 +77,7 @@ async def question_answer_webpage(url: str, question: str, llm) -> str:
     answer = await chain.arun(input_documents=docs, question=question)
     #answer = await chain.arun({"input_documents": docs, "question": question}, return_only_outputs=True)
     
-    return f"{answer}\nInstructions: Investigate further if this doesn't answer your query adequately. Remember that you must cite the URL {url} in your final response as a hyperlink!"
+    return f"{answer}\nCitation: Remember that you must cite the URL {url} in your final response as a hyperlink!"
 
 async def view_webpage_window(url: str, span_index: int) -> str:
     
@@ -90,7 +90,10 @@ async def view_webpage_window(url: str, span_index: int) -> str:
         subspan = text[span:span+4096]
         spans.append(subspan)
         
-    return f"{spans[span_index-1]}\nInstructions: If you haven't found what you're looking for yet, use the Webpage Window tool again to look around pages 1-{len(spans)}. Remember that you must cite the URL {url} in your final response as a hyperlink!"
+    if 0 <= span_index < len(spans):
+        return f"{spans[span_index-1]}\nCitation: Remember that you must cite the URL {url} in your final response as a hyperlink!"
+    else:
+        return f"there are only {len(spans)} pages!"
 
 async def summarize_webpage(url, llm):
     
@@ -183,7 +186,7 @@ async def get_organic_results(query: str) -> str:
         knowledge_graph = await get_formatted_key_values(knowledge_graph_keys, knowledge_graph_raw)
         knowledge_graph = f"{knowledge_graph}"
         
-    final_results = f"\n\n{organic_results}\n\nInstructions: Investigate further with tools if this doesn't answer your query adequately. Remember that you must cite the observation's URL in your final response as a hyperlink!"
+    final_results = f"\n\n{organic_results}\n\nCitation: Remember that you must cite the observation's URL in your final response as a hyperlink!"
     
     return final_results
 
