@@ -1003,6 +1003,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             #return_intermediate_steps=True,
         )
         
+        url_pattern = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+        links = url_pattern.findall(prompt)
+        if links:
+            prompt += " (open the link with a tool)"
+        
         try:
             
             with get_openai_callback() as cb:
