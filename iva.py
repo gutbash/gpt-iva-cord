@@ -1000,7 +1000,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             max_execution_time=600,
             #max_iterations=3,
             #early_stopping_method="generate",
-            #return_intermediate_steps=False,
+            #return_intermediate_steps=True,
         )
         
         try:

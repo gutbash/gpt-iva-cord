@@ -70,7 +70,7 @@ async def get_ask_custom_format_instructions(tool_names):
     
     ```
     Thought: Do I need to use a tool? No
-    Thought: Do I need to cite any sources? [Yes/No]
+    Do I need to cite any sources? [Yes/No]
     Iva: [your response here]
     ```
     
