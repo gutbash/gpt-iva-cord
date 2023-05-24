@@ -804,14 +804,14 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             coroutine=parse_qa_webpage_input,
             description=QA_WEBPAGE_ASK_TOOL_DESCRIPTION,
         ))
-        """
+        
         tools.append(Tool(
             name = "Webpage Window",
             func=dummy_sync_function,
             coroutine=parse_view_webpage_input,
             description=WEBPAGE_WINDOW_ASK_TOOL_DESCRIPTION,
         ))
-        """
+        
         tools.append(Tool(
             name = "Python REPL",
             func=dummy_sync_function,
