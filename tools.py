@@ -90,7 +90,7 @@ async def view_webpage_window(url: str, span_index: int) -> str:
         subspan = text[span:span+4096]
         spans.append(subspan)
         
-    return f"{spans[span_index-1]}\nInstruction: If you haven't found what you're looking for yet, use the Webpage Window tool again to visit page {span_index+1}."
+    return f"{spans[span_index-1]}\nInstruction: If you haven't found what you're looking for yet, use the Webpage Window tool again to look around pages 1-{len(spans)}."
 
 async def summarize_webpage(url, llm):
     
@@ -183,7 +183,7 @@ async def get_organic_results(query: str) -> str:
         knowledge_graph = await get_formatted_key_values(knowledge_graph_keys, knowledge_graph_raw)
         knowledge_graph = f"{knowledge_graph}"
         
-    final_results = f"\n\n{organic_results}\n\nInvestigate further with tools if this doesn't answer your query adequately. You must cite any of the above URLs referenced in your response in the form of a clickable markdown formatted hyperlink.\n"
+    final_results = f"\n\n{organic_results}\n\nInstruction: Investigate further with tools if this doesn't answer your query adequately. You must cite any of the above URLs referenced in your response in the form of a clickable markdown formatted hyperlink.\n"
     
     return final_results
 
