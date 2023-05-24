@@ -86,8 +86,8 @@ async def view_webpage_window(url: str, span_index: int) -> str:
     
     spans = []
     
-    for span in range(0, len(text), 2000):
-        subspan = text[span:span+2000]
+    for span in range(0, len(text), 4096):
+        subspan = text[span:span+4096]
         spans.append(subspan)
         
     return f"{spans[span_index-1]}\nInstruction: If you haven't found what you're looking for yet, use the Webpage Window tool again to visit page {span_index+1}."
