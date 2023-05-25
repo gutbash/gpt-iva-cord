@@ -709,8 +709,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                 command = command.strip().replace("```python", "").replace("```py", "").strip("```")
                 #command = autopep8.fix_code(command, options={"aggressive": 2})
                 
-                print(f"COMMAND INPUT: {command}")
-                
                 """Run command with own globals/locals and returns anything printed."""
                 old_stdout = sys.stdout
                 sys.stdout = mystdout = StringIO()
@@ -729,8 +727,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                 
                 command = command.strip().replace("```python", "").replace("```py", "").strip("```")
                 #command = autopep8.fix_code(command, options={"aggressive": 2})
-                
-                print(f"COMMAND INPUT: {command}")
                 
                 """Run command (sync or async) with own globals/locals and returns anything printed."""
                 old_stdout = sys.stdout
@@ -769,8 +765,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         
         async def python_repl(command):
             
-            print(f"ORIGINAL COMMAND INPUT: {command}")
-            
             repl = PythonREPL()
             
             # Get the list of files before running the command
@@ -778,15 +772,14 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             
             try:
                 output = await repl.arun(command)
-                return output
             except Exception as e:
                 logging.error(e)
                 
             # Get the list of files after running the command
             cwd = os.getcwd()
-            print(f"CWD: {cwd}")
+            logging.info(f"CWD: {cwd}")
             after_files = set(os.listdir())
-            print(f"AFTER FILES DIR: {after_files}")
+            logging.info(f"AFTER FILES DIR: {after_files}")
                 
             # Get the list of created files
             created_files = list(after_files - before_files)
@@ -794,6 +787,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             for file in created_files:
                 logging.info(file)
                 files.append(discord.File(fp=file))
+                
+            return output
             
         tools.append(Tool(
             name = "Organic Results",
