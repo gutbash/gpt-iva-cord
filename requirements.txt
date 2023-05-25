@@ -20,5 +20,5 @@ brotlipy
 Flask
 gunicorn
 cryptography
-pycodestyle
-autopep8
+pandas
+matplotlib
