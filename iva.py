@@ -706,7 +706,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                 
                 logging.info("using sync run repl")
                 
-                command = command.strip().replace("```python", "").replace("```py", "").strip("```")
                 #command = autopep8.fix_code(command, options={"aggressive": 2})
                 
                 """Run command with own globals/locals and returns anything printed."""
@@ -725,7 +724,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                 
                 logging.info("using async run repl")
                 
-                command = command.strip().replace("```python", "").replace("```py", "").strip("```")
                 #command = autopep8.fix_code(command, options={"aggressive": 2})
                 
                 """Run command (sync or async) with own globals/locals and returns anything printed."""
@@ -764,6 +762,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                 return output
         
         async def python_repl(command):
+            
+            command = command.strip().replace("```python", "").replace("```py", "").strip("```").replace(".show()", ".savefig('output.png')")
             
             repl = PythonREPL()
             
