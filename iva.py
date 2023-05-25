@@ -769,6 +769,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         
         async def python_repl(command):
             
+            print(f"ORIGINAL COMMAND INPUT: {command}")
+            
             repl = PythonREPL()
             
             # Get the list of files before running the command
