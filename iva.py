@@ -765,6 +765,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             
             command = command.strip().replace("```python", "").replace("```py", "").strip("```").replace(".show()", ".savefig('output.png')")
             
+            logging.info(f"SANITIZED COMMAND: {command}")
+            
             repl = PythonREPL()
             
             # Get the list of files before running the command
