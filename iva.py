@@ -776,10 +776,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                 logging.error(e)
                 
             # Get the list of files after running the command
-            cwd = os.getcwd()
-            logging.info(f"CWD: {cwd}")
             after_files = set(os.listdir())
-            logging.info(f"AFTER FILES DIR: {after_files}")
                 
             # Get the list of created files
             created_files = list(after_files - before_files)
@@ -870,7 +867,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                 file_count += 1
                 
                 if file_type in ('image/jpeg', 'image/jpg', 'image/png'):
-                    blip_text += f"\n\nimage attached: (use Recognize Image tool): {file.url}"
+                    blip_text += f"\n\n{file_name} attached and saved to working directory: (use Recognize Image tool): {file.url}"
                     file_placeholder += f"\n\n:frame_photo: **{file_name}**"
                 
                 elif file_type == "text/plain": #txt
@@ -878,7 +875,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                     detected = chardet.detect(attachment_bytes)
                     encoding = detected['encoding']
                     # Decode using the detected encoding
-                    attachment_text += f"\n\n{attachment_bytes.decode(encoding)}"
+                    attachment_text += f"\n\n{file_name} has been saved to the working directory\n--- {file_name} ---\n\n{attachment_bytes.decode(encoding)}"
                     file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
                 
                 elif file_type == "application/pdf": #pdf
@@ -891,7 +888,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                         # Replace multiple newlines with a single space
                         page_text = re.sub(r'\n+', ' ', page_text)
                         pdf_content += page_text
-                    attachment_text += f"\n\n--- {file_name} ---\n\n{pdf_content}"
+                    attachment_text += f"\n\n{file_name} has been saved to the working directory\n--- {file_name} ---\n\n{pdf_content}"
                     file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
                     
                 else:
@@ -900,7 +897,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                         detected = chardet.detect(attachment_bytes)
                         encoding = detected['encoding']
                         # Decode using the detected encoding
-                        attachment_text += f"\n\n--- {file_name} ---\n\n{attachment_bytes.decode(encoding)}"
+                        attachment_text += f"\n\n{file_name} has been saved to the working directory\n--- {file_name} ---\n\n{attachment_bytes.decode(encoding)}"
                         file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
                         
                     except:
@@ -914,6 +911,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                 file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + attachment_text, truncation=True, max_length=12000)['input_ids'])
 
                 if file_tokens >= max_tokens:
+                    
+                    trimmed_attachment_text = attachment_bytes.decode(encoding)
+                    
+                    attachment_text += f"\n\n{file_name} is too large for you to view, but it has still been saved to the directory if you'd like to use Python REPL to interact with it. Here is a preview of the file:\n--- {file_name} ---\n\n{trimmed_attachment_text[:100]} [...]"
 
                     embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} this file is too large at {file_tokens} tokens. try shortening the file length. you can also send unlimited length files as URLs to Iva to perform simple summary and question-answer if you are willing to compromise exact information.', color=discord.Color.dark_theme())
                     if isinstance(interaction.channel, discord.TextChannel):
