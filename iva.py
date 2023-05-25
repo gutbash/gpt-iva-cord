@@ -784,11 +784,13 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             created_files = list(after_files - before_files)
             
             for file in created_files:
-                if not file.startswith("."):
+                if file.startswith("."):
+                    continue
+                else:
                     output += f"{file} attached. "
                     logging.info(f"FILE ATTACHED {file}")
                     files.append(discord.File(fp=file))
-                os.remove(file)
+                    os.remove(file)
                 
             return output
             
