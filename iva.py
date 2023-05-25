@@ -735,9 +735,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                 """Run command (sync or async) with own globals/locals and returns anything printed."""
                 old_stdout = sys.stdout
                 sys.stdout = mystdout = StringIO()
-                
-                # Get the list of files before running the command
-                before_files = set(os.listdir())
 
                 async def run_sync_code():
                     loop = asyncio.get_running_loop()
@@ -765,28 +762,34 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                     logging.error(e)
                     sys.stdout = old_stdout
                     output = str(e)
-                    
-                # Get the list of files after running the command
-                after_files = set(os.listdir())
-                logging.info(after_files)
-                    
-                # Get the list of created files
-                created_files = list(after_files - before_files)
-                
-                for file in created_files:
-                    logging.info(file)
-                    files.append(discord.File(fp=file))
 
                 return output
         
-        repl = PythonREPL()
-        
         async def python_repl(command):
+            
+            repl = PythonREPL()
+            
+            # Get the list of files before running the command
+            before_files = set(os.listdir())
+            
             try:
                 output = await repl.arun(command)
                 return output
             except Exception as e:
                 logging.error(e)
+                
+            # Get the list of files after running the command
+            cwd = os.getcwd()
+            logging.info(cwd)
+            after_files = set(os.listdir())
+            logging.info(after_files)
+                
+            # Get the list of created files
+            created_files = list(after_files - before_files)
+            
+            for file in created_files:
+                logging.info(file)
+                files.append(discord.File(fp=file))
             
         tools.append(Tool(
             name = "Organic Results",
