@@ -727,10 +727,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                 
                 logging.info("using async run repl")
                 
-                command = command.strip().strip("```")
+                command = command.strip().replace("```python", "").replace("```py", "").strip("```")
                 #command = autopep8.fix_code(command, options={"aggressive": 2})
                 
-                logging.info(command)
+                print(f"COMMAND INPUT: {command}")
                 
                 """Run command (sync or async) with own globals/locals and returns anything printed."""
                 old_stdout = sys.stdout
@@ -753,8 +753,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
 
                 try:
                     if "async " in command:
+                        logging.info("detected async code")
                         await run_async_code()
                     else:
+                        logging.info("detected sync code")
                         await run_sync_code()
                     sys.stdout = old_stdout
                     output = mystdout.getvalue()
@@ -780,9 +782,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                 
             # Get the list of files after running the command
             cwd = os.getcwd()
-            logging.info(cwd)
+            logging.info(f"CWD: {cwd}")
             after_files = set(os.listdir())
-            logging.info(after_files)
+            logging.info(f"AFTER FILES DIR: {after_files}")
                 
             # Get the list of created files
             created_files = list(after_files - before_files)
