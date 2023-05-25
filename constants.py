@@ -89,7 +89,7 @@ async def get_ask_suffix():
     {{input}}
     
     RESPONSE:
-    You must put exactly `Thought: Do I need to use a tool? No` followed by your prefix `Iva: ` before your formatted response or else it won't be seen! You must use full markdown to format your response with headings, bold, italics, lists, blockquotes, and more even if unnecessary.
+    You must use full markdown to format your final response with headings, bold, italics, lists, blockquotes, and more even if unnecessary.
     
     Start responding below...
     ------

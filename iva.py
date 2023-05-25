@@ -979,7 +979,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         else:
             
             memory = ConversationTokenBufferMemory(
-                return_messages=True,
+                return_messages=False,
                 human_prefix="User",
                 ai_prefix="Iva",
                 llm=ask_llm,
