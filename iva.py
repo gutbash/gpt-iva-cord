@@ -916,12 +916,14 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                     
                     attachment_text += f"\n\n{file_name} is too large for you to view, but it has still been saved to the directory if you'd like to use Python REPL to interact with it. Here is a preview of the file:\n--- {file_name} ---\n\n{trimmed_attachment_text[:100]} [...]"
 
+                    """
                     embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {mention} this file is too large at {file_tokens} tokens. try shortening the file length. you can also send unlimited length files as URLs to Iva to perform simple summary and question-answer if you are willing to compromise exact information.', color=discord.Color.dark_theme())
                     if isinstance(interaction.channel, discord.TextChannel):
                         await thinking_message.edit(content=None, embed=embed)
                     else:
                         await interaction.followup.send(embed=embed, ephemeral=True)
                     return
+                    """
             
         try:
             if channel_id in ask_mems and user_id in ask_mems[channel_id] and ask_mems[channel_id][user_id]["last_message_id"] is not None:
