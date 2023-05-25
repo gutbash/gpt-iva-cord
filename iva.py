@@ -784,6 +784,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             created_files = list(after_files - before_files)
             
             for file in created_files:
+                if file.startswith("."):
+                    continue
                 logging.info(file)
                 files.append(discord.File(fp=file))
                 
