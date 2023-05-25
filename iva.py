@@ -768,6 +768,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                     
                 # Get the list of files after running the command
                 after_files = set(os.listdir())
+                logging.info(after_files)
                     
                 # Get the list of created files
                 created_files = list(after_files - before_files)
@@ -781,8 +782,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         repl = PythonREPL()
         
         async def python_repl(command):
-            output = await repl.arun(command)
-            return output
+            try:
+                output = await repl.arun(command)
+                return output
+            except Exception as e:
+                logging.error(e)
             
         tools.append(Tool(
             name = "Organic Results",
