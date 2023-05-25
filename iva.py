@@ -1070,7 +1070,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         reply = reply.replace("Do I need to use a tool? No", "")
         reply = reply.replace("```C#", "```cs")
         # Regex pattern for Markdown inline images
-        pattern = r'!\[.*?\]\(.*?\)'
+        pattern = r'\n?!\[.*?\]\(.*?\)'
         # Substituting the pattern with an empty string
         reply = re.sub(pattern, '', reply)
         
