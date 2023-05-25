@@ -786,6 +786,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             for file in created_files:
                 if file.startswith("."):
                     continue
+                output += f"{file} attached. "
                 logging.info(file)
                 files.append(discord.File(fp=file))
                 
