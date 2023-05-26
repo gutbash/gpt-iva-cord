@@ -894,7 +894,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                     blip_text += f"\n\n{file_name} attached and saved to working directory: {file.url}"
                     file_placeholder += f"\n\n:frame_photo: **{file_name}**"
                 
-                elif file_type == "text/plain": #txt
+                elif "text/plain" in file_type: #txt
                     # Detect encoding
                     detected = chardet.detect(attachment_bytes)
                     encoding = detected['encoding']
@@ -912,7 +912,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                         
                     file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
                 
-                elif file_type == "application/pdf": #pdf
+                elif "application/pdf" in file_type: #pdf
 
                     pdf_file = io.BytesIO(attachment_bytes)
                     pdf_reader = PyPDF2.PdfReader(pdf_file)
@@ -934,7 +934,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                         
                     file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
                     
-                elif file_type == "text/csv": #csv
+                elif "text/csv" in file_type: #csv
                     
                     # Detect encoding
                     detected = chardet.detect(attachment_bytes)
