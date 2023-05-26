@@ -774,9 +774,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                     # Handle pip install
                     package = pip.strip().split(' ')[-1]
                     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-                    """Restarts the current program."""
-                    python = sys.executable
-                    os.execl(python, python, * sys.argv)
+                    
+                    await python_repl(command)
+                    return
             
             logging.info(f"SANITIZED COMMAND: {command}")
             
