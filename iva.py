@@ -881,6 +881,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                 file_type = file.content_type
                 file_name = file.filename
                 
+                logging.info(file_type)
+                
                 with open(f'{file_name}', 'wb') as f:
                     f.write(attachment_bytes)
                     
