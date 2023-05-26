@@ -942,7 +942,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                     # Decode using the detected encoding
                     raw_text = attachment_bytes.decode(encoding)
                         
-                    data = pd.read_csv(file)
+                    data = pd.read_csv(file_name)
                     
                     attachment_text += f"\n\n{file_name} has been saved to the working directory. Here is a preview of the file head:\n--- {file_name} ---\n\n{data.head()}"
                         
