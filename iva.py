@@ -888,7 +888,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                 file_count += 1
                 
                 if file_type in ('image/jpeg', 'image/jpg', 'image/png'):
-                    blip_text += f"\n\n{file_name} attached and saved to working directory: (use Recognize Image tool): {file.url}"
+                    blip_text += f"\n\n{file_name} attached and saved to working directory: {file.url}"
                     file_placeholder += f"\n\n:frame_photo: **{file_name}**"
                 
                 elif file_type == "text/plain": #txt
@@ -1048,8 +1048,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         url_pattern = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
         links = url_pattern.findall(prompt)
         link_guidance = ""
-        if links:
-            link_guidance = " (open the link with a tool)"
+        #if links:
+        #    link_guidance = " (open the link with a tool)"
         
         try:
             
