@@ -778,12 +778,12 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                     if result == 0:  # if the pip install command was successful
                         await python_repl(command)
                         return
-                    
+            '''
             command = f"""try:
                 {command}
             except Exception as e:
                 print(str(e))"""
-            
+            '''
             logging.info(f"SANITIZED COMMAND: {command}")
             
             repl = PythonREPL()
