@@ -842,7 +842,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             coroutine=python_repl,
             description=PYTHON_REPL_ASK_TOOL_DESCRIPTION,
         ))
-        
+        """
         tools.append(Tool(
             name = "Recognize Image",
             func=dummy_sync_function,
@@ -856,7 +856,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             coroutine=get_image_from_search,
             description=IMAGE_SEARCH_ASK_TOOL_DESCRIPTION,
         ))
-        
+        """
         tool_names = [tool.name for tool in tools]
 
         prefix = await get_ask_prefix(itis=itis)
