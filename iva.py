@@ -39,6 +39,7 @@ import textwrap
 import chardet
 import aiohttp
 import logging
+import subprocess
 
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import OpenAI
@@ -763,6 +764,16 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         async def python_repl(command):
             
             command = command.strip().replace("```python", "").replace("```py", "").strip("```").replace(".show()", ".savefig('output.png')")
+            
+            if "!pip" in command:
+                pip_install_lines = re.findall(r'^!pip install .*\n?', command, re.MULTILINE)
+                command = re.sub(r'^!pip install .*\n?', '', command, flags=re.MULTILINE)
+
+                for pip in pip_install_lines:
+                    logging.info(f"PIP INSTALL COMMAND: {pip}")
+                    # Handle pip install
+                    package = command.strip().split(' ')[-1]
+                    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
             
             logging.info(f"SANITIZED COMMAND: {command}")
             
