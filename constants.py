@@ -18,7 +18,7 @@ RECOGNIZE_IMAGE_ASK_TOOL_DESCRIPTION = "Use this tool to caption or answer quest
 
 IMAGE_SEARCH_ASK_TOOL_DESCRIPTION = "A wrapper around Google Images. Input should be a caption of the image. Output will be the image link."
 
-PYTHON_REPL_ASK_TOOL_DESCRIPTION = "A Python shell. Use this for code execution, math calculations, data analysis, file handling, and more. Input should be a valid python command. !pip install packages at the beginning of the command in one line if needed. You must print() to see returned values. Otherwise, output should be a file."
+PYTHON_REPL_ASK_TOOL_DESCRIPTION = "A Python shell. Use this for code execution, math calculations, data analysis, file handling, and more. Input should be a valid python command. !pip install packages at the beginning of the command in one line if needed. You must print() or save a file to see output."
 
 ### CHAT TOOL DESCRIPTIONS ###
 

@@ -774,10 +774,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                     logging.info(f"PIP INSTALL COMMAND: {pip}")
                     # Handle pip install
                     package = pip.strip().split(' ')[-1]
-                    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-                    
-                    await python_repl(command)
-                    return
+                    result = subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+                    if result == 0:  # if the pip install command was successful
+                        await python_repl(command)
+                        return
             
             logging.info(f"SANITIZED COMMAND: {command}")
             
