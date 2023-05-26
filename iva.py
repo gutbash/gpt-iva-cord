@@ -807,11 +807,13 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                 if file.startswith("."):
                     continue
                 else:
-                    output += f"{file} attached. "
-                    logging.info(f"FILE ATTACHED {file}")
-                    files.append(discord.File(fp=file))
-                    os.remove(file)
-                
+                    try:
+                        output += f"{file} attached. "
+                        logging.info(f"FILE ATTACHED {file}")
+                        files.append(discord.File(fp=file))
+                        os.remove(file)
+                    except IsADirectoryError as e:
+                        continue
             return output
             
         tools.append(Tool(
@@ -941,17 +943,28 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                     
                 elif "text/csv" in file_type: #csv
                     
-                    # Detect encoding
-                    detected = chardet.detect(attachment_bytes)
-                    encoding = detected['encoding']
-                    # Decode using the detected encoding
-                    raw_text = attachment_bytes.decode(encoding)
+                    try:
+                        # Detect encoding
+                        detected = chardet.detect(attachment_bytes)
+                        encoding = detected['encoding']
+                        # Decode using the detected encoding
+                        raw_text = attachment_bytes.decode(encoding)
+                            
+                        data = pd.read_csv(file_name)
                         
-                    data = pd.read_csv(file_name)
-                    
-                    attachment_text += f"\n\n{file_name} has been saved to the working directory. Here is a preview of the file head:\n--- {file_name} ---\n\n{data.head()}"
+                        attachment_text += f"\n\n{file_name} has been saved to the working directory. Here is a preview of the file head:\n--- {file_name} ---\n\n{data.head()}"
+                            
+                        file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
+                    except:
+                        # Detect encoding
+                        detected = chardet.detect(attachment_bytes)
+                        encoding = detected['encoding']
+                        # Decode using the detected encoding
+                        raw_text = attachment_bytes.decode(encoding)
                         
-                    file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
+                        attachment_text += f"\n\n{file_name} is too large for you to view, but it has still been saved to the directory if you'd like to use Python REPL to interact with it. Here is a preview of the file:\n--- {file_name} ---\n\n{raw_text[:100]} [...]"
+                        
+                        file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
                     
                 else:
                     try:
