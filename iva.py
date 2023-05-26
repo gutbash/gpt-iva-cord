@@ -939,17 +939,10 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                     encoding = detected['encoding']
                     # Decode using the detected encoding
                     raw_text = attachment_bytes.decode(encoding)
+                        
+                    data = pd.read_csv(file)
                     
-                    file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + raw_text, truncation=True, max_length=12000)['input_ids'])
-
-                    if file_tokens >= max_tokens:
-                        
-                        data = pd.read_csv(file)
-                        
-                        attachment_text += f"\n\n{file_name} is too large for you to view, but it has still been saved to the directory if you'd like to use Python REPL to interact with it. Here is a preview of the file:\n--- {file_name} ---\n\n{data.head()}"
-                        
-                    else:
-                        attachment_text += f"\n\n{file_name} has been saved to the working directory\n--- {file_name} ---\n\n{attachment_bytes.decode(encoding)}"
+                    attachment_text += f"\n\n{file_name} has been saved to the working directory. Here is a preview of the file head:\n--- {file_name} ---\n\n{data.head()}"
                         
                     file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
                     
