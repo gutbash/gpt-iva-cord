@@ -77,7 +77,7 @@ async def question_answer_webpage(url: str, question: str, llm) -> str:
     answer = await chain.arun(input_documents=docs, question=question)
     #answer = await chain.arun({"input_documents": docs, "question": question}, return_only_outputs=True)
     
-    return f"{answer}\n\nAdvice: If you need more information, use Open URL to read the page or use Search to search for something else.\nCitation: Remember that you must cite the URL {url} in your final response as a hyperlink like [title](https://www.example.com)."
+    return f"{answer}\n\nAdvice: If you need more information, use Webpage Window to read the page or use Search to search for something else.\nCitation: Remember that you must cite the URL {url} in your final response as a hyperlink like [title](https://www.example.com)."
 
 async def view_webpage_window(url: str, span_index: int) -> str:
     
@@ -195,7 +195,7 @@ async def get_organic_results(query: str, recency_days: int, llm) -> str:
         knowledge_graph = await get_formatted_key_values(knowledge_graph_keys, knowledge_graph_raw)
         knowledge_graph = f"{knowledge_graph}"
         
-    final_results = f"\n\n{organic_results}\n\nAdvice: If you need to answer simple questions about the result, use Query URL. If you need to read specific information from the result, use Open URL. Otherwise, search for something else.\nCitation: Remember that you must cite the observation's URL in your final response as a hyperlink like [title](https://www.example.com)."
+    final_results = f"\n\n{organic_results}\n\nAdvice: If you need to answer simple questions about the result, use Query Webpage. If you need to read specific information from the result, use Webpage Window. Otherwise, search for something else.\nCitation: Remember that you must cite the observation's URL in your final response as a hyperlink like [title](https://www.example.com)."
     
     return final_results
 
