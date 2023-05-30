@@ -93,7 +93,7 @@ async def get_ask_suffix():
     
     Start responding below...
     ------
-    Thought: Does this require up to date information?{{agent_scratchpad}}
+    {{agent_scratchpad}}
     """
     return ask_suffix
     
