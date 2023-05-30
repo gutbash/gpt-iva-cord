@@ -134,7 +134,7 @@ async def get_image_from_search(query: str) -> str:
     chosen_image_url = random.choice(image_urls)
     return chosen_image_url
 
-async def get_organic_results(query: str, recency_days: int) -> str:
+async def get_organic_results(query: str, recency_days: int, llm) -> str:
     
     # Configure the GoogleSearch object with the provided query and API key
     search = {
