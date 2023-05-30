@@ -674,12 +674,12 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         
         async def parse_organic_results_input(url_comma_question):
             a, b = url_comma_question.split(",", maxsplit=1)
-            answer = await get_organic_results(a, b, llm=logical_llm)
+            answer = await get_organic_results(query=a, recency_days=int(b), llm=logical_llm)
             return f"{answer}"
         
         async def parse_qa_webpage_input(url_comma_question):
             a, b = url_comma_question.split(",", maxsplit=1)
-            answer = await question_answer_webpage(a, b, llm=logical_llm)
+            answer = await question_answer_webpage(url=a, question=b, llm=logical_llm)
             return f"{answer}\n"
         
         async def parse_summary_webpage_input(url):
