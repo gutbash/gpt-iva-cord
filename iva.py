@@ -672,6 +672,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             request_timeout=600,
             )
         
+        async def parse_organic_results_input(url_comma_question):
+            a, b = url_comma_question.split(",", maxsplit=1)
+            answer = await get_organic_results(a, b, llm=logical_llm)
+            return f"{answer}"
+        
         async def parse_qa_webpage_input(url_comma_question):
             a, b = url_comma_question.split(",", maxsplit=1)
             answer = await question_answer_webpage(a, b, llm=logical_llm)
@@ -817,9 +822,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             return output
             
         tools.append(Tool(
-            name = "Organic Results",
+            name = "Search",
             func=dummy_sync_function,
-            coroutine=get_organic_results,
+            coroutine=parse_organic_results_input,
             description=ORGANIC_RESULTS_ASK_TOOL_DESCRIPTION,
         ))
         """
@@ -831,40 +836,40 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         ))
         """
         tools.append(Tool(
-            name = "Q&A Webpage",
+            name = "Query URL",
             func=dummy_sync_function,
             coroutine=parse_qa_webpage_input,
             description=QA_WEBPAGE_ASK_TOOL_DESCRIPTION,
         ))
         
         tools.append(Tool(
-            name = "Webpage Window",
+            name = "Open URL",
             func=dummy_sync_function,
             coroutine=parse_view_webpage_input,
             description=WEBPAGE_WINDOW_ASK_TOOL_DESCRIPTION,
         ))
         
         tools.append(Tool(
-            name = "Python REPL",
+            name = "Python",
             func=dummy_sync_function,
             coroutine=python_repl,
             description=PYTHON_REPL_ASK_TOOL_DESCRIPTION,
         ))
-        """
+        
         tools.append(Tool(
-            name = "Recognize Image",
+            name = "Vision",
             func=dummy_sync_function,
             coroutine=parse_blip_recognition,
             description=RECOGNIZE_IMAGE_ASK_TOOL_DESCRIPTION,
         ))
         
         tools.append(Tool(
-            name = "Image Search",
+            name = "Images",
             func=dummy_sync_function,
             coroutine=get_image_from_search,
             description=IMAGE_SEARCH_ASK_TOOL_DESCRIPTION,
         ))
-        """
+        
         tool_names = [tool.name for tool in tools]
 
         prefix = await get_ask_prefix(itis=itis)

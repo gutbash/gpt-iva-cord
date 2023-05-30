@@ -6,7 +6,7 @@ async def get_thread_namer_prompt(user_name):
 
 ### ASK TOOL DESCRIPTIONS ###
 
-ORGANIC_RESULTS_ASK_TOOL_DESCRIPTION = "Wrapper around Google Search. Input should be the query in question. Do not input the same query twice. Do not search for personal or unrelated queries. Do not input URL links. Output returns the top webpage result."
+ORGANIC_RESULTS_ASK_TOOL_DESCRIPTION = "Wrapper around Google Search. Input should be a comma separated list of length two, with the first entry being the query in question, and the second input being the number of recency days to search back, like `query,recency_days`. Do not input the same query twice. Do not search for personal or unrelated queries. Do not input URL links. Output returns the top webpage result."
 
 SUMMARIZE_WEBPAGE_ASK_TOOL_DESCRIPTION = "Use this sparingly to to summarize the content of a webpage. Input should be the given url webpage. Output will be a summary of the contents of the webpage."
 
@@ -16,9 +16,9 @@ WEBPAGE_WINDOW_ASK_TOOL_DESCRIPTION = "Use this to view part of a given webpage.
 
 RECOGNIZE_IMAGE_ASK_TOOL_DESCRIPTION = "Use this tool to caption or answer questions about a given image url. Input should be a comma separated list of length two, with the first entry being the image url, and the second input being the question, like 'image_url,question'. Output will be a caption of the image with the answer to the question."
 
-IMAGE_SEARCH_ASK_TOOL_DESCRIPTION = "A wrapper around Google Images. Input should be a caption of the image. Output will be the image link."
+IMAGE_SEARCH_ASK_TOOL_DESCRIPTION = "Wrapper around Google Images. Input should be a caption of the image. Output will be the image link."
 
-PYTHON_REPL_ASK_TOOL_DESCRIPTION = "A Python shell. Use this for code execution, math calculations, data analysis, file handling, and more. Input should be a valid python command. !pip install packages at the beginning of the command in one line if needed. You must print() or save a file to see output."
+PYTHON_REPL_ASK_TOOL_DESCRIPTION = "Python REPL shell. Use this for code execution, math calculations, data analysis, file handling, and more. Input should be a valid python command. !pip install packages at the beginning of the command in one line if needed. You must print() or save a file to see output."
 
 ### CHAT TOOL DESCRIPTIONS ###
 
