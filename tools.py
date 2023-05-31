@@ -146,14 +146,15 @@ async def get_organic_results(query: str, llm, recency_days: int = None) -> str:
         "safe": "active",
     }
     
-    if recency_days <= 1:
-        search["qdr"] = "d"
-    elif recency_days <= 7:
-        search["qdr"] = "w"
-    elif recency_days <= 30:
-        search["qdr"] = "m"
-    else:
-        search["qdr"] = "y"
+    if recency_days != None:
+        if recency_days <= 1:
+            search["qdr"] = "d"
+        elif recency_days <= 7:
+            search["qdr"] = "w"
+        elif recency_days <= 30:
+            search["qdr"] = "m"
+        else:
+            search["qdr"] = "y"
 
     async with aiohttp.ClientSession() as session:
         async with session.get("https://serpapi.com/search", params=search) as response:
