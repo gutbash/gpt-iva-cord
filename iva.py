@@ -673,8 +673,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             )
         
         async def parse_organic_results_input(url_comma_question):
-            a, b = url_comma_question.split(",", maxsplit=1)
-            answer = await get_organic_results(query=a, recency_days=int(b), llm=logical_llm)
+            #a, b = url_comma_question.split(",", maxsplit=1)
+            #answer = await get_organic_results(query=a, recency_days=int(b), llm=logical_llm)
+            answer = await get_organic_results(query=url_comma_question, recency_days=None, llm=logical_llm)
             return f"{answer}"
         
         async def parse_qa_webpage_input(url_comma_question):

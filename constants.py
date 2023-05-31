@@ -6,7 +6,9 @@ async def get_thread_namer_prompt(user_name):
 
 ### ASK TOOL DESCRIPTIONS ###
 
-ORGANIC_RESULTS_ASK_TOOL_DESCRIPTION = "Wrapper around Google Search. Input should be a comma separated list of length two, with the first entry being the query in question, and the second input being the number of recency days to search back, like `query,recency_days`. Do not input the same query twice. Do not search for personal or unrelated queries. Do not input URL links. Output returns the top webpage result."
+ORGANIC_RESULTS_ASK_TOOL_DESCRIPTION = "Wrapper around Google Search. Input should be the query in question. Do not input the same query twice. Do not search for personal or unrelated queries. Do not input URL links. Output returns the top webpage result."
+
+ORGANIC_RESULTS_RECENCY_ASK_TOOL_DESCRIPTION = "Wrapper around Google Search. Input should be a comma separated list of length two, with the first entry being the query in question, and the second input being the number of recency days to search back, like `query,recency_days`. Do not input the same query twice. Do not search for personal or unrelated queries. Do not input URL links. Output returns the top webpage result."
 
 SUMMARIZE_WEBPAGE_ASK_TOOL_DESCRIPTION = "Use this sparingly to to summarize the content of a webpage. Input should be the given url webpage. Output will be a summary of the contents of the webpage."
 
