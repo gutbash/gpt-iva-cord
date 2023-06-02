@@ -928,9 +928,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                     
                 elif "application/vnd.openxmlformats-officedocument.wordprocessingml.document" in file_type: #docx
                     
-                    docx_file = await file.to_file()
+                    file_like_object = io.BytesIO(attachment_bytes)
                     
-                    doc = Document(docx_file)
+                    doc = Document(file_like_object)
                     full_text = []
                     for para in doc.paragraphs:
                         full_text.append(para.text)
