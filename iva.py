@@ -934,7 +934,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                     full_text = []
                     for para in doc.paragraphs:
                         full_text.append(para.text)
-                    raw_text += "\n".join(full_text)
+                    raw_text = "\n".join(full_text)
                     
                     file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + raw_text, truncation=True, max_length=12000)['input_ids'])
 
