@@ -85,9 +85,9 @@ async def get_ask_suffix():
     
     {{chat_history}}
     
-    NEW MESSAGE:
+    NEW MESSAGE FROM USER:
     
-    {{input}}
+    User: {{input}}
     
     RESPONSE:
     
