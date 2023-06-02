@@ -41,6 +41,7 @@ import aiohttp
 import logging
 import subprocess
 import pandas as pd
+from docx import Document
 
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import OpenAI
@@ -923,6 +924,25 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                     else:
                         attachment_text += f"\n\n{file_name} has been saved to the working directory\n--- {file_name} ---\n\n{attachment_bytes.decode(encoding)}"
                         
+                    file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
+                    
+                elif "application/vnd.openxmlformats-officedocument.wordprocessingml.document" in file_type: #docx
+                    
+                    doc = Document(file)
+                    full_text = []
+                    for para in doc.paragraphs:
+                        full_text.append(para.text)
+                    raw_text += "\n".join(full_text)
+                    
+                    file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + raw_text, truncation=True, max_length=12000)['input_ids'])
+
+                    if file_tokens >= max_tokens:
+                        
+                        attachment_text += f"\n\n{file_name} is too large for you to view, but it has still been saved to the directory if you'd like to use Python REPL to interact with it. Here is a preview of the file:\n--- {file_name} ---\n\n{raw_text[:100]} [...]"
+                        
+                    else:
+                        attachment_text += f"\n\n{file_name} has been saved to the working directory\n--- {file_name} ---\n\n{raw_text}"
+
                     file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
                 
                 elif "application/pdf" in file_type: #pdf
