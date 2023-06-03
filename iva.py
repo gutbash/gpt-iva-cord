@@ -879,8 +879,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
 
         prefix = await get_ask_prefix(itis=itis)
         
-        custom_format_instructions = await get_ask_custom_format_instructions(tool_names=tool_names)
-        
         template_tool_response = await get_template_tool_response()
         
         suffix = await get_ask_suffix()
