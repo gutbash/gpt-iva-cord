@@ -52,6 +52,7 @@ from langchain.memory.buffer_window import ConversationBufferWindowMemory
 from langchain.memory.token_buffer import ConversationTokenBufferMemory
 from langchain.agents import Tool
 from langchain.agents.conversational.base import ConversationalAgent
+from langchain.agents import ConversationalChatAgent
 from langchain.agents.agent import AgentExecutor
 from output_parser import ConvoOutputParser
 from langchain.text_splitter import TokenTextSplitter
@@ -1060,7 +1061,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         else:
             
             memory = ConversationTokenBufferMemory(
-                return_messages=False,
+                return_messages=True,
                 human_prefix="User",
                 ai_prefix="Iva",
                 llm=ask_llm,
@@ -1070,12 +1071,12 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             
             ask_mems[channel_id][user_id]["memory"] = None
         
-        guild_prompt = ConversationalAgent.create_prompt(
+        guild_prompt = ConversationalChatAgent.create_prompt(
             tools=tools,
             prefix=textwrap.dedent(prefix).strip(),
             suffix=textwrap.dedent(suffix).strip(),
             format_instructions=textwrap.dedent(custom_format_instructions).strip(),
-            input_variables=["input", "chat_history", "agent_scratchpad"],
+            #input_variables=["input", "chat_history", "agent_scratchpad"],
             ai_prefix = f"Iva",
             human_prefix = f"User",
         )
@@ -1090,11 +1091,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             ai_prefix="Iva",
         )
             
-        agent = ConversationalAgent(
+        agent = ConversationalChatAgent(
             llm_chain=llm_chain,
             allowed_tools=tool_names,
-            ai_prefix=f"Iva",
             output_parser=output_parser,
+            ai_prefix=f"Iva",
         )
         
         agent_chain = AgentExecutor.from_agent_and_tools(
