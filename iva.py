@@ -837,13 +837,14 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             description=SUMMARIZE_WEBPAGE_ASK_TOOL_DESCRIPTION,
         ))
         """
+        """
         tools.append(Tool(
             name = "Query Webpage",
             func=dummy_sync_function,
             coroutine=parse_qa_webpage_input,
             description=QA_WEBPAGE_ASK_TOOL_DESCRIPTION,
         ))
-        
+        """
         tools.append(Tool(
             name = "Webpage Window",
             func=dummy_sync_function,
@@ -857,7 +858,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             coroutine=python_repl,
             description=PYTHON_REPL_ASK_TOOL_DESCRIPTION,
         ))
-        
+        """
         tools.append(Tool(
             name = "Vision",
             func=dummy_sync_function,
@@ -871,7 +872,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             coroutine=get_image_from_search,
             description=IMAGE_SEARCH_ASK_TOOL_DESCRIPTION,
         ))
-        
+        """
         tool_names = [tool.name for tool in tools]
 
         prefix = await get_ask_prefix(itis=itis)
