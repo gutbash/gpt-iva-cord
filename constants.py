@@ -90,7 +90,7 @@ async def get_ask_suffix():
     --------------------
     Here is the user's input:
     
-    {{input}}
+    {{{{input}}}}
     """
     return ask_suffix
 
