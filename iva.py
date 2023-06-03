@@ -54,7 +54,7 @@ from langchain.agents import Tool
 from langchain.agents.conversational.base import ConversationalAgent
 from langchain.agents import ConversationalChatAgent
 from langchain.agents.agent import AgentExecutor
-from output_parser import ConvoOutputParser
+from output_parser import ConvoOutputParser, ChatConvoOutputParser
 from langchain.text_splitter import TokenTextSplitter
 from langchain.schema import (
     AIMessage,
@@ -1061,7 +1061,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         else:
             
             memory = ConversationTokenBufferMemory(
-                #return_messages=True,
+                return_messages=True,
                 #human_prefix="User",
                 #ai_prefix="Iva",
                 llm=ask_llm,
@@ -1073,8 +1073,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         
         guild_prompt = ConversationalChatAgent.create_prompt(
             tools=tools,
-            system_message=textwrap.dedent(prefix).strip(),
-            human_message=textwrap.dedent(suffix).strip(),
+            #system_message=textwrap.dedent(prefix).strip(),
+            #human_message=textwrap.dedent(suffix).strip(),
             #format_instructions=textwrap.dedent(custom_format_instructions).strip(),
             input_variables=["input", "chat_history", "agent_scratchpad"],
             #ai_prefix = f"Iva",
@@ -1087,15 +1087,15 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             verbose=True
         )
         
-        output_parser = ConvoOutputParser(
-            ai_prefix="Iva",
+        output_parser = ChatConvoOutputParser(
+            #ai_prefix="Iva",
         )
             
         agent = ConversationalChatAgent(
             llm_chain=llm_chain,
             allowed_tools=tool_names,
             output_parser=output_parser,
-            template_tool_response=textwrap.dedent(custom_format_instructions).strip(),
+            #template_tool_response=textwrap.dedent(custom_format_instructions).strip(),
             #ai_prefix=f"Iva",
         )
         
