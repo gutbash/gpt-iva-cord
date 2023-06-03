@@ -1061,9 +1061,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         else:
             
             memory = ConversationTokenBufferMemory(
-                return_messages=True,
-                human_prefix="User",
-                ai_prefix="Iva",
+                #return_messages=True,
+                #human_prefix="User",
+                #ai_prefix="Iva",
                 llm=ask_llm,
                 memory_key="chat_history",
                 max_token_limit=2000,
