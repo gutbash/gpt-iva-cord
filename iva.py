@@ -918,7 +918,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                     # Decode using the detected encoding
                     raw_text = attachment_bytes.decode(encoding)
                     
-                    file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + raw_text, truncation=True, max_length=12000)['input_ids'])
+                    file_tokens = len(tokenizer(prefix + template_tool_response + suffix + raw_text, truncation=True, max_length=12000)['input_ids'])
 
                     if file_tokens >= max_tokens:
                         
@@ -939,7 +939,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                         full_text.append(para.text)
                     raw_text = "\n".join(full_text)
                     
-                    file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + raw_text, truncation=True, max_length=12000)['input_ids'])
+                    file_tokens = len(tokenizer(prefix + template_tool_response + suffix + raw_text, truncation=True, max_length=12000)['input_ids'])
 
                     if file_tokens >= max_tokens:
                         
@@ -961,7 +961,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                         page_text = re.sub(r'\n+', ' ', page_text)
                         pdf_content += page_text
                         
-                    file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + pdf_content, truncation=True, max_length=12000)['input_ids'])
+                    file_tokens = len(tokenizer(prefix + template_tool_response + suffix + pdf_content, truncation=True, max_length=12000)['input_ids'])
 
                     if file_tokens >= max_tokens:
                         
@@ -1005,7 +1005,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                         # Decode using the detected encoding
                         raw_text = attachment_bytes.decode(encoding)
                         
-                        file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + raw_text, truncation=True, max_length=12000)['input_ids'])
+                        file_tokens = len(tokenizer(prefix + template_tool_response + suffix + raw_text, truncation=True, max_length=12000)['input_ids'])
 
                         if file_tokens >= max_tokens:
                             
