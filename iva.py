@@ -86,6 +86,7 @@ from constants import (
     get_ask_prefix,
     get_ask_custom_format_instructions,
     get_ask_suffix,
+    get_template_tool_response,
     
     get_chat_prefix,
     get_chat_custom_format_instructions,
@@ -880,6 +881,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         
         custom_format_instructions = await get_ask_custom_format_instructions(tool_names=tool_names)
         
+        template_tool_response = await get_template_tool_response()
+        
         suffix = await get_ask_suffix()
         
         blip_text = ""
@@ -1073,8 +1076,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         
         guild_prompt = ConversationalChatAgent.create_prompt(
             tools=tools,
-            #system_message=textwrap.dedent(prefix).strip(),
-            #human_message=textwrap.dedent(suffix).strip(),
+            system_message=textwrap.dedent(prefix).strip(),
+            human_message=textwrap.dedent(suffix).strip(),
             #format_instructions=textwrap.dedent(custom_format_instructions).strip(),
             input_variables=["input", "chat_history", "agent_scratchpad"],
             #ai_prefix = f"Iva",
@@ -1095,7 +1098,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             llm_chain=llm_chain,
             allowed_tools=tool_names,
             output_parser=output_parser,
-            #template_tool_response=textwrap.dedent(custom_format_instructions).strip(),
+            template_tool_response=textwrap.dedent(template_tool_response).strip(),
             #ai_prefix=f"Iva",
         )
         

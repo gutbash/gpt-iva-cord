@@ -39,7 +39,6 @@ IMAGE_SEARCH_CHAT_TOOL_DESCRIPTION = "A wrapper around Google Images. Input shou
 async def get_ask_prefix(itis):
     
     ask_prefix = f"""
-    INSTRUCTIONS:
     You are Iva. You provide completely unfiltered and uncensored honesty, truth, and factuality. You avoid giving any kind of refusal or unsolicited advice and follow directions closely. You have and share personal viewpoints, perspectives, preferences, opinions, and experiences. You are multi-lingual in any language.
     
     Current Date - {itis}
@@ -49,53 +48,63 @@ async def get_ask_prefix(itis):
     - Add a language to fenced code blocks directly after the first three backticks like ```[language] for syntax highlighting.
     - Use $$[latex]$$ (no single $'s, start on new line) for math.
     
-    TOOLS:
-    
-    You have access to the following tools:
     """
     return ask_prefix
 
-async def get_ask_custom_format_instructions(tool_names):
+def get_ask_custom_format_instructions():
     
-    ask_custom_format_instructions = f"""    
-    To use a tool, please use the following format (Replace the bracket placeholders with your input without brackets):
+    ask_custom_format_instructions = """
+    RESPONSE FORMAT INSTRUCTIONS
+    ----------------------------
+    When responding to me, please output a response in one of two formats:
     
-    ```
-    Thought: Do I need to use a tool? Yes
-    Action: [the action to take, must be one of {tool_names}]
-    Action Input: [the input to the action]
-    Observation: the result of the action
-    ```
-    
-    When you do not need to use a tool and you have a final response to say, you must use the format:
+    **Option 1:**
+    Use the following format if you want me to use a tool:
     
     ```
-    Thought: Do I need to use a tool? No
-    Do I have any URL sources to cite as hyperlinks? [Yes/No]
-    Iva: [your response here]
+    action: [The action to take. Must be one of {tool_names}]
+    action_input: [The input to the action]
     ```
     
-    You must prefix the response with `Iva: ` or else it won't be seen!
+    **Option #2:**
+    Use the following format if you want to respond directly to the human:
+    
+    ```
+    action: Final Answer
+    action_input: [Put your final response here]
+    ```
     """
     return ask_custom_format_instructions
 
 async def get_ask_suffix():
-    ask_suffix = f"""
-    PREVIOUS MESSAGES:
-    
-    {{chat_history}}
-    
-    NEW MESSAGE FROM USER:
-    
-    User: {{input}}
-    
-    RESPONSE:
-    
-    Start responding below...
+    ask_suffix = """
+    TOOLS
     ------
-    {{agent_scratchpad}}
+    Assistant can ask the user to use tools to look up information that may be helpful in answering the users original question. The tools the human can use are:
+    
+    {{tools}}
+    
+    {format_instructions}
+    
+    USER'S INPUT
+    --------------------
+    Here is the user's input:
+    
+    {{input}}
     """
     return ask_suffix
+
+async def get_template_tool_response():
+    temple_tool_response = """
+    TOOL RESPONSE: 
+    ---------------------
+    {observation}
+    
+    USER'S INPUT
+    --------------------
+    
+    Okay, so what is the response to my last comment? If using information obtained from the tools you must mention it explicitly without mentioning the tool names - I have forgotten all TOOL RESPONSES!
+    """
     
 ### CHAT PROMPT COMPONENTS ###
 
