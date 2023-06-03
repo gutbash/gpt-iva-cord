@@ -1076,7 +1076,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             system_message=textwrap.dedent(prefix).strip(),
             human_message=textwrap.dedent(suffix).strip(),
             #format_instructions=textwrap.dedent(custom_format_instructions).strip(),
-            input_variables=["chat_history"],
+            input_variables=["input", "chat_history", "agent_scratchpad"],
             #ai_prefix = f"Iva",
             #human_prefix = f"User",
         )
