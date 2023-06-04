@@ -81,6 +81,7 @@ class ConversationalChatAgent(Agent):
         tools: Sequence[BaseTool],
         system_message: str = PREFIX,
         human_message: str = SUFFIX,
+        format_instructions: str = None,
         input_variables: Optional[List[str]] = None,
         output_parser: Optional[BaseOutputParser] = None,
     ) -> BasePromptTemplate:
@@ -88,19 +89,17 @@ class ConversationalChatAgent(Agent):
             [f"> {tool.name}: {tool.description}" for tool in tools]
         )
         tool_names = ", ".join([tool.name for tool in tools])
-        format_instructions = human_message.format(
-            format_instructions=output_parser.get_format_instructions()
+        tool_suffix = human_message.format(
+            tools=tool_strings,
         )
-        final_prompt = format_instructions.format(
-            tool_names=tool_names, tools=tool_strings
-        )
+        final_prompt = format_instructions.format(tool_names=tool_names)
         if input_variables is None:
             input_variables = ["input", "chat_history", "agent_scratchpad"]
         messages = [
             SystemMessagePromptTemplate.from_template(system_message),
-            HumanMessagePromptTemplate.from_template(final_prompt),
+            HumanMessagePromptTemplate.from_template(tool_suffix),
             MessagesPlaceholder(variable_name="chat_history"),
-            HumanMessagePromptTemplate.from_template("{input}"),
+            HumanMessagePromptTemplate.from_template(final_prompt),
             MessagesPlaceholder(variable_name="agent_scratchpad"),
         ]
         return ChatPromptTemplate(input_variables=input_variables, messages=messages)

@@ -896,6 +896,8 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         
         template_tool_response = await get_template_tool_response()
         
+        format_instructions = get_ask_custom_format_instructions()
+        
         suffix = await get_ask_suffix()
         
         blip_text = ""
@@ -1095,6 +1097,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             tools=tools,
             system_message=prefix,
             human_message=suffix,
+            format_instructions=format_instructions,
             #format_instructions=textwrap.dedent(custom_format_instructions).strip(),
             input_variables=["input", "chat_history", "agent_scratchpad"],
             output_parser=output_parser,

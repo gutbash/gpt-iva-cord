@@ -52,7 +52,11 @@ def get_ask_custom_format_instructions():
     action: Final Answer
     action_input: [Put your final response here]
     
-    You must respond with an action and action_input every time or else the user won't see it!"""
+    You must respond with an action and action_input every time or else the user won't see it!
+    
+    NEW MESSAGE FROM USER:
+    -----------
+    {{{{{input}}}}"""
     
     return ask_custom_format_instructions
 
@@ -61,9 +65,7 @@ async def get_ask_suffix():
     ------
     You can ask the user to use tools to look up information that may be helpful in answering the user's original question. Here are the available tools:
     
-    {{tools}}
-    
-    {format_instructions}"""
+    {{tools}}"""
     
     return ask_suffix
 
