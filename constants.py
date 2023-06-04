@@ -61,13 +61,8 @@ async def get_ask_suffix():
     
     {{tools}}
     
-    {format_instructions}
+    {format_instructions}"""
     
-    USER'S INPUT
-    --------------------
-    Here is the user's input:
-    
-    {{{{input}}}}"""
     return ask_suffix
 
 async def get_template_tool_response():

@@ -98,8 +98,9 @@ class ConversationalChatAgent(Agent):
             input_variables = ["input", "chat_history", "agent_scratchpad"]
         messages = [
             SystemMessagePromptTemplate.from_template(system_message),
-            MessagesPlaceholder(variable_name="chat_history"),
             HumanMessagePromptTemplate.from_template(final_prompt),
+            MessagesPlaceholder(variable_name="chat_history"),
+            HumanMessagePromptTemplate.from_template(variable_name="input"),
             MessagesPlaceholder(variable_name="agent_scratchpad"),
         ]
         return ChatPromptTemplate(input_variables=input_variables, messages=messages)
