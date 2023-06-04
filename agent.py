@@ -95,7 +95,7 @@ class ConversationalChatAgent(Agent):
         )
         tool_names = ", ".join([tool.name for tool in tools])
         format_instructions = human_message.format(
-            format_instructions=get_ask_custom_format_instructions()
+            format_instructions=output_parser.get_format_instructions()
         )
         final_prompt = format_instructions.format(
             tool_names=tool_names, tools=tool_strings

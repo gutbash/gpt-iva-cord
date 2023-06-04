@@ -52,7 +52,7 @@ from langchain.memory.buffer_window import ConversationBufferWindowMemory
 from langchain.memory.token_buffer import ConversationTokenBufferMemory
 from langchain.agents import Tool
 from langchain.agents.conversational.base import ConversationalAgent
-from langchain.agents import ConversationalChatAgent
+from agent import ConversationalChatAgent
 from langchain.agents.agent import AgentExecutor
 from output_parser import ConvoOutputParser, ChatConvoOutputParser
 from langchain.text_splitter import TokenTextSplitter
