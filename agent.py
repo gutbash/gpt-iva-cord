@@ -27,7 +27,38 @@ from langchain.schema import (
     BaseOutputParser,
     HumanMessage,
 )
+
 from langchain.tools.base import BaseTool
+
+from constants import (
+    ORGANIC_RESULTS_ASK_TOOL_DESCRIPTION,
+    QA_WEBPAGE_ASK_TOOL_DESCRIPTION,
+    WEBPAGE_WINDOW_ASK_TOOL_DESCRIPTION,
+    IMAGE_SEARCH_ASK_TOOL_DESCRIPTION,
+    RECOGNIZE_IMAGE_ASK_TOOL_DESCRIPTION,
+    SUMMARIZE_WEBPAGE_ASK_TOOL_DESCRIPTION,
+    PYTHON_REPL_ASK_TOOL_DESCRIPTION,
+    
+    QA_WEBPAGE_CHAT_TOOL_DESCRIPTION,
+    IMAGE_SEARCH_CHAT_TOOL_DESCRIPTION,
+    ORGANIC_RESULTS_CHAT_TOOL_DESCRIPTION,
+    RECOGNIZE_IMAGE_CHAT_TOOL_DESCRIPTION,
+    SUMMARIZE_WEBPAGE_CHAT_TOOL_DESCRIPTION,
+    
+    get_ask_prefix,
+    get_ask_custom_format_instructions,
+    get_ask_suffix,
+    get_template_tool_response,
+    
+    get_chat_prefix,
+    get_chat_custom_format_instructions,
+    get_chat_suffix,
+    
+    get_thread_namer_prompt,
+    
+    FEATURES,
+)
+
 class ConversationalChatAgent(Agent):
     """An agent designed to hold a conversation in addition to using tools."""
     output_parser: AgentOutputParser = Field(default_factory=ConvoOutputParser)
@@ -64,7 +95,7 @@ class ConversationalChatAgent(Agent):
         )
         tool_names = ", ".join([tool.name for tool in tools])
         format_instructions = human_message.format(
-            format_instructions=output_parser.get_format_instructions()
+            format_instructions=get_ask_custom_format_instructions()
         )
         final_prompt = format_instructions.format(
             tool_names=tool_names, tools=tool_strings
