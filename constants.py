@@ -56,7 +56,7 @@ def get_ask_custom_format_instructions():
     
     NEW MESSAGE FROM USER:
     -----------
-    {{{{{input}}}}"""
+    {{{{input}}}}"""
     
     return ask_custom_format_instructions
 
