@@ -785,6 +785,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         
         async def python_repl(command):
             
+            pattern = re.compile(r'```.*?\n(.*?)```', re.DOTALL)
+            matches = pattern.findall(command)
+            command = matches[0]
             command = command.strip().replace("```python", "").replace("```py", "").strip("```").replace(".show()", ".savefig('output.png')")
             
             if "!pip" in command:
