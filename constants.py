@@ -42,27 +42,22 @@ def get_ask_custom_format_instructions():
     ----------------------------
     When responding to me, please output a response in one of two formats:
     
-    **Option 1:**
-    Use the following format if you want me to use a tool:
+    1. Use the following format if you want me to use a tool:
     
-    ```
     action: [The action to take. Must be one of {tool_names}]
     action_input: [The input to the action]
-    ```
     
-    **Option #2:**
-    Use the following format if you want to respond directly to the human:
+    2. Use the following format if you want to respond directly to the user:
     
-    ```
     action: Final Answer
-    action_input: [Put your final response here]
-    ```"""
+    action_input: [Put your final response here]"""
+    
     return ask_custom_format_instructions
 
 async def get_ask_suffix():
     ask_suffix = """TOOLS
     ------
-    Assistant can ask the user to use tools to look up information that may be helpful in answering the users original question. The tools the human can use are:
+    Iva can ask the user to use tools to look up information that may be helpful in answering the user's original question. Here are the available tools:
     
     {{tools}}
     
@@ -76,11 +71,11 @@ async def get_ask_suffix():
     return ask_suffix
 
 async def get_template_tool_response():
-    temple_tool_response = """TOOL RESPONSE: 
+    temple_tool_response = """TOOL RESPONSE:
     ---------------------
     {observation}
     
-    Respond with an action and action_input!"""
+    Respond to the user with an action and action_input!"""
     return temple_tool_response
     
 ### CHAT PROMPT COMPONENTS ###
