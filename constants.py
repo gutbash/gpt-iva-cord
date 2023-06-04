@@ -4,35 +4,23 @@ async def get_thread_namer_prompt(user_name):
     thread_namer_prompt = f"""The following is the start of a discussion with {user_name}. Return only a short yet informative title for the subject of the discussion with a relevant emoji at the end based on the following opening prompt by {user_name} (do not put subtitle or parentheses)."""
     return thread_namer_prompt
 
-### ASK TOOL DESCRIPTIONS ###
+### TOOL DESCRIPTIONS ###
 
-ORGANIC_RESULTS_ASK_TOOL_DESCRIPTION = "Use this to search for current events. Input should be the query in question. Do not input the same query twice. Do not search for personal or unrelated queries. Do not input URL links. Output returns the top webpage result."
+ORGANIC_RESULTS_TOOL_DESCRIPTION = "Use this to search for current events. Input should be the query in question. Do not input the same query twice. Do not search for personal or unrelated queries. Do not input URL links. Output returns the top webpage result."
 
-ORGANIC_RESULTS_RECENCY_ASK_TOOL_DESCRIPTION = "Wrapper around Google Search. Input should be a comma separated list of length two, with the first entry being the query in question, and the second input being the number of recency days to search back, like `query,recency_days`. Do not input the same query twice. Do not search for personal or unrelated queries. Do not input URL links. Output returns the top webpage result."
+ORGANIC_RESULTS_RECENCY_TOOL_DESCRIPTION = "Wrapper around Google Search. Input should be a comma separated list of length two, with the first entry being the query in question, and the second input being the number of recency days to search back, like `query,recency_days`. Do not input the same query twice. Do not search for personal or unrelated queries. Do not input URL links. Output returns the top webpage result."
 
-SUMMARIZE_WEBPAGE_ASK_TOOL_DESCRIPTION = "Use this sparingly to to summarize the content of a webpage. Input should be the given url webpage. Output will be a summary of the contents of the webpage."
+SUMMARIZE_WEBPAGE_TOOL_DESCRIPTION = "Use this sparingly to to summarize the content of a webpage. Input should be the given url webpage. Output will be a summary of the contents of the webpage."
 
-QA_WEBPAGE_ASK_TOOL_DESCRIPTION = "Use this to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like `url,question`. Output will be an answer to the input question from the webpage."
+QA_WEBPAGE_TOOL_DESCRIPTION = "Use this to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like `url,question`. Output will be an answer to the input question from the webpage."
 
-WEBPAGE_WINDOW_ASK_TOOL_DESCRIPTION = "Use this to view part of a given webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the page number starting at 1, like `url,page`. Output will be the section of text from the webpage."
+WEBPAGE_WINDOW_TOOL_DESCRIPTION = "Use this to view part of a given webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the page number starting at 1, like `url,page`. Output will be the section of text from the webpage."
 
-RECOGNIZE_IMAGE_ASK_TOOL_DESCRIPTION = "Use this tool to caption or answer questions about a given image url. Input should be a comma separated list of length two, with the first entry being the image url, and the second input being the question, like 'image_url,question'. Output will be a caption of the image with the answer to the question."
+RECOGNIZE_IMAGE_TOOL_DESCRIPTION = "Use this tool to caption or answer questions about a given image url. Input should be a comma separated list of length two, with the first entry being the image url, and the second input being the question, like 'image_url,question'. Output will be a caption of the image with the answer to the question."
 
-IMAGE_SEARCH_ASK_TOOL_DESCRIPTION = "Wrapper around Google Images. Input should be a caption of the image. Output will be the image link."
+IMAGE_SEARCH_TOOL_DESCRIPTION = "Wrapper around Google Images. Input should be a caption of the image. Output will be the image link."
 
-PYTHON_REPL_ASK_TOOL_DESCRIPTION = "Python REPL shell. Use this for code execution, math calculations, data analysis, file handling, and more. Input should be a valid python command. !pip install packages at the beginning of the command in one line if needed. You must print() or save a file to see output."
-
-### CHAT TOOL DESCRIPTIONS ###
-
-ORGANIC_RESULTS_CHAT_TOOL_DESCRIPTION = "Wrapper around Google Search. Input should be the query in question. Do not input the same query twice. Do not search for personal or unrelated queries. Do not input URL links. Output returns the top webpage result."
-
-SUMMARIZE_WEBPAGE_CHAT_TOOL_DESCRIPTION = "Use this sparingly to to summarize the content of a webpage. Input should be the given url webpage. Output will be a summary of the contents of the webpage."
-
-QA_WEBPAGE_CHAT_TOOL_DESCRIPTION = "Use this to answer questions about a webpage. Input should be a comma separated list of length two, with the first entry being the url, and the second input being the question, like `url,question`. Output will be an answer to the input question from the webpage."
-
-RECOGNIZE_IMAGE_CHAT_TOOL_DESCRIPTION = "Use this tool to caption or answer questions about a given image url. Input should be a comma separated list of length two, with the first entry being the image url, and the second input being the question, like 'image_url,question'. Output will be a caption of the image with the answer to the question."
-
-IMAGE_SEARCH_CHAT_TOOL_DESCRIPTION = "A wrapper around Google Images. Input should be a caption of the image. Output will be the image link."
+PYTHON_REPL_TOOL_DESCRIPTION = "Python REPL shell. Use this for code execution, math calculations, data analysis, file handling, and more. Input should be a valid python command. !pip install packages at the beginning of the command in one line if needed. You must print() or save a file to see output."
 
 ### ASK PROMPT COMPONENTS ###
 
@@ -128,18 +116,19 @@ async def get_chat_custom_format_instructions(tool_names, user_name):
     Observation: the result of the action
     ```
     
-    When you do not need to use a tool and you have a final response to say to the user, {user_name}, you MUST use the format:
+    When you do not need to use a tool and you have a final response to say, you must use the format:
     
     ```
     Thought: Do I need to use a tool? No
+    Do I have any URL sources to cite? [Yes/No]
     Iva: [your response here]
     ```
     
-    You must prefix the response you will send to the user, {user_name}, with `Iva: ` or else they won't see it!
+    You must prefix the response with `Iva: ` or else it won't be seen!
     """
     return chat_custom_format_instructions
 
-async def get_chat_suffix():
+async def get_chat_suffix(user_name):
     chat_suffix = f"""
     PREVIOUS MESSAGES:
     
@@ -147,10 +136,9 @@ async def get_chat_suffix():
     
     NEW MESSAGE:
     
-    {{input}}
+    {user_name}: {{input}}
     
     RESPONSE:
-    You must put exactly `Thought: Do I need to use a tool? No` followed by your prefix `Iva: ` before your formatted response or else it won't be seen!
     
     Start responding below...
     --------------------

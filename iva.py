@@ -69,19 +69,13 @@ from langchain.prompts.chat import (
 )
 
 from constants import (
-    ORGANIC_RESULTS_ASK_TOOL_DESCRIPTION,
-    QA_WEBPAGE_ASK_TOOL_DESCRIPTION,
-    WEBPAGE_WINDOW_ASK_TOOL_DESCRIPTION,
-    IMAGE_SEARCH_ASK_TOOL_DESCRIPTION,
-    RECOGNIZE_IMAGE_ASK_TOOL_DESCRIPTION,
-    SUMMARIZE_WEBPAGE_ASK_TOOL_DESCRIPTION,
-    PYTHON_REPL_ASK_TOOL_DESCRIPTION,
-    
-    QA_WEBPAGE_CHAT_TOOL_DESCRIPTION,
-    IMAGE_SEARCH_CHAT_TOOL_DESCRIPTION,
-    ORGANIC_RESULTS_CHAT_TOOL_DESCRIPTION,
-    RECOGNIZE_IMAGE_CHAT_TOOL_DESCRIPTION,
-    SUMMARIZE_WEBPAGE_CHAT_TOOL_DESCRIPTION,
+    ORGANIC_RESULTS_TOOL_DESCRIPTION,
+    QA_WEBPAGE_TOOL_DESCRIPTION,
+    WEBPAGE_WINDOW_TOOL_DESCRIPTION,
+    IMAGE_SEARCH_TOOL_DESCRIPTION,
+    RECOGNIZE_IMAGE_TOOL_DESCRIPTION,
+    SUMMARIZE_WEBPAGE_TOOL_DESCRIPTION,
+    PYTHON_REPL_TOOL_DESCRIPTION,
     
     get_ask_prefix,
     get_ask_custom_format_instructions,
@@ -250,9 +244,15 @@ async def on_message(message):
                 request_timeout=600,
                 )
             
+            async def parse_organic_results_input(url_comma_question):
+                #a, b = url_comma_question.split(",", maxsplit=1)
+                #answer = await get_organic_results(query=a, recency_days=int(b), llm=logical_llm)
+                answer = await get_organic_results(query=url_comma_question, recency_days=None, llm=logical_llm)
+                return f"{answer}"
+            
             async def parse_qa_webpage_input(url_comma_question):
                 a, b = url_comma_question.split(",", maxsplit=1)
-                answer = await question_answer_webpage(a, b, llm=logical_llm)
+                answer = await question_answer_webpage(url=a, question=b, llm=logical_llm)
                 return f"{answer}\n"
             
             async def parse_summary_webpage_input(url):
@@ -262,6 +262,11 @@ async def on_message(message):
             async def parse_blip_recognition(url_comma_question):
                 a, b = url_comma_question.split(",", maxsplit=1)
                 output = await get_full_blip(image_url=a, question=b)
+                return output
+            
+            async def parse_view_webpage_input(url_comma_page_index):
+                a, b = url_comma_page_index.split(",", maxsplit=1)
+                output = await view_webpage_window(url=a, span_index=int(b))
                 return output
             
             # STRINGIFY ACTIVE USERS
@@ -298,10 +303,17 @@ async def on_message(message):
                     raise NotImplementedError("This tool only supports async")
                 
                 tools.append(Tool(
-                    name = "Organic Results",
+                    name = "Search",
                     func=dummy_sync_function,
-                    coroutine=get_organic_results,
-                    description=ORGANIC_RESULTS_CHAT_TOOL_DESCRIPTION,
+                    coroutine=parse_organic_results_input,
+                    description=ORGANIC_RESULTS_TOOL_DESCRIPTION,
+                ))
+                
+                tools.append(Tool(
+                    name = "Webpage Window",
+                    func=dummy_sync_function,
+                    coroutine=parse_view_webpage_input,
+                    description=WEBPAGE_WINDOW_TOOL_DESCRIPTION,
                 ))
                 """
                 tools.append(Tool(
@@ -310,35 +322,35 @@ async def on_message(message):
                     coroutine=parse_summary_webpage_input,
                     description=SUMMARIZE_WEBPAGE_CHAT_TOOL_DESCRIPTION,
                 ))
-                """
+                
                 tools.append(Tool(
                     name = "Q&A Webpage",
                     func=dummy_sync_function,
                     coroutine=parse_qa_webpage_input,
                     description=QA_WEBPAGE_CHAT_TOOL_DESCRIPTION,
                 ))
-                
+                """
                 tools.append(Tool(
-                    name = "Recognize Image",
+                    name = "Vision",
                     func=dummy_sync_function,
                     coroutine=parse_blip_recognition,
-                    description=RECOGNIZE_IMAGE_CHAT_TOOL_DESCRIPTION,
+                    description=RECOGNIZE_IMAGE_TOOL_DESCRIPTION,
                 ))
-
+                """
                 tools.append(Tool(
                     name = "Image Search",
                     func=dummy_sync_function,
                     coroutine=get_image_from_search,
                     description=IMAGE_SEARCH_CHAT_TOOL_DESCRIPTION,
                 ))
-                
+                """
                 tool_names = [tool.name for tool in tools]
                 
                 prefix = await get_chat_prefix(active_names=active_names.get(channel_id, ''), itis=itis)
                 
                 custom_format_instructions = await get_chat_custom_format_instructions(tool_names=tool_names, user_name=user_name)
                 
-                suffix = await get_chat_suffix()
+                suffix = await get_chat_suffix(user_name=user_name)
                 
                 guild_prompt = ConversationalAgent.create_prompt(
                     tools=tools,
@@ -829,7 +841,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             name = "Search",
             func=dummy_sync_function,
             coroutine=parse_organic_results_input,
-            description=ORGANIC_RESULTS_ASK_TOOL_DESCRIPTION,
+            description=ORGANIC_RESULTS_TOOL_DESCRIPTION,
         ))
         """
         tools.append(Tool(
@@ -851,14 +863,14 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             name = "Webpage Window",
             func=dummy_sync_function,
             coroutine=parse_view_webpage_input,
-            description=WEBPAGE_WINDOW_ASK_TOOL_DESCRIPTION,
+            description=WEBPAGE_WINDOW_TOOL_DESCRIPTION,
         ))
         
         tools.append(Tool(
             name = "Python",
             func=dummy_sync_function,
             coroutine=python_repl,
-            description=PYTHON_REPL_ASK_TOOL_DESCRIPTION,
+            description=PYTHON_REPL_TOOL_DESCRIPTION,
         ))
         """
         tools.append(Tool(
