@@ -777,7 +777,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                     sys.stdout = old_stdout
                     output = mystdout.getvalue()
                 except Exception as e:
-                    logging.error(e)
                     sys.stdout = old_stdout
                     output = str(e)
 
@@ -815,10 +814,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             # Get the list of files before running the command
             before_files = set(os.listdir())
             
-            try:
-                output = await repl.arun(command)
-            except Exception as e:
-                logging.error(e)
+            output = await repl.arun(command)
                 
             # Get the list of files after running the command
             after_files = set(os.listdir())
