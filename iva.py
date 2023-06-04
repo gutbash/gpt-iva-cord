@@ -1072,12 +1072,17 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             
             ask_mems[channel_id][user_id]["memory"] = None
         
+        output_parser = ChatConvoOutputParser(
+            #ai_prefix="Iva",
+        )
+        
         guild_prompt = ConversationalChatAgent.create_prompt(
             tools=tools,
             system_message=prefix,
             human_message=suffix,
             #format_instructions=textwrap.dedent(custom_format_instructions).strip(),
             input_variables=["input", "chat_history", "agent_scratchpad"],
+            output_parser=output_parser,
             #ai_prefix = f"Iva",
             #human_prefix = f"User",
         )
@@ -1086,10 +1091,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
             llm=ask_llm,
             prompt=guild_prompt,
             verbose=True
-        )
-        
-        output_parser = ChatConvoOutputParser(
-            #ai_prefix="Iva",
         )
             
         agent = ConversationalChatAgent(
