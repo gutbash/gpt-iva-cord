@@ -65,7 +65,7 @@ async def get_ask_suffix():
     ------
     You can ask the user to use tools to look up information that may be helpful in answering the user's original question. Here are the available tools:
     
-    {{tools}}"""
+    {tools}"""
     
     return ask_suffix
 
