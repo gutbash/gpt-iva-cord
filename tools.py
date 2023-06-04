@@ -90,7 +90,7 @@ async def view_webpage_window(url: str, span_index: int) -> str:
         subspan = text[span:span+4096]
         spans.append(subspan)
         
-    if 0 <= span_index < len(spans):
+    if 0 <= span_index <= len(spans):
         return f"\n---START OF PAGE {span_index}---\n{spans[span_index-1]}\n---END OF PAGE {span_index}---\n\nAdvice: If you need more information, explore pages 1-{len(spans)} or use Search for something else.\nCitation: Remember that you must cite the URL {url} in your final response as a hyperlink like [title](https://www.example.com)."
     else:
         return f"there are only {len(spans)} pages!"
