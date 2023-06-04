@@ -59,10 +59,10 @@ class ChatConvoOutputParser(AgentOutputParser):
 
     def parse(self, text: str) -> Union[AgentAction, AgentFinish]:
         try:
-            if "action: Final Answer" or "Action: Final Answer" in text:
+            if "action: Final Answer" in text:
                 return AgentFinish({"output": text.split("action_input:")[-1].strip()}, text)
             else:
-                regex = r"(?si)action: (.*?)[\n]*action_input: (.*)"
+                regex = r"(?s)action: (.*?)[\n]*action_input: (.*)"
                 match = re.search(regex, text)
                 if not match:
                     raise OutputParserException(f"Could not parse LLM output: `{text}`")
