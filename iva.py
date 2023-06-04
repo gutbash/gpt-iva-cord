@@ -867,7 +867,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         ))
         
         tools.append(Tool(
-            name = "Python",
+            name = "Python REPL",
             func=dummy_sync_function,
             coroutine=python_repl,
             description=PYTHON_REPL_TOOL_DESCRIPTION,
