@@ -136,7 +136,7 @@ async def get_chat_suffix(user_name):
     
     NEW MESSAGE:
     
-    {user_name}: {{input}}
+    {{input}}
     
     RESPONSE:
     
