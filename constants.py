@@ -96,6 +96,7 @@ async def get_template_tool_response():
     --------------------
     
     Okay, so what is the response to my last comment? If using information obtained from the tools you must mention it explicitly without mentioning the tool names - I have forgotten all TOOL RESPONSES!"""
+    return temple_tool_response
     
 ### CHAT PROMPT COMPONENTS ###
 
