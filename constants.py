@@ -78,7 +78,9 @@ async def get_ask_suffix():
 async def get_template_tool_response():
     temple_tool_response = """TOOL RESPONSE: 
     ---------------------
-    {observation}"""
+    {observation}
+    
+    Respond with an action and action_input!"""
     return temple_tool_response
     
 ### CHAT PROMPT COMPONENTS ###
