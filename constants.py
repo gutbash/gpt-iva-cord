@@ -40,7 +40,7 @@ def get_ask_custom_format_instructions():
     
     ask_custom_format_instructions = """RESPONSE FORMAT INSTRUCTIONS
     ----------------------------
-    When responding to me, please output a response in one of two formats:
+    To respond to me, you must output a response in one of two formats:
     
     1. Use the following format if you want me to use a tool:
     
@@ -50,14 +50,16 @@ def get_ask_custom_format_instructions():
     2. Use the following format if you want to respond directly to the user:
     
     action: Final Answer
-    action_input: [Put your final response here]"""
+    action_input: [Put your final response here]
+    
+    You must respond with an action and action_input every time or else the user won't see it!"""
     
     return ask_custom_format_instructions
 
 async def get_ask_suffix():
     ask_suffix = """TOOLS
     ------
-    Iva can ask the user to use tools to look up information that may be helpful in answering the user's original question. Here are the available tools:
+    You can ask the user to use tools to look up information that may be helpful in answering the user's original question. Here are the available tools:
     
     {{tools}}
     
