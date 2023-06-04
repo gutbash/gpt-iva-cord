@@ -20,7 +20,7 @@ RECOGNIZE_IMAGE_TOOL_DESCRIPTION = "Use this tool to caption or answer questions
 
 IMAGE_SEARCH_TOOL_DESCRIPTION = "Wrapper around Google Images. Input should be a caption of the image. Output will be the image link."
 
-PYTHON_REPL_TOOL_DESCRIPTION = "Python REPL shell. Use this only for code execution for math calculations, data analysis, file handling, and more. Don't use this if you want to send code itself. Input should be a valid python command. !pip install packages at the beginning of the command in one line if needed. You must print() or save a file to see output."
+PYTHON_REPL_TOOL_DESCRIPTION = "Python REPL shell. Execute code for math calculations, data analysis, file handling, and more. Input should be only a valid python command. !pip install packages at the beginning of the command in one line if needed. You must print() or save a file to see output."
 
 ### ASK PROMPT COMPONENTS ###
 
