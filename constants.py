@@ -38,25 +38,21 @@ async def get_ask_prefix(itis):
 
 def get_ask_custom_format_instructions():
     
-    ask_custom_format_instructions = """RESPONSE FORMAT INSTRUCTIONS
+    ask_custom_format_instructions = """{{input}}
+    
+    RESPONSE FORMAT INSTRUCTIONS
     ----------------------------
     To respond to me, you must output a response in one of two formats:
     
     1. Use the following format if you want me to use a tool:
     
-    action: [The action to take. Must be one of {tool_names}]
-    action_input: [The input to the action]
+    Action: [The action to take. Must be one of {tool_names}]
+    Action Input: [The input to the action]
     
     2. Use the following format if you want to respond directly to the user:
     
-    action: Final Answer
-    action_input: [Put your final response here]
-    
-    You must respond with an action and action_input every time or else the user won't see it!
-    
-    NEW MESSAGE FROM USER:
-    -----------
-    {{input}}"""
+    Action: Final Answer
+    Action Input: [Put your final response here]"""
     
     return ask_custom_format_instructions
 
