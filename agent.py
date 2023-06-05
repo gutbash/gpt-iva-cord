@@ -14,7 +14,7 @@ from langchain.base_language import BaseLanguageModel
 from langchain.callbacks.base import BaseCallbackManager
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
-from langchain.tools.base import BaseTool
+from langchain.tools.base import BaseTool 
 
 
 class ConversationalAgent(Agent):
