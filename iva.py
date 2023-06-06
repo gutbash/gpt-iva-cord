@@ -205,130 +205,6 @@ async def on_message(message):
                 await message.channel.send(embed=embed)
                 return
             
-            if attachments != []:
-                for file in attachments:
-                    
-                    file_type = file.content_type
-                    attachment_bytes = await file.read()
-                    file_name = file.filename
-                    
-                    with open(f'{file_name}', 'wb') as f:
-                        f.write(attachment_bytes)
-                    
-                    if file_type in ('image/jpeg', 'image/jpg', 'image/png'):
-                        blip_text += f"\n\n{file_name} attached and saved to working directory: {file.url}"
-                        file_placeholder += f"\n\n:frame_photo: **{file_name}**"
-                    
-                    elif "text/plain" in file_type: #txt
-                        # Detect encoding
-                        detected = chardet.detect(attachment_bytes)
-                        encoding = detected['encoding']
-                        # Decode using the detected encoding
-                        raw_text = attachment_bytes.decode(encoding)
-                        
-                        file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + raw_text, truncation=True, max_length=12000)['input_ids'])
-
-                        if file_tokens >= max_tokens:
-                            
-                            attachment_text += f"\n\n{file_name} is too large for you to view, but it has still been saved to the directory if you'd like to use Python REPL to interact with it. Here is a preview of the file:\n--- {file_name} ---\n\n{raw_text[:100]} [...]"
-                            
-                        else:
-                            attachment_text += f"\n\n{file_name} has been saved to the working directory\n--- {file_name} ---\n\n{attachment_bytes.decode(encoding)}"
-                            
-                        file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
-                        
-                    elif "application/vnd.openxmlformats-officedocument.wordprocessingml.document" in file_type: #docx
-                        
-                        file_like_object = io.BytesIO(attachment_bytes)
-                        
-                        doc = Document(file_like_object)
-                        full_text = []
-                        for para in doc.paragraphs:
-                            full_text.append(para.text)
-                        raw_text = "\n".join(full_text)
-                        
-                        file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + raw_text, truncation=True, max_length=12000)['input_ids'])
-
-                        if file_tokens >= max_tokens:
-                            
-                            attachment_text += f"\n\n{file_name} is too large for you to view, but it has still been saved to the directory if you'd like to use Python REPL to interact with it. Here is a preview of the file:\n--- {file_name} ---\n\n{raw_text[:100]} [...]"
-                            
-                        else:
-                            attachment_text += f"\n\n{file_name} has been saved to the working directory\n--- {file_name} ---\n\n{raw_text}"
-
-                        file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
-                    
-                    elif "application/pdf" in file_type: #pdf
-
-                        pdf_file = io.BytesIO(attachment_bytes)
-                        pdf_reader = PyPDF2.PdfReader(pdf_file)
-                        pdf_content = ""
-                        for page in range(len(pdf_reader.pages)):
-                            page_text = pdf_reader.pages[page].extract_text()
-                            # Replace multiple newlines with a single space
-                            page_text = re.sub(r'\n+', ' ', page_text)
-                            pdf_content += page_text
-                            
-                        file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + pdf_content, truncation=True, max_length=12000)['input_ids'])
-
-                        if file_tokens >= max_tokens:
-                            
-                            attachment_text += f"\n\n{file_name} is too large for you to view, but it has still been saved to the directory if you'd like to use Python REPL to interact with it. Here is a preview of the file:\n--- {file_name} ---\n\n{pdf_content[:100]} [...]"
-                            
-                        else:
-                            attachment_text += f"\n\n{file_name} has been saved to the working directory\n--- {file_name} ---\n\n{pdf_content}"
-                            
-                        file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
-                        
-                    elif "text/csv" in file_type: #csv
-                        
-                        try:
-                            # Detect encoding
-                            detected = chardet.detect(attachment_bytes)
-                            encoding = detected['encoding']
-                            # Decode using the detected encoding
-                            raw_text = attachment_bytes.decode(encoding)
-                                
-                            data = pd.read_csv(file_name)
-                            
-                            attachment_text += f"\n\n{file_name} has been saved to the working directory. Here is a preview of the file head:\n--- {file_name} ---\n\n{data.head()}"
-                                
-                            file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
-                        except:
-                            # Detect encoding
-                            detected = chardet.detect(attachment_bytes)
-                            encoding = detected['encoding']
-                            # Decode using the detected encoding
-                            raw_text = attachment_bytes.decode(encoding)
-                            
-                            attachment_text += f"\n\n{file_name} is too large for you to view, but it has still been saved to the directory if you'd like to use Python REPL to interact with it. Here is a preview of the file:\n--- {file_name} ---\n\n{raw_text[:100]} [...]"
-                            
-                            file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
-                        
-                    else:
-                        try:
-                            # Detect encoding
-                            detected = chardet.detect(attachment_bytes)
-                            encoding = detected['encoding']
-                            # Decode using the detected encoding
-                            raw_text = attachment_bytes.decode(encoding)
-                            
-                            file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + raw_text, truncation=True, max_length=12000)['input_ids'])
-
-                            if file_tokens >= max_tokens:
-                                
-                                attachment_text += f"\n\n{file_name} is too large for you to view, but it has still been saved to the directory if you'd like to use Python REPL to interact with it. Here is a preview of the file:\n--- {file_name} ---\n\n{raw_text[:100]} [...]"
-                                
-                            else:
-                                attachment_text += f"\n\n{file_name} has been saved to the working directory\n--- {file_name} ---\n\n{attachment_bytes.decode(encoding)}"
-                                
-                            file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
-                            
-                        except:
-                            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {user_mention} the attachment\'s file type is unknown. consider converting it to plain text such as `.txt`.', color=discord.Color.dark_theme())
-                            await message.channel.send(embed=embed)
-                            return
-            
             text_splitter = TokenTextSplitter()
             logical_llm = ChatOpenAI(
                 openai_api_key=openai_key,
@@ -445,6 +321,130 @@ async def on_message(message):
                 custom_format_instructions = await get_chat_custom_format_instructions(tool_names=tool_names, user_name=user_name)
                 
                 suffix = await get_chat_suffix()
+                
+                if attachments != []:
+                    for file in attachments:
+                        
+                        file_type = file.content_type
+                        attachment_bytes = await file.read()
+                        file_name = file.filename
+                        
+                        with open(f'{file_name}', 'wb') as f:
+                            f.write(attachment_bytes)
+                        
+                        if file_type in ('image/jpeg', 'image/jpg', 'image/png'):
+                            blip_text += f"\n\n{file_name} attached and saved to working directory: {file.url}"
+                            file_placeholder += f"\n\n:frame_photo: **{file_name}**"
+                        
+                        elif "text/plain" in file_type: #txt
+                            # Detect encoding
+                            detected = chardet.detect(attachment_bytes)
+                            encoding = detected['encoding']
+                            # Decode using the detected encoding
+                            raw_text = attachment_bytes.decode(encoding)
+                            
+                            file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + raw_text, truncation=True, max_length=12000)['input_ids'])
+
+                            if file_tokens >= max_tokens:
+                                
+                                attachment_text += f"\n\n{file_name} is too large for you to view, but it has still been saved to the directory if you'd like to use Python REPL to interact with it. Here is a preview of the file:\n--- {file_name} ---\n\n{raw_text[:100]} [...]"
+                                
+                            else:
+                                attachment_text += f"\n\n{file_name} has been saved to the working directory\n--- {file_name} ---\n\n{attachment_bytes.decode(encoding)}"
+                                
+                            file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
+                            
+                        elif "application/vnd.openxmlformats-officedocument.wordprocessingml.document" in file_type: #docx
+                            
+                            file_like_object = io.BytesIO(attachment_bytes)
+                            
+                            doc = Document(file_like_object)
+                            full_text = []
+                            for para in doc.paragraphs:
+                                full_text.append(para.text)
+                            raw_text = "\n".join(full_text)
+                            
+                            file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + raw_text, truncation=True, max_length=12000)['input_ids'])
+
+                            if file_tokens >= max_tokens:
+                                
+                                attachment_text += f"\n\n{file_name} is too large for you to view, but it has still been saved to the directory if you'd like to use Python REPL to interact with it. Here is a preview of the file:\n--- {file_name} ---\n\n{raw_text[:100]} [...]"
+                                
+                            else:
+                                attachment_text += f"\n\n{file_name} has been saved to the working directory\n--- {file_name} ---\n\n{raw_text}"
+
+                            file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
+                        
+                        elif "application/pdf" in file_type: #pdf
+
+                            pdf_file = io.BytesIO(attachment_bytes)
+                            pdf_reader = PyPDF2.PdfReader(pdf_file)
+                            pdf_content = ""
+                            for page in range(len(pdf_reader.pages)):
+                                page_text = pdf_reader.pages[page].extract_text()
+                                # Replace multiple newlines with a single space
+                                page_text = re.sub(r'\n+', ' ', page_text)
+                                pdf_content += page_text
+                                
+                            file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + pdf_content, truncation=True, max_length=12000)['input_ids'])
+
+                            if file_tokens >= max_tokens:
+                                
+                                attachment_text += f"\n\n{file_name} is too large for you to view, but it has still been saved to the directory if you'd like to use Python REPL to interact with it. Here is a preview of the file:\n--- {file_name} ---\n\n{pdf_content[:100]} [...]"
+                                
+                            else:
+                                attachment_text += f"\n\n{file_name} has been saved to the working directory\n--- {file_name} ---\n\n{pdf_content}"
+                                
+                            file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
+                            
+                        elif "text/csv" in file_type: #csv
+                            
+                            try:
+                                # Detect encoding
+                                detected = chardet.detect(attachment_bytes)
+                                encoding = detected['encoding']
+                                # Decode using the detected encoding
+                                raw_text = attachment_bytes.decode(encoding)
+                                    
+                                data = pd.read_csv(file_name)
+                                
+                                attachment_text += f"\n\n{file_name} has been saved to the working directory. Here is a preview of the file head:\n--- {file_name} ---\n\n{data.head()}"
+                                    
+                                file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
+                            except:
+                                # Detect encoding
+                                detected = chardet.detect(attachment_bytes)
+                                encoding = detected['encoding']
+                                # Decode using the detected encoding
+                                raw_text = attachment_bytes.decode(encoding)
+                                
+                                attachment_text += f"\n\n{file_name} is too large for you to view, but it has still been saved to the directory if you'd like to use Python REPL to interact with it. Here is a preview of the file:\n--- {file_name} ---\n\n{raw_text[:100]} [...]"
+                                
+                                file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
+                            
+                        else:
+                            try:
+                                # Detect encoding
+                                detected = chardet.detect(attachment_bytes)
+                                encoding = detected['encoding']
+                                # Decode using the detected encoding
+                                raw_text = attachment_bytes.decode(encoding)
+                                
+                                file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + raw_text, truncation=True, max_length=12000)['input_ids'])
+
+                                if file_tokens >= max_tokens:
+                                    
+                                    attachment_text += f"\n\n{file_name} is too large for you to view, but it has still been saved to the directory if you'd like to use Python REPL to interact with it. Here is a preview of the file:\n--- {file_name} ---\n\n{raw_text[:100]} [...]"
+                                    
+                                else:
+                                    attachment_text += f"\n\n{file_name} has been saved to the working directory\n--- {file_name} ---\n\n{attachment_bytes.decode(encoding)}"
+                                    
+                                file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
+                                
+                            except:
+                                embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {user_mention} the attachment\'s file type is unknown. consider converting it to plain text such as `.txt`.', color=discord.Color.dark_theme())
+                                await message.channel.send(embed=embed)
+                                return
                 
                 guild_prompt = ConversationalAgent.create_prompt(
                     tools=tools,
