@@ -179,47 +179,8 @@ async def on_message(message):
         prompt = prompt.strip()
         
         attachment_text = ''
-        
-        if attachments != []:
-            for file in attachments:
-                
-                file_type = file.content_type
-                
-                if file_type in ('image/jpeg', 'image/jpg', 'image/png'):
-                    attachment_text += f"\n\nimage attached: (use Recognize Image tool): {file.url}"
-                
-                elif file_type == "text/plain": #txt
-                    attachment_bytes = await file.read()
-                    # Detect encoding
-                    detected = chardet.detect(attachment_bytes)
-                    encoding = detected['encoding']
-                    # Decode using the detected encoding
-                    attachment_text += f"\n\n{attachment_bytes.decode(encoding)}"
-                    
-                elif file_type == "application/pdf": #pdf
-
-                    pdf_file = io.BytesIO(attachment_bytes)
-                    pdf_reader = PyPDF2.PdfReader(pdf_file)
-                    pdf_content = ""
-                    for page in range(len(pdf_reader.pages)):
-                        page_text = pdf_reader.pages[page].extract_text()
-                        # Replace multiple newlines with a single space
-                        page_text = re.sub(r'\n+', ' ', page_text)
-                        pdf_content += page_text
-                    attachment_text += f"\n\n{pdf_content}"
-                    
-                else:
-                    try:
-                        # Detect encoding
-                        detected = chardet.detect(attachment_bytes)
-                        encoding = detected['encoding']
-                        # Decode using the detected encoding
-                        attachment_text += f"\n\n{attachment_bytes.decode(encoding)}"
-                        
-                    except:
-                        embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {user_mention} the attachment\'s file type is unknown. consider converting it to plain text such as `.txt`.', color=discord.Color.dark_theme())
-                        await message.channel.send(embed=embed)
-                        return
+        file_placeholder = ''
+        blip_text = ''
             
         async with message.channel.typing():
             
@@ -230,6 +191,11 @@ async def on_message(message):
             #temperature = user_settings.get(id, {}).get('temperature', 0.5)
             temperature = 0.5
             
+            max_tokens = 4096
+            
+            if chat_model == "gpt-4":
+                max_tokens = 8192
+            
             if result != None:
                 openai.api_key=result
                 openai_key=result
@@ -238,6 +204,130 @@ async def on_message(message):
                 embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {user_mention} Use `/setup` to register API key first or `/help` for more info. You can find your API key at [openai.com](https://beta.openai.com).', color=discord.Color.dark_theme())
                 await message.channel.send(embed=embed)
                 return
+            
+            if attachments != []:
+                for file in attachments:
+                    
+                    file_type = file.content_type
+                    attachment_bytes = await file.read()
+                    file_name = file.filename
+                    
+                    with open(f'{file_name}', 'wb') as f:
+                        f.write(attachment_bytes)
+                    
+                    if file_type in ('image/jpeg', 'image/jpg', 'image/png'):
+                        blip_text += f"\n\n{file_name} attached and saved to working directory: {file.url}"
+                        file_placeholder += f"\n\n:frame_photo: **{file_name}**"
+                    
+                    elif "text/plain" in file_type: #txt
+                        # Detect encoding
+                        detected = chardet.detect(attachment_bytes)
+                        encoding = detected['encoding']
+                        # Decode using the detected encoding
+                        raw_text = attachment_bytes.decode(encoding)
+                        
+                        file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + raw_text, truncation=True, max_length=12000)['input_ids'])
+
+                        if file_tokens >= max_tokens:
+                            
+                            attachment_text += f"\n\n{file_name} is too large for you to view, but it has still been saved to the directory if you'd like to use Python REPL to interact with it. Here is a preview of the file:\n--- {file_name} ---\n\n{raw_text[:100]} [...]"
+                            
+                        else:
+                            attachment_text += f"\n\n{file_name} has been saved to the working directory\n--- {file_name} ---\n\n{attachment_bytes.decode(encoding)}"
+                            
+                        file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
+                        
+                    elif "application/vnd.openxmlformats-officedocument.wordprocessingml.document" in file_type: #docx
+                        
+                        file_like_object = io.BytesIO(attachment_bytes)
+                        
+                        doc = Document(file_like_object)
+                        full_text = []
+                        for para in doc.paragraphs:
+                            full_text.append(para.text)
+                        raw_text = "\n".join(full_text)
+                        
+                        file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + raw_text, truncation=True, max_length=12000)['input_ids'])
+
+                        if file_tokens >= max_tokens:
+                            
+                            attachment_text += f"\n\n{file_name} is too large for you to view, but it has still been saved to the directory if you'd like to use Python REPL to interact with it. Here is a preview of the file:\n--- {file_name} ---\n\n{raw_text[:100]} [...]"
+                            
+                        else:
+                            attachment_text += f"\n\n{file_name} has been saved to the working directory\n--- {file_name} ---\n\n{raw_text}"
+
+                        file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
+                    
+                    elif "application/pdf" in file_type: #pdf
+
+                        pdf_file = io.BytesIO(attachment_bytes)
+                        pdf_reader = PyPDF2.PdfReader(pdf_file)
+                        pdf_content = ""
+                        for page in range(len(pdf_reader.pages)):
+                            page_text = pdf_reader.pages[page].extract_text()
+                            # Replace multiple newlines with a single space
+                            page_text = re.sub(r'\n+', ' ', page_text)
+                            pdf_content += page_text
+                            
+                        file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + pdf_content, truncation=True, max_length=12000)['input_ids'])
+
+                        if file_tokens >= max_tokens:
+                            
+                            attachment_text += f"\n\n{file_name} is too large for you to view, but it has still been saved to the directory if you'd like to use Python REPL to interact with it. Here is a preview of the file:\n--- {file_name} ---\n\n{pdf_content[:100]} [...]"
+                            
+                        else:
+                            attachment_text += f"\n\n{file_name} has been saved to the working directory\n--- {file_name} ---\n\n{pdf_content}"
+                            
+                        file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
+                        
+                    elif "text/csv" in file_type: #csv
+                        
+                        try:
+                            # Detect encoding
+                            detected = chardet.detect(attachment_bytes)
+                            encoding = detected['encoding']
+                            # Decode using the detected encoding
+                            raw_text = attachment_bytes.decode(encoding)
+                                
+                            data = pd.read_csv(file_name)
+                            
+                            attachment_text += f"\n\n{file_name} has been saved to the working directory. Here is a preview of the file head:\n--- {file_name} ---\n\n{data.head()}"
+                                
+                            file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
+                        except:
+                            # Detect encoding
+                            detected = chardet.detect(attachment_bytes)
+                            encoding = detected['encoding']
+                            # Decode using the detected encoding
+                            raw_text = attachment_bytes.decode(encoding)
+                            
+                            attachment_text += f"\n\n{file_name} is too large for you to view, but it has still been saved to the directory if you'd like to use Python REPL to interact with it. Here is a preview of the file:\n--- {file_name} ---\n\n{raw_text[:100]} [...]"
+                            
+                            file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
+                        
+                    else:
+                        try:
+                            # Detect encoding
+                            detected = chardet.detect(attachment_bytes)
+                            encoding = detected['encoding']
+                            # Decode using the detected encoding
+                            raw_text = attachment_bytes.decode(encoding)
+                            
+                            file_tokens = len(tokenizer(prefix + custom_format_instructions + suffix + raw_text, truncation=True, max_length=12000)['input_ids'])
+
+                            if file_tokens >= max_tokens:
+                                
+                                attachment_text += f"\n\n{file_name} is too large for you to view, but it has still been saved to the directory if you'd like to use Python REPL to interact with it. Here is a preview of the file:\n--- {file_name} ---\n\n{raw_text[:100]} [...]"
+                                
+                            else:
+                                attachment_text += f"\n\n{file_name} has been saved to the working directory\n--- {file_name} ---\n\n{attachment_bytes.decode(encoding)}"
+                                
+                            file_placeholder += f"\n\n:page_facing_up: **{file_name}**"
+                            
+                        except:
+                            embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {user_mention} the attachment\'s file type is unknown. consider converting it to plain text such as `.txt`.', color=discord.Color.dark_theme())
+                            await message.channel.send(embed=embed)
+                            return
             
             text_splitter = TokenTextSplitter()
             logical_llm = ChatOpenAI(
@@ -248,9 +338,15 @@ async def on_message(message):
                 request_timeout=600,
                 )
             
+            async def parse_organic_results_input(url_comma_question):
+                #a, b = url_comma_question.split(",", maxsplit=1)
+                #answer = await get_organic_results(query=a, recency_days=int(b), llm=logical_llm)
+                answer = await get_organic_results(query=url_comma_question, recency_days=None, llm=logical_llm)
+                return f"{answer}"
+            
             async def parse_qa_webpage_input(url_comma_question):
                 a, b = url_comma_question.split(",", maxsplit=1)
-                answer = await question_answer_webpage(a, b, llm=logical_llm)
+                answer = await question_answer_webpage(url=a, question=b, llm=logical_llm)
                 return f"{answer}\n"
             
             async def parse_summary_webpage_input(url):
@@ -260,6 +356,11 @@ async def on_message(message):
             async def parse_blip_recognition(url_comma_question):
                 a, b = url_comma_question.split(",", maxsplit=1)
                 output = await get_full_blip(image_url=a, question=b)
+                return output
+            
+            async def parse_view_webpage_input(url_comma_page_index):
+                a, b = url_comma_page_index.split(",", maxsplit=1)
+                output = await view_webpage_window(url=a, span_index=int(b))
                 return output
             
             # STRINGIFY ACTIVE USERS
@@ -296,9 +397,9 @@ async def on_message(message):
                     raise NotImplementedError("This tool only supports async")
                 
                 tools.append(Tool(
-                    name = "Organic Results",
+                    name = "Search",
                     func=dummy_sync_function,
-                    coroutine=get_organic_results,
+                    coroutine=parse_organic_results_input,
                     description=ORGANIC_RESULTS_CHAT_TOOL_DESCRIPTION,
                 ))
                 """
@@ -308,23 +409,30 @@ async def on_message(message):
                     coroutine=parse_summary_webpage_input,
                     description=SUMMARIZE_WEBPAGE_CHAT_TOOL_DESCRIPTION,
                 ))
-                """
+                
                 tools.append(Tool(
-                    name = "Q&A Webpage",
+                    name = "Query Webpage",
                     func=dummy_sync_function,
                     coroutine=parse_qa_webpage_input,
                     description=QA_WEBPAGE_CHAT_TOOL_DESCRIPTION,
                 ))
+                """
+                tools.append(Tool(
+                    name = "Webpage",
+                    func=dummy_sync_function,
+                    coroutine=parse_view_webpage_input,
+                    description=WEBPAGE_WINDOW_ASK_TOOL_DESCRIPTION,
+                ))
                 
                 tools.append(Tool(
-                    name = "Recognize Image",
+                    name = "Vision",
                     func=dummy_sync_function,
                     coroutine=parse_blip_recognition,
                     description=RECOGNIZE_IMAGE_CHAT_TOOL_DESCRIPTION,
                 ))
-
+                
                 tools.append(Tool(
-                    name = "Image Search",
+                    name = "Images",
                     func=dummy_sync_function,
                     coroutine=get_image_from_search,
                     description=IMAGE_SEARCH_CHAT_TOOL_DESCRIPTION,
@@ -846,7 +954,7 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         ))
         """
         tools.append(Tool(
-            name = "Webpage Window",
+            name = "Webpage",
             func=dummy_sync_function,
             coroutine=parse_view_webpage_input,
             description=WEBPAGE_WINDOW_ASK_TOOL_DESCRIPTION,
@@ -895,8 +1003,6 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
                 attachment_bytes = await file.read()
                 file_type = file.content_type
                 file_name = file.filename
-                
-                logging.info(file_type)
                 
                 with open(f'{file_name}', 'wb') as f:
                     f.write(attachment_bytes)
