@@ -467,7 +467,7 @@ async def on_message(message):
                     
                     guild_memory = ConversationSummaryBufferMemory(
                         llm=chat_llm,
-                        max_token_limit=256,
+                        max_token_limit=1024,
                         memory_key="chat_history",
                         input_key="input",
                         ai_prefix = f"Iva",
