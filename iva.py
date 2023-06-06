@@ -532,27 +532,36 @@ async def on_message(message):
                         embed = discord.Embed(description=f'<:ivanotify:1051918381844025434> {user_mention} `{type(e).__name__}` {e}\n\nuse `/help` or seek https://discord.com/channels/1053335631159377950/1053336180692897943 if the issue persists.')
                         await message.channel.send(embed=embed)
                         return
-                    
-                reply = reply.replace("Iva: ", "")
-                reply = reply.replace("Do I need to use a tool? No", "")
-                
-                if len(reply) > 2000:
-                    embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
-                    await message.channel.send(embed=embed)
-                    return
-                else:
-                    await message.channel.send(content=f"{reply}", files=files)
-                
-                chat_mems[channel_id] = guild_memory
-                
-                await save_pickle_to_redis('active_users', active_users)
-                await save_pickle_to_redis('chat_mems', chat_mems)
-                
+
             except Exception as e:
                 logging.error(e)
                 embed = discord.Embed(description=f'error', color=discord.Color.dark_theme())
                 await message.channel.send(embed=embed)
                 return
+        try:
+            
+            reply = reply.replace("Iva: ", "")
+            reply = reply.replace("Do I need to use a tool? No", "")
+            
+            if len(reply) > 2000:
+                embed = discord.Embed(description=reply, color=discord.Color.dark_theme())
+                await message.channel.send(embed=embed)
+                return
+            else:
+                await message.channel.send(content=f"{reply}", files=files)
+            
+            chat_mems[channel_id] = guild_memory
+            
+            await save_pickle_to_redis('active_users', active_users)
+            await save_pickle_to_redis('chat_mems', chat_mems)
+        
+        except Exception as e:
+            logging.error(e)
+            embed = discord.Embed(description=f'error', color=discord.Color.dark_theme())
+            await message.channel.send(embed=embed)
+            return
+                
+
     return
 
 class Opt(discord.ui.View):
