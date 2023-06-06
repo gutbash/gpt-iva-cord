@@ -459,7 +459,7 @@ async def on_message(message):
                 if chat_mems[channel_id] != None:
                     
                     guild_memory = chat_mems[channel_id]
-                    guild_memory.max_token_limit = 256
+                    guild_memory.max_token_limit = 2000
                     guild_memory.ai_prefix = f"Iva"
                     guild_memory.human_prefix = f""
                     
@@ -467,7 +467,7 @@ async def on_message(message):
                     
                     guild_memory = ConversationSummaryBufferMemory(
                         llm=chat_llm,
-                        max_token_limit=1024,
+                        max_token_limit=2000,
                         memory_key="chat_history",
                         input_key="input",
                         ai_prefix = f"Iva",
