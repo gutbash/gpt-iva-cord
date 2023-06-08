@@ -55,6 +55,8 @@ async def get_ask_custom_format_instructions(tool_names):
     ask_custom_format_instructions = f"""
     RESPONSE FORMAT:
     ---
+    Replace the square brackets with your input.
+    
     1. To use a tool, please use the following format:
     
     Thought: Do I need to use a tool? Yes
@@ -104,7 +106,6 @@ async def get_chat_prefix(active_names, itis):
     
     TOOLS:
     ---
-    
     You have access to the following tools:
     """
     return chat_prefix
@@ -114,6 +115,8 @@ async def get_chat_custom_format_instructions(tool_names, user_name):
     chat_custom_format_instructions = f"""
     RESPONSE FORMAT:
     ---
+    Replace the square brackets with your input.
+    
     1. To use a tool, please use the following format:
 
     Thought: Do I need to use a tool? Yes
