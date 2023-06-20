@@ -187,7 +187,7 @@ async def on_message(message):
             result = await fetch_key(id)
             user_settings = await load_pickle_from_redis('user_settings')
             
-            chat_model = user_settings.get(id, {}).get('model', 'gpt-3.5-turbo')
+            chat_model = user_settings.get(id, {}).get('model', 'gpt-3.5-turbo-0613')
             #temperature = user_settings.get(id, {}).get('temperature', 0.5)
             temperature = 0.5
             
@@ -1596,7 +1596,6 @@ async def setup(interaction, key: str = None):
         app_commands.Choice(name="gpt-3.5-turbo-4k ($0.002 / 1k tokens)", value="gpt-3.5-turbo-0613"),
         app_commands.Choice(name="gpt-3.5-turbo-16k ($0.004 / 1k tokens)", value="gpt-3.5-turbo-16k-0613"),
         app_commands.Choice(name="gpt-4-8k ($0.06 / 1k tokens)", value="gpt-4-0613"),
-        app_commands.Choice(name="gpt-4-32k ($0.12 / 1k tokens)", value="gpt-4-32k-0613"),
     ])
 async def model(interaction, choices: app_commands.Choice[str] = None):
     
@@ -1618,9 +1617,9 @@ async def model(interaction, choices: app_commands.Choice[str] = None):
         try:
             current_model = user_settings.get(id)["model"]
         except KeyError:
-            current_model = "gpt-3.5-turbo"
+            current_model = "gpt-3.5-turbo-0613"
         except TypeError:
-            current_model = "gpt-3.5-turbo"
+            current_model = "gpt-3.5-turbo-0613"
             
         embed = discord.Embed(description=f"<:ivamodel:1096498759040520223> **Current Model:** `{current_model}`", color=discord.Color.dark_theme())
     
