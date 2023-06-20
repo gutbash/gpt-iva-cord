@@ -767,13 +767,11 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         
         ask_mems.setdefault(channel_id, {}).setdefault(user_id, default_user_data)
         
-        chat_model = user_settings.get(user_id, {}).get('model', 'gpt-3.5-turbo')
+        chat_model = user_settings.get(user_id, {}).get('model', 'gpt-3.5-turbo-0613')
         temperature = user_settings.get(user_id, {}).get('temperature', 0.5)
         
         if chat_model == "gpt-4-0613":
             max_tokens = 8192
-        elif chat_model == "gpt-4-32k-0613":
-            max_tokens = 32768
         elif chat_model == "gpt-3.5-turbo-0613":
             max_tokens = 4096
         elif chat_model == "gpt-3.5-turbo-16k-0613":
