@@ -770,10 +770,16 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         chat_model = user_settings.get(user_id, {}).get('model', 'gpt-3.5-turbo')
         temperature = user_settings.get(user_id, {}).get('temperature', 0.5)
         
-        max_tokens = 4096
-        
-        if chat_model == "gpt-4":
+        if chat_model == "gpt-4-0613":
             max_tokens = 8192
+        elif chat_model == "gpt-4-32k-0613":
+            max_tokens = 32768
+        elif chat_model == "gpt-3.5-turbo-0613":
+            max_tokens = 4096
+        elif chat_model == "gpt-3.5-turbo-16k-0613":
+            max_tokens = 16384
+        else:
+            max_tokens = 4096
         
         # Get the current timestamp
         timestamp = datetime.datetime.now()
@@ -1589,9 +1595,10 @@ async def setup(interaction, key: str = None):
         
 @tree.command(name = "model", description="choose a completion model")
 @app_commands.choices(choices=[
-        app_commands.Choice(name="gpt-3.5 ($0.002 / 1k tokens)", value="gpt-3.5-turbo"),
-        app_commands.Choice(name="gpt-4 ($0.06 / 1k tokens)", value="gpt-4"),
-        app_commands.Choice(name="text-davinci-003 ($0.02 / 1k tokens)", value="text-davinci-003"),
+        app_commands.Choice(name="gpt-3.5-turbo-4k ($0.002 / 1k tokens)", value="gpt-3.5-turbo-0613"),
+        app_commands.Choice(name="gpt-3.5-turbo-16k ($0.004 / 1k tokens)", value="gpt-3.5-turbo-16k-0613"),
+        app_commands.Choice(name="gpt-4-8k ($0.06 / 1k tokens)", value="gpt-4-0613"),
+        app_commands.Choice(name="gpt-4-32k ($0.12 / 1k tokens)", value="gpt-4-32k-0613"),
     ])
 async def model(interaction, choices: app_commands.Choice[str] = None):
     
