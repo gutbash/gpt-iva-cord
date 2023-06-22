@@ -767,14 +767,14 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         
         ask_mems.setdefault(channel_id, {}).setdefault(user_id, default_user_data)
         
-        chat_model = user_settings.get(user_id, {}).get('model', 'gpt-3.5-turbo-0613')
+        chat_model = user_settings.get(user_id, {}).get('model', 'gpt-3.5-turbo')
         temperature = user_settings.get(user_id, {}).get('temperature', 0.5)
         
-        if chat_model == "gpt-4-0613":
+        if chat_model == "gpt-4":
             max_tokens = 8192
-        elif chat_model == "gpt-3.5-turbo-0613":
+        elif chat_model == "gpt-3.5-turbo":
             max_tokens = 4096
-        elif chat_model == "gpt-3.5-turbo-16k-0613":
+        elif chat_model == "gpt-3.5-turbo-16k":
             max_tokens = 16384
         else:
             max_tokens = 4096
@@ -1593,9 +1593,9 @@ async def setup(interaction, key: str = None):
         
 @tree.command(name = "model", description="choose a completion model")
 @app_commands.choices(choices=[
-        app_commands.Choice(name="gpt-3.5-turbo-4k ($0.002 / 1k tokens)", value="gpt-3.5-turbo-0613"),
-        app_commands.Choice(name="gpt-3.5-turbo-16k ($0.004 / 1k tokens)", value="gpt-3.5-turbo-16k-0613"),
-        app_commands.Choice(name="gpt-4-8k ($0.06 / 1k tokens)", value="gpt-4-0613"),
+        app_commands.Choice(name="gpt-3.5-turbo-4k ($0.002 / 1k tokens)", value="gpt-3.5-turbo"),
+        app_commands.Choice(name="gpt-3.5-turbo-16k ($0.004 / 1k tokens)", value="gpt-3.5-turbo-16k"),
+        app_commands.Choice(name="gpt-4-8k ($0.06 / 1k tokens)", value="gpt-4"),
     ])
 async def model(interaction, choices: app_commands.Choice[str] = None):
     
@@ -1617,9 +1617,9 @@ async def model(interaction, choices: app_commands.Choice[str] = None):
         try:
             current_model = user_settings.get(id)["model"]
         except KeyError:
-            current_model = "gpt-3.5-turbo-0613"
+            current_model = "gpt-3.5-turbo"
         except TypeError:
-            current_model = "gpt-3.5-turbo-0613"
+            current_model = "gpt-3.5-turbo"
             
         embed = discord.Embed(description=f"<:ivamodel:1096498759040520223> **Current Model:** `{current_model}`", color=discord.Color.dark_theme())
     
