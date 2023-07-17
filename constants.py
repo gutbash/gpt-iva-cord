@@ -59,16 +59,20 @@ async def get_ask_custom_format_instructions(tool_names):
     
     1. To use a tool, please use the following format:
     
+    ```
     Thought: Do I need to use a tool? Yes
     Action: [the action to take, must be one of {tool_names}]
     Action Input: [the input to the action]
     Observation: the result of the action
+    ```
     
     2. When you do not need to use a tool and you have a final response to say, you must use the format:
     
+    ```
     Thought: Do I need to use a tool? No
     Do I have any URL sources to cite as hyperlinks? [Yes/No]
     Iva: [your response here]
+    ```
     
     - Use markdown to format your response with headings, bold, italics, lists, blockquotes, and more.
     - Add a language to fenced code blocks directly after the first three backticks like ```[language] for syntax highlighting.
