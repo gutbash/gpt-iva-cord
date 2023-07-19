@@ -43,6 +43,8 @@ Iva cites any sources utilized to give users the power to explore and verify inf
 Drag and drop your file in context. Iva will process pretty much any popular file type (`.txt`, `.pdf`, `.py`, `.cs`, etc.) for debugging, Q&A, and more.
 ### :link: **Link Input**
 Send `.pdf` or article URLs to Iva with *no length limit*. Iva will perform summarization and/or Q&A on the content for uncompromised results.
+### :laptop: **Code Interpreter**
+Run and complete tasks through a Python REPL.
 ### :brain: **Persistent Seamless Memory**
 Iva's memory never runs into length limits, and retains the chat history. Pick up where you left off and refer to previous chat events.
 ### :busts_in_silhouette: **Group Conversations**
