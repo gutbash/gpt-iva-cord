@@ -4,8 +4,6 @@ An academic research project that aims to extend the capabilities of the [OpenAI
 
 This bot uses the [LangChain](https://python.langchain.com/en/latest/) framework for interacting with [OpenAI Python Library](https://github.com/openai/openai-python). It is interfaced through the [discord.py](https://discordpy.readthedocs.io/) API wrapper.
 
-[iva.gg](https://iva.gg/)
-
 ## Commands
 There are two separate ways to talk to iva, both with their own conversation history: `@iva` and `/iva`.
 
