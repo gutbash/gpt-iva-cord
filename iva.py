@@ -191,6 +191,9 @@ async def on_message(message):
             #temperature = user_settings.get(id, {}).get('temperature', 0.5)
             temperature = 0.5
             
+            if chat_model == "gpt-3.5-turbo-0613":
+                chat_model = "gpt-3.5-turbo"
+            
             max_tokens = 4096
             
             if chat_model == "gpt-4":
@@ -769,6 +772,9 @@ async def iva(interaction: discord.Interaction, prompt: str, file_one: discord.A
         
         chat_model = user_settings.get(user_id, {}).get('model', 'gpt-3.5-turbo')
         temperature = user_settings.get(user_id, {}).get('temperature', 0.5)
+        
+        if chat_model == "gpt-3.5-turbo-0613":
+            chat_model = "gpt-3.5-turbo"
         
         if chat_model == "gpt-4":
             max_tokens = 8192
