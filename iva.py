@@ -187,7 +187,7 @@ async def on_message(message):
             result = await fetch_key(id)
             user_settings = await load_pickle_from_redis('user_settings')
             
-            chat_model = user_settings.get(id, {}).get('model', 'gpt-3.5-turbo-0613')
+            chat_model = user_settings.get(id, {}).get('model', 'gpt-3.5-turbo')
             #temperature = user_settings.get(id, {}).get('temperature', 0.5)
             temperature = 0.5
             
