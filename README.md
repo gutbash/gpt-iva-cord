@@ -1,6 +1,6 @@
 # iva
 
-A research project that aims to extend the capabilities of the [OpenAI](https://platform.openai.com/overview) large language models.
+A project that aims to extend the capabilities of the [OpenAI](https://platform.openai.com/overview) large language models.
 
 This bot uses the [LangChain](https://python.langchain.com/en/latest/) framework for interacting with [OpenAI Python Library](https://github.com/openai/openai-python). It is interfaced through the [discord.py](https://discordpy.readthedocs.io/) API wrapper.
 
